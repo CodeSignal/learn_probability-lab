@@ -78,7 +78,7 @@ Every application should include these files in the following order:
 ## JavaScript Implementation
 
 1. HELP MODAL SETUP:
-   a) Create help content using help-content-template.html as reference
+   a) Create help content using help-content.html as reference
    b) Initialize HelpModal with:
       - triggerSelector: `'#btn-help'`
       - content: your help content (string or loaded from file)

@@ -1,37 +1,97 @@
 # Repository Guidelines
 
-This repository contains a template for building embedded applications using
-the Bespoke Simulation framework. For complete template documentation, see
-[BESPOKE-TEMPLATE.md](./BESPOKE-TEMPLATE.md).
+This repository contains the **CodeSignal Probability Lab** — a Bespoke Simulation for repeated-trial probability experiments (coin, die, spinner) that visualizes convergence: as you run more trials, relative frequencies become more stable and tend to approach theoretical probabilities.
 
 ## Overview
 
-This template provides:
-- CodeSignal Design System integration
-- Consistent layout components (header, sidebar, main content area)
-- Help modal system
-- Local development server with WebSocket support
-- Standardized file structure and naming conventions
+The Probability Lab is an educational simulation that helps students understand:
 
-## Quick Start
+- **Sample space** (all possible outcomes)
+- **Events** (subsets of outcomes)
+- **Theoretical probability** (what "should" happen in the long run)
+- **Experimental probability** (what your data shows)
+- **Convergence** (how estimates stabilize with more trials)
 
-1. **Customize the HTML template** (`client/index.html`):
-   - Replace `<!-- APP_TITLE -->` with your page title
-   - Replace `<!-- APP_NAME -->` with your app name
-   - Add your main content at `<!-- APP_SPECIFIC_MAIN_CONTENT -->`
-   - Add app-specific CSS links at `<!-- APP_SPECIFIC_CSS -->`
-   - Add app-specific JavaScript at `<!-- APP_SPECIFIC_SCRIPTS -->`
+### Key Features
 
-2. **Create your application files**:
-   - App-specific CSS (e.g., `my-app.css`)
-   - App-specific JavaScript (e.g., `my-app.js`)
-   - Help content (based on `help-content-template.html`)
+- **One event mode**: Event builder (select outcomes), live bar chart, convergence chart, frequency table
+- **Two events mode**: Joint heatmap + two-way table; click a cell to see joint and conditional probabilities
+- **Bias controls**: Explore fair vs biased devices (coin, die, spinner)
+- **Seeded randomness**: Optionally reproduce runs with a seed
+- **Device types**: Coin, die, spinner (with configurable sectors)
+- **Event relationships**: Independent, copy (B = A), complement (B = not A)
 
-3. **Start the development server**:
-   ```bash
-   npm start
-   ```
-   Server runs on `http://localhost:3000`
+## Project Structure
+
+### Current Structure
+
+```
+client/
+  ├── index.html                          # Main HTML template
+  ├── app.js                              # App shell initialization (WebSocket, help modal)
+  ├── codesignal-probability-lab.js       # Main orchestration file
+  ├── codesignal-probability-lab.css      # App-specific styling
+  ├── bespoke-template.css                # Template-specific styles
+  ├── help-content.html                   # Help modal content
+  ├── config.json                         # Runtime configuration (mode, device)
+  ├── src/                                # Modular source code
+  │   ├── shell/                          # App shell (status, websocket, help, config)
+  │   ├── shared/                         # Shared utilities (math, format)
+  │   └── probability-lab/                # Probability Lab modules
+  │       ├── domain/                     # Domain logic (RNG, CDF, devices)
+  │       ├── engine/                     # Simulation engine (runner, simulate-single, simulate-two)
+  │       ├── state/                      # State management (store)
+  │       └── ui/                         # UI rendering (charts, tables, device-view, render)
+  └── design-system/                      # CodeSignal Design System
+      ├── colors/
+      ├── spacing/
+      ├── typography/
+      └── components/
+server.js                                  # Development server (Vite + API)
+```
+
+## Architecture Notes
+
+### Current State
+
+- **Modular ES module architecture**: `codesignal-probability-lab.js` serves as the main orchestration file
+- **ES modules**: All code uses ES modules with explicit imports/exports
+- **Vite setup**: Using Vite for development with full ES module support and dependency graph benefits
+- **Design System**: Modal component and all app code use ES modules with direct imports
+
+### Key Components
+
+- **Simulation engine**: Pure functions for single and two-event trials (`engine/simulate-single.js`, `engine/simulate-two.js`, `engine/runner.js`)
+- **Rendering**: Charts (bar, line, heatmap), tables (frequency, two-way), device visualization (in `ui/` directory)
+- **State management**: Explicit store pattern with `createStore` providing `getState`, `setState`, and `subscribe` methods (`state/store.js`)
+- **Domain logic**: Pure utilities for RNG, CDF, and device definitions (`domain/`)
+- **Configuration**: Runtime configuration via `config.json` loaded at startup (`shell/config.js`). Supports mode (`single`/`two`) and device selection (`coin`/`die`/`spinner`). Falls back to defaults if config is missing or invalid.
+
+### Configuration
+
+The application loads configuration from `client/config.json` at startup. The configuration file supports:
+
+**Single mode** (`mode: "single"`):
+```json
+{
+  "mode": "single",
+  "device": "coin"
+}
+```
+
+**Two-event mode** (`mode: "two"`):
+```json
+{
+  "mode": "two",
+  "deviceA": "coin",
+  "deviceB": "die"
+}
+```
+
+- Valid modes: `"single"`, `"two"`
+- Valid devices: `"coin"`, `"die"`, `"spinner"`
+- Configuration is validated on load; invalid values fall back to defaults (`mode: "single"`, `device: "coin"`)
+- If `config.json` is missing or fails to load, the app uses default configuration
 
 ## Key Conventions
 
@@ -47,32 +107,66 @@ Use these exact status messages for consistency:
 - "Failed to load data" - Data loading failed
 - "Auto-save initialized" - Auto-save system started
 
-### File Naming
+### DOM Element IDs
 
-- CSS files: kebab-case (e.g., `my-app.css`)
-- JavaScript files: kebab-case (e.g., `my-app.js`)
-- Data files: kebab-case (e.g., `solution.json`)
-- Image files: kebab-case (e.g., `overview.png`)
+All Probability Lab-specific DOM elements use the `pl-` prefix:
 
-### Error Handling
+- Mode/configuration: `pl-mode`, `pl-single-config`, `pl-two-config`
+- Devices: `pl-device`, `pl-device-a`, `pl-device-b`
+- Controls: `pl-reset`, `pl-step`, `pl-step-size`, `pl-plus-1`, `pl-plus-10`, `pl-plus-100`, `pl-plus-1000`, `pl-auto`, `pl-speed`
+- Seed: `pl-seed`, `pl-apply-seed`, `pl-randomize-seed`
+- Event: `pl-event-card`, `pl-event-outcomes`, `pl-event-est`, `pl-event-theory`
+- Visualization: `pl-device-view`, `pl-trials`, `pl-last`
+- Charts: `pl-bar-chart`, `pl-line-chart`, `pl-heatmap`
+- Tables: `pl-frequency-table`, `pl-twoway-table`, `pl-cell-summary`
 
-- Wrap all async operations in try-catch blocks
-- Provide meaningful error messages to users
-- Log errors to console for debugging
-- Implement retry logic for network operations
-- Handle localStorage quota exceeded errors
-- Validate data before saving operations
+### Device Types
+
+- **Coin**: Two outcomes (Heads, Tails)
+- **Die**: Six outcomes (1-6)
+- **Spinner**: Configurable sectors (2-10)
+
+### Modes
+
+- **One event**: Single sample space, event builder, bar chart, convergence chart, frequency table
+- **Two events**: Two sample spaces, joint heatmap, two-way table, conditional probabilities
+
+### Event Relationships (Two Events Mode)
+
+- **Independent**: Events A and B are independent
+- **Copy**: B = A (same outcome)
+- **Complement**: B = not A (opposite outcome)
+
+### Chart Types
+
+- **Bar chart**: Relative frequency of each outcome
+- **Line chart**: Convergence of estimated P(E) over trials
+- **Heatmap**: Joint relative frequencies for two events
+
+### Table Types
+
+- **Frequency table**: Theoretical probability, count, relative frequency, difference (Δ) for each outcome
+- **Two-way table**: Joint counts and probabilities for two events
 
 ## Development Workflow
 
-### Build and Test
+### Development Server
 
 ```bash
-# Start development server
-npm start
+# Start development server (Vite + API server)
+npm run start:dev
+```
 
-# Development mode (same as start)
-npm run dev
+Opens `http://localhost:3000` (Vite dev server) with API server on port 3001.
+
+### Production Build
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm run start:prod
 ```
 
 ### WebSocket Messaging
@@ -80,52 +174,38 @@ npm run dev
 The server provides a `POST /message` endpoint for real-time messaging:
 
 ```bash
-curl -X POST http://localhost:3000/message \
+curl -X POST http://localhost:3001/message \
   -H "Content-Type: application/json" \
   -d '{"message": "Your message here"}'
 ```
 
-This sends alerts to connected clients. Requires `ws` package:
-```bash
-npm install
-```
+This sends alerts to connected clients via WebSocket.
 
-## Template Documentation
+## Error Handling
 
-For detailed information about:
-- Design System usage and components
-- CSS implementation guidelines
-- JavaScript API (HelpModal, status management)
-- Component reference and examples
-- Customization options
+- Wrap all async operations in try-catch blocks
+- Provide meaningful error messages to users
+- Log errors to console for debugging
+- Implement retry logic for network operations
+- Validate data before operations
 
-See [BESPOKE-TEMPLATE.md](./BESPOKE-TEMPLATE.md).
+## Design System
 
-## Project Structure
+The Probability Lab uses the CodeSignal Design System. For component usage and styling guidelines, see:
 
-```
-client/
-  ├── index.html              # Main HTML template
-  ├── app.js                  # Application logic
-  ├── bespoke-template.css    # Template-specific styles
-  ├── help-modal.js           # Help modal system
-  ├── help-content-template.html  # Help content template
-  └── design-system/          # CodeSignal Design System
-      ├── colors/
-      ├── spacing/
-      ├── typography/
-      └── components/
-server.js                      # Development server
-```
+- [BESPOKE-TEMPLATE.md](./BESPOKE-TEMPLATE.md) - Template documentation with Design System reference
+- `client/design-system/` - Design System source files
+
+Key Design System components used:
+- Modal (help system)
+- Button, Input, Dropdown (controls)
+- Box/Card (content containers)
+- Typography, Colors, Spacing (styling)
 
 ## Notes for AI Agents
 
-When working on applications built with this template:
+When working on the Probability Lab:
 
-1. **Always reference BESPOKE-TEMPLATE.md** for template-specific
-   implementation details
-2. **Follow the conventions** listed above for status messages and file naming
-3. **Use Design System components** directly - see BESPOKE-TEMPLATE.md for
-   component classes and usage
-4. **Maintain consistency** with the template's structure and patterns
-5. **Keep guidelines up to date** by editing this AGENTS.md file as the codebase evolves
+1. **Use Design System components** directly
+2. **Maintain consistency** with existing patterns and structure
+3. **Keep guidelines up to date** by editing this AGENTS.md file as the codebase evolves

@@ -1,7 +1,7 @@
 {
-  "name": "bespoke-template",
-  "version": "0.0.2",
-  "description": "Bespoke template with local development server and WebSocket messaging",
+  "name": "codesignal-probability-lab",
+  "version": "0.1.0",
+  "description": "CodeSignal Probability Lab — a convergence-focused probability simulator (coin/die/spinner)",
   "main": "server.js",
   "scripts": {
     "start": "npm run start:prod",
@@ -9,7 +9,8 @@
     "start:dev": "concurrently \"npm run dev:vite\" \"npm run dev:api\"",
     "dev:vite": "vite",
     "dev:api": "PORT=3001 node server.js",
-    "build": "vite build"
+    "build": "vite build",
+    "test": "vitest"
   },
   "keywords": [
     "bespoke",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vitest": "^2.1.8"
   }
 }
