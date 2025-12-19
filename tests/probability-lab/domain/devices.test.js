@@ -22,28 +22,57 @@ describe('buildDeviceDefinition', () => {
       expect(def.labels).toEqual(['Heads', 'Tails']);
     });
 
-    it('pHeads clamped correctly (default 0.5)', () => {
+    it('default probabilities are equal (0.5 each)', () => {
       const def = buildDeviceDefinition({ device: 'coin' });
       expect(def.probabilities[0]).toBeCloseTo(0.5, 10);
       expect(def.probabilities[1]).toBeCloseTo(0.5, 10);
     });
 
-    it('pHeads clamped to min 0.01', () => {
+    it('custom coinProbabilities array works', () => {
+      const customProbs = [0.7, 0.3];
+      const def = buildDeviceDefinition({ device: 'coin', coinProbabilities: customProbs });
+      expect(def.probabilities[0]).toBeCloseTo(0.7, 10);
+      expect(def.probabilities[1]).toBeCloseTo(0.3, 10);
+      const sum = def.probabilities.reduce((a, b) => a + b, 0);
+      expect(sum).toBeCloseTo(1.0, 10);
+    });
+
+    it('coinProbabilities array is normalized', () => {
+      const unnormalized = [0.8, 0.4]; // sums to 1.2
+      const def = buildDeviceDefinition({ device: 'coin', coinProbabilities: unnormalized });
+      const sum = def.probabilities.reduce((a, b) => a + b, 0);
+      expect(sum).toBeCloseTo(1.0, 10);
+      // Should maintain relative ratios after normalization
+      expect(def.probabilities[0] / def.probabilities[1]).toBeCloseTo(2.0, 10);
+    });
+
+    it('probabilities are clamped to valid range (0.01 to 0.99)', () => {
+      const extremeProbs = [0.001, 0.999]; // one too low
+      const def = buildDeviceDefinition({ device: 'coin', coinProbabilities: extremeProbs });
+      def.probabilities.forEach(p => {
+        expect(p).toBeGreaterThanOrEqual(0.01);
+        expect(p).toBeLessThanOrEqual(0.99);
+      });
+      const sum = def.probabilities.reduce((a, b) => a + b, 0);
+      expect(sum).toBeCloseTo(1.0, 10);
+    });
+
+    it('backward compatibility: coinPHeads still works', () => {
+      const def = buildDeviceDefinition({ device: 'coin', coinPHeads: 0.7 });
+      expect(def.probabilities[0]).toBeCloseTo(0.7, 10);
+      expect(def.probabilities[1]).toBeCloseTo(0.3, 10);
+    });
+
+    it('backward compatibility: coinPHeads clamped to min 0.01', () => {
       const def = buildDeviceDefinition({ device: 'coin', coinPHeads: -1 });
       expect(def.probabilities[0]).toBeCloseTo(0.01, 10);
       expect(def.probabilities[1]).toBeCloseTo(0.99, 10);
     });
 
-    it('pHeads clamped to max 0.99', () => {
+    it('backward compatibility: coinPHeads clamped to max 0.99', () => {
       const def = buildDeviceDefinition({ device: 'coin', coinPHeads: 2 });
       expect(def.probabilities[0]).toBeCloseTo(0.99, 10);
       expect(def.probabilities[1]).toBeCloseTo(0.01, 10);
-    });
-
-    it('custom pHeads value works', () => {
-      const def = buildDeviceDefinition({ device: 'coin', coinPHeads: 0.7 });
-      expect(def.probabilities[0]).toBeCloseTo(0.7, 10);
-      expect(def.probabilities[1]).toBeCloseTo(0.3, 10);
     });
   });
 
@@ -67,31 +96,39 @@ describe('buildDeviceDefinition', () => {
       expect(def.labels).toEqual(['1', '2', '3', '4', '5', '6']);
     });
 
-    it('pSix clamped correctly (default 1/6)', () => {
+    it('default probabilities are equal (1/6 each)', () => {
       const def = buildDeviceDefinition({ device: 'die' });
-      expect(def.probabilities[5]).toBeCloseTo(1 / 6, 10);
-      // Other probabilities should be equal
-      const other = def.probabilities.slice(0, 5);
-      expect(other.every(p => Math.abs(p - other[0]) < 1e-10)).toBe(true);
-    });
-
-    it('pSix clamped to min 1/6', () => {
-      const def = buildDeviceDefinition({ device: 'die', diePSix: 0 });
-      expect(def.probabilities[5]).toBeCloseTo(1 / 6, 10);
-    });
-
-    it('pSix clamped to max 0.8', () => {
-      const def = buildDeviceDefinition({ device: 'die', diePSix: 1 });
-      expect(def.probabilities[5]).toBeCloseTo(0.8, 10);
-    });
-
-    it('other probabilities are equal', () => {
-      const def = buildDeviceDefinition({ device: 'die', diePSix: 0.5 });
-      const other = def.probabilities.slice(0, 5);
-      const expectedOther = (1 - 0.5) / 5;
-      other.forEach(p => {
-        expect(p).toBeCloseTo(expectedOther, 10);
+      const expected = 1 / 6;
+      def.probabilities.forEach(p => {
+        expect(p).toBeCloseTo(expected, 10);
       });
+    });
+
+    it('custom dieProbabilities array works', () => {
+      const customProbs = [0.1, 0.15, 0.2, 0.15, 0.2, 0.2];
+      const def = buildDeviceDefinition({ device: 'die', dieProbabilities: customProbs });
+      const sum = def.probabilities.reduce((a, b) => a + b, 0);
+      expect(sum).toBeCloseTo(1.0, 10);
+      // Probabilities should be normalized but maintain relative ratios
+      expect(def.probabilities.length).toBe(6);
+    });
+
+    it('dieProbabilities array is normalized', () => {
+      const unnormalized = [0.2, 0.2, 0.2, 0.2, 0.2, 0.3]; // sums to 1.3
+      const def = buildDeviceDefinition({ device: 'die', dieProbabilities: unnormalized });
+      const sum = def.probabilities.reduce((a, b) => a + b, 0);
+      expect(sum).toBeCloseTo(1.0, 10);
+    });
+
+    it('probabilities are clamped to valid range', () => {
+      const extremeProbs = [0.001, 0.001, 0.001, 0.001, 0.001, 0.995]; // some too low, one too high
+      const def = buildDeviceDefinition({ device: 'die', dieProbabilities: extremeProbs });
+      def.probabilities.forEach(p => {
+        expect(p).toBeGreaterThanOrEqual(0.01);
+        expect(p).toBeLessThanOrEqual(0.8);
+      });
+      const sum = def.probabilities.reduce((a, b) => a + b, 0);
+      expect(sum).toBeCloseTo(1.0, 10);
     });
   });
 

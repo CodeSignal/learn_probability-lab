@@ -16,6 +16,21 @@ export default function drawBarChart(canvas, labels, values, theory) {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
+    // Check if there are any values (trials run)
+    const hasData = values.some(v => v > 0);
+    if (!hasData && labels.length > 0) {
+      // Draw empty state message
+      ctx.fillStyle = text;
+      ctx.font = '16px var(--body-family)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Run some trials to see the chart', w / 2, h / 2 - 10);
+      ctx.font = '14px var(--body-family)';
+      ctx.fillStyle = getCssVar('--Colors-Text-Body-Light', '#808AA5');
+      ctx.fillText('Click "Run" in the sidebar to start', w / 2, h / 2 + 15);
+      return;
+    }
+
     const padding = { top: 14, right: 12, bottom: 34, left: 44 };
     const plotW = Math.max(1, w - padding.left - padding.right);
     const plotH = Math.max(1, h - padding.top - padding.bottom);

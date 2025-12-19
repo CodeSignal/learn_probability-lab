@@ -38,10 +38,6 @@ const els = {
   reset: $('pl-reset'),
   step: $('pl-step'),
   stepSize: $('pl-step-size'),
-  plus1: $('pl-plus-1'),
-  plus10: $('pl-plus-10'),
-  plus100: $('pl-plus-100'),
-  plus1000: $('pl-plus-1000'),
   auto: $('pl-auto'),
   speed: $('pl-speed'),
 
@@ -73,7 +69,7 @@ const store = createStore({
 
   mode: 'single',
   speed: 6,
-  stepSize: 100,
+  stepSize: 1,
 
   running: {
     cancel: false,
@@ -84,8 +80,8 @@ const store = createStore({
   single: {
     device: 'coin',
     spinnerSectors: 8,
-    coinPHeads: 0.5,
-    diePSix: 1 / 6,
+    coinProbabilities: [0.5, 0.5],
+    dieProbabilities: [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6],
     spinnerSkew: 0,
     definition: null,
     trials: 0,
@@ -98,14 +94,14 @@ const store = createStore({
   two: {
     deviceA: 'coin',
     spinnerSectorsA: 8,
-    coinPHeadsA: 0.5,
-    diePSixA: 1 / 6,
+    coinProbabilitiesA: [0.5, 0.5],
+    dieProbabilitiesA: [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6],
     spinnerSkewA: 0,
 
     deviceB: 'coin',
     spinnerSectorsB: 8,
-    coinPHeadsB: 0.5,
-    diePSixB: 1 / 6,
+    coinProbabilitiesB: [0.5, 0.5],
+    dieProbabilitiesB: [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6],
     spinnerSkewB: 0,
 
     relationship: 'independent',
@@ -133,8 +129,8 @@ function resetSingleSimulation() {
   const def = buildDeviceDefinition({
     device: state.single.device,
     spinnerSectors: state.single.spinnerSectors,
-    coinPHeads: state.single.coinPHeads,
-    diePSix: state.single.diePSix,
+    coinProbabilities: state.single.coinProbabilities,
+    dieProbabilities: state.single.dieProbabilities,
     spinnerSkew: state.single.spinnerSkew,
   });
 
@@ -168,8 +164,8 @@ function resetTwoSimulation() {
   const defA = buildDeviceDefinition({
     device: state.two.deviceA,
     spinnerSectors: state.two.spinnerSectorsA,
-    coinPHeads: state.two.coinPHeadsA,
-    diePSix: state.two.diePSixA,
+    coinProbabilities: state.two.coinProbabilitiesA,
+    dieProbabilities: state.two.dieProbabilitiesA,
     spinnerSkew: state.two.spinnerSkewA,
   });
 
@@ -183,8 +179,8 @@ function resetTwoSimulation() {
     defB = buildDeviceDefinition({
       device: state.two.deviceB,
       spinnerSectors: state.two.spinnerSectorsB,
-      coinPHeads: state.two.coinPHeadsB,
-      diePSix: state.two.diePSixB,
+      coinProbabilities: state.two.coinProbabilitiesB,
+      dieProbabilities: state.two.dieProbabilitiesB,
       spinnerSkew: state.two.spinnerSkewB,
     });
   }
@@ -213,6 +209,7 @@ function resetSimulation() {
   else resetSingleSimulation();
 
   render(els, store.getState());
+  syncUiFromState();
 }
 
 function updateControls() {
@@ -244,24 +241,51 @@ function updateControls() {
   }
 
   if (disableInputs) {
-    els.plus1.disabled = true;
-    els.plus10.disabled = true;
-    els.plus100.disabled = true;
-    els.plus1000.disabled = true;
     els.reset.disabled = true;
   } else {
-    els.plus1.disabled = false;
-    els.plus10.disabled = false;
-    els.plus100.disabled = false;
-    els.plus1000.disabled = false;
     els.reset.disabled = false;
   }
+}
+
+function normalizeProbabilities(probabilities, changedIndex, newValue, maxValue = 0.8) {
+  // Clone array to avoid mutation
+  const result = [...probabilities];
+
+  // Clamp new value
+  const clamped = clamp(newValue, 0.01, maxValue);
+  result[changedIndex] = clamped;
+
+  // Calculate remaining probability
+  const remaining = 1 - clamped;
+
+  // Get other probabilities (excluding changed index)
+  const others = result.filter((_, i) => i !== changedIndex);
+  const otherSum = others.reduce((sum, p) => sum + p, 0);
+
+  // Redistribute proportionally
+  if (otherSum > 0) {
+    for (let i = 0; i < result.length; i++) {
+      if (i !== changedIndex) {
+        result[i] = (probabilities[i] / otherSum) * remaining;
+      }
+    }
+  } else {
+    // Fallback: equal distribution (shouldn't happen in practice)
+    const equal = remaining / (result.length - 1);
+    for (let i = 0; i < result.length; i++) {
+      if (i !== changedIndex) {
+        result[i] = equal;
+      }
+    }
+  }
+
+  return result;
 }
 
 function renderBiasControls(container, device, values, onChange) {
   container.innerHTML = '';
 
-  function addRangeRow({ label, min, max, step, value, formatter, key }) {
+  function addRangeRow({ label, min, max, step, value, formatter, key, onChange: customOnChange }) {
     const row = document.createElement('label');
     row.className = 'row';
 
@@ -291,7 +315,11 @@ function renderBiasControls(container, device, values, onChange) {
     input.addEventListener('change', () => {
       const next = safeNumber(input.value, value);
       out.textContent = formatter(next);
-      onChange(key, next);
+      if (customOnChange) {
+        customOnChange(next);
+      } else {
+        onChange(key, next);
+      }
     });
 
     row.append(name, input, out);
@@ -299,28 +327,44 @@ function renderBiasControls(container, device, values, onChange) {
   }
 
   if (device === 'coin') {
-    addRangeRow({
-      label: 'P(Heads)',
-      min: 0.01,
-      max: 0.99,
-      step: 0.01,
-      value: values.coinPHeads,
-      formatter: (v) => formatProbability(v, 0),
-      key: 'coinPHeads',
-    });
+    const probabilities = values.coinProbabilities ?? [0.5, 0.5];
+    const labels = ['Heads', 'Tails'];
+    for (let i = 0; i < 2; i++) {
+      addRangeRow({
+        label: `P(${labels[i]})`,
+        min: 0.01,
+        max: 0.99,
+        step: 0.01,
+        value: probabilities[i],
+        formatter: (v) => formatProbability(v, 0),
+        key: `coinProbabilities[${i}]`,
+        onChange: (newValue) => {
+          const normalized = normalizeProbabilities(probabilities, i, newValue, 0.99);
+          onChange('coinProbabilities', normalized);
+        },
+      });
+    }
     return;
   }
 
   if (device === 'die') {
-    addRangeRow({
-      label: 'P(6)',
-      min: 1 / 6,
-      max: 0.8,
-      step: 0.01,
-      value: values.diePSix,
-      formatter: (v) => formatProbability(v, 0),
-      key: 'diePSix',
-    });
+    const probabilities = values.dieProbabilities ?? [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6];
+    for (let i = 0; i < 6; i++) {
+      const faceNumber = i + 1;
+      addRangeRow({
+        label: `P(${faceNumber})`,
+        min: 0.01,
+        max: 0.8,
+        step: 0.01,
+        value: probabilities[i],
+        formatter: (v) => formatProbability(v, 0),
+        key: `dieProbabilities[${i}]`,
+        onChange: (newValue) => {
+          const normalized = normalizeProbabilities(probabilities, i, newValue, 0.8);
+          onChange('dieProbabilities', normalized);
+        },
+      });
+    }
     return;
   }
 
@@ -398,7 +442,11 @@ function syncUiFromState() {
 
   els.relationship.value = state.two.relationship;
 
-  renderBiasControls(els.biasOptions, state.single.device, state.single, (key, value) => {
+  renderBiasControls(els.biasOptions, state.single.device, {
+    coinProbabilities: state.single.coinProbabilities,
+    dieProbabilities: state.single.dieProbabilities,
+    spinnerSkew: state.single.spinnerSkew,
+  }, (key, value) => {
     store.setState((draft) => {
       draft.single[key] = value;
     });
@@ -409,8 +457,8 @@ function syncUiFromState() {
     els.biasOptionsA,
     state.two.deviceA,
     {
-      coinPHeads: state.two.coinPHeadsA,
-      diePSix: state.two.diePSixA,
+      coinProbabilities: state.two.coinProbabilitiesA,
+      dieProbabilities: state.two.dieProbabilitiesA,
       spinnerSkew: state.two.spinnerSkewA,
     },
     (key, value) => {
@@ -457,8 +505,8 @@ function updateTwoControlsForRelationship() {
     els.biasOptionsB,
     state.two.deviceB,
     {
-      coinPHeads: state.two.coinPHeadsB,
-      diePSix: state.two.diePSixB,
+      coinProbabilities: state.two.coinProbabilitiesB,
+      dieProbabilities: state.two.dieProbabilitiesB,
       spinnerSkew: state.two.spinnerSkewB,
     },
     (key, value) => {
@@ -507,26 +555,6 @@ function initEventListeners() {
     const state = store.getState();
     const stateSlice = state.mode === 'two' ? state.two : state.single;
     runner.runTrials(state.stepSize, state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng);
-  });
-  els.plus1.addEventListener('click', () => {
-    const state = store.getState();
-    const stateSlice = state.mode === 'two' ? state.two : state.single;
-    runner.runTrials(1, state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng);
-  });
-  els.plus10.addEventListener('click', () => {
-    const state = store.getState();
-    const stateSlice = state.mode === 'two' ? state.two : state.single;
-    runner.runTrials(10, state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng);
-  });
-  els.plus100.addEventListener('click', () => {
-    const state = store.getState();
-    const stateSlice = state.mode === 'two' ? state.two : state.single;
-    runner.runTrials(100, state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng);
-  });
-  els.plus1000.addEventListener('click', () => {
-    const state = store.getState();
-    const stateSlice = state.mode === 'two' ? state.two : state.single;
-    runner.runTrials(1000, state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng);
   });
 
   els.reset.addEventListener('click', resetSimulation);

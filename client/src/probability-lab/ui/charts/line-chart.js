@@ -16,6 +16,20 @@ export default function drawLineChart(canvas, xValues, yValues, theoryValue) {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
+    // Check if there are any data points
+    if (xValues.length === 0 || yValues.length === 0) {
+      // Draw empty state message
+      ctx.fillStyle = text;
+      ctx.font = '16px var(--body-family)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Run some trials to see convergence', w / 2, h / 2 - 10);
+      ctx.font = '14px var(--body-family)';
+      ctx.fillStyle = getCssVar('--Colors-Text-Body-Light', '#808AA5');
+      ctx.fillText('Watch how probability estimates converge over time', w / 2, h / 2 + 15);
+      return;
+    }
+
     const padding = { top: 14, right: 12, bottom: 34, left: 54 };
     const plotW = Math.max(1, w - padding.left - padding.right);
     const plotH = Math.max(1, h - padding.top - padding.bottom);

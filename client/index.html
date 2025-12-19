@@ -36,9 +36,8 @@
   <!-- Main Application Content -->
   <main class="main-layout" id="probability-lab">
     <aside class="sidebar">
-      <section class="box card">
-        <h2>Experiment</h2>
-
+      <section class="box card card-emphasized">
+        <h2>Experiment Settings</h2>
         <div id="pl-single-config">
           <div id="pl-spinner-options" hidden>
             <label>
@@ -79,21 +78,16 @@
 
         <hr />
 
-        <div class="row-between">
-          <button id="pl-reset" class="button button-secondary" type="button">Reset</button>
-          <button id="pl-step" class="button button-primary" type="button">Run</button>
-        </div>
+        <div class="pl-run-section">
+          <label>
+            Run per click
+            <input id="pl-step-size" class="input" type="number" min="1" step="1" value="1" />
+          </label>
 
-        <label>
-          Run per click
-          <input id="pl-step-size" class="input" type="number" min="1" step="1" value="100" />
-        </label>
-
-        <div class="row pl-step-buttons">
-          <button id="pl-plus-1" class="button button-text" type="button">+1</button>
-          <button id="pl-plus-10" class="button button-text" type="button">+10</button>
-          <button id="pl-plus-100" class="button button-text" type="button">+100</button>
-          <button id="pl-plus-1000" class="button button-text" type="button">+1000</button>
+          <div class="pl-primary-actions">
+            <button id="pl-reset" class="button button-secondary" type="button">Reset</button>
+            <button id="pl-step" class="button button-primary" type="button">Run</button>
+          </div>
         </div>
 
         <div class="row-between pl-auto-row">
@@ -105,9 +99,9 @@
         </div>
       </section>
 
-      <section class="box card" id="pl-event-card">
+      <section class="box card card-emphasized" id="pl-event-card">
         <h2>Event E</h2>
-        <p class="pl-muted">Select outcomes in E to estimate <span class="pl-nowrap">P(E)</span>.</p>
+        <p class="pl-helper-text">Select which outcomes count as success for your event.</p>
         <div id="pl-event-outcomes"></div>
         <div class="pl-metrics">
           <div class="pl-metric">
@@ -121,7 +115,7 @@
         </div>
       </section>
 
-      <section class="box card">
+      <section class="box card card-muted">
         <h2>Randomness</h2>
         <p class="pl-muted">Optional seed for reproducible trials.</p>
         <label>
@@ -138,8 +132,9 @@
     <div class="content-area">
       <div class="pl-content">
         <div class="pl-top-grid">
-          <section class="box card">
+          <section class="box card card-hero card-spacious">
             <h2>Live Trial</h2>
+            <p class="pl-helper-text">Run trials to see probability in action and watch convergence happen.</p>
             <div class="pl-live">
               <div id="pl-device-view" class="pl-device" aria-label="Trial device visualization"></div>
               <div class="pl-live-metrics" aria-live="polite">
@@ -156,19 +151,48 @@
           </section>
 
           <section class="box card">
-            <h2>Relative Frequency</h2>
+            <div class="pl-chart-header">
+              <h2>Relative Frequency</h2>
+              <p class="pl-chart-subtitle">Bars show observed frequencies. Horizontal lines show theoretical probabilities.</p>
+            </div>
             <canvas id="pl-bar-chart" class="pl-canvas" width="640" height="240" aria-label="Bar chart of relative frequencies"></canvas>
+            <div class="pl-chart-legend">
+              <div class="pl-legend-item">
+                <div class="pl-legend-indicator bar"></div>
+                <span>Observed frequency</span>
+              </div>
+              <div class="pl-legend-item">
+                <div class="pl-legend-indicator line"></div>
+                <span>Theoretical probability</span>
+              </div>
+            </div>
           </section>
         </div>
 
         <div class="pl-bottom-grid">
           <section class="box card" id="pl-convergence-card">
-            <h2>Convergence</h2>
+            <div class="pl-chart-header">
+              <h2>Convergence</h2>
+              <p class="pl-chart-subtitle">Shows how estimated P(E) converges to theoretical probability over trials. Dashed line is the target.</p>
+            </div>
             <canvas id="pl-line-chart" class="pl-canvas" width="640" height="240" aria-label="Line chart of estimated probability over trials"></canvas>
+            <div class="pl-chart-legend">
+              <div class="pl-legend-item">
+                <div class="pl-legend-indicator bar"></div>
+                <span>Estimated P(E)</span>
+              </div>
+              <div class="pl-legend-item">
+                <div class="pl-legend-indicator dashed"></div>
+                <span>Theoretical P(E)</span>
+              </div>
+            </div>
           </section>
 
           <section class="box card" id="pl-frequency-card">
-            <h2>Frequency Table</h2>
+            <div class="pl-chart-header">
+              <h2>Frequency Table</h2>
+              <p class="pl-chart-subtitle">Δ shows difference between observed and theoretical. Selected rows count toward Event E.</p>
+            </div>
             <div class="pl-table-wrap">
               <table id="pl-frequency-table" class="pl-table"></table>
             </div>
