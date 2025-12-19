@@ -977,3 +977,11 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== NUMERIC SLIDER INPUT VISIBILITY FIX ===== */
+
+/* Improve visibility of NumericSlider input fields */
+.bespoke .numeric-slider-input {
+  min-width: 60px !important;
+  max-width: 60px !important;
+}
