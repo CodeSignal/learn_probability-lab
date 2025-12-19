@@ -80,8 +80,7 @@ export function createRunner(runningState, callbacks) {
         return;
       }
 
-      const clampedSpeed = clamp(speed, 1, 10);
-      const chunk = Math.floor(200 * clampedSpeed * clampedSpeed);
+      const chunk = 1;
 
       if (mode === 'two') {
         simulateTwo(stateSlice, rng, chunk);

@@ -113,7 +113,7 @@ All Probability Lab-specific DOM elements use the `pl-` prefix:
 
 - Mode/configuration: `pl-mode`, `pl-single-config`, `pl-two-config`
 - Devices: `pl-device`, `pl-device-a`, `pl-device-b`
-- Controls: `pl-reset`, `pl-step`, `pl-step-size`, `pl-auto`, `pl-speed`
+- Controls: `pl-reset`, `pl-step`, `pl-step-size`, `pl-auto`
 - Seed: `pl-seed`, `pl-apply-seed`, `pl-randomize-seed`
 - Event: `pl-event-card`, `pl-event-outcomes`, `pl-event-est`, `pl-event-theory`
 - Visualization: `pl-device-view`, `pl-trials`, `pl-last`

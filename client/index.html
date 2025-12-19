@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="./design-system/components/button/button.css">
   <link rel="stylesheet" href="./design-system/components/boxes/boxes.css">
   <link rel="stylesheet" href="./design-system/components/input/input.css">
+  <link rel="stylesheet" href="./design-system/components/numeric-slider/numeric-slider.css">
   <link rel="stylesheet" href="./design-system/components/dropdown/dropdown.css">
   <link rel="stylesheet" href="./design-system/components/tags/tags.css">
   <link rel="stylesheet" href="./design-system/components/modal/modal.css">
@@ -37,6 +38,12 @@
   <main class="main-layout" id="probability-lab">
     <aside class="sidebar">
       <section class="box card card-emphasized">
+        <h2>Experiment Setup</h2>
+        <div id="pl-setup-device" class="pl-setup-device"></div>
+        <div id="pl-setup-sample-space" class="pl-setup-sample-space"></div>
+      </section>
+
+      <section class="box card card-emphasized">
         <h2>Experiment Settings</h2>
         <div id="pl-single-config">
           <div id="pl-spinner-options" hidden>
@@ -51,6 +58,11 @@
           </div>
 
           <div id="pl-bias-options"></div>
+
+          <label>
+            Seed
+            <input id="pl-seed" class="input" type="number" placeholder="42" />
+          </label>
         </div>
 
         <div id="pl-two-config" hidden>
@@ -75,28 +87,6 @@
             </select>
           </label>
         </div>
-
-        <hr />
-
-        <div class="pl-run-section">
-          <label>
-            Run per click
-            <input id="pl-step-size" class="input" type="number" min="1" step="1" value="1" />
-          </label>
-
-          <div class="pl-primary-actions">
-            <button id="pl-reset" class="button button-secondary" type="button">Reset</button>
-            <button id="pl-step" class="button button-primary" type="button">Run</button>
-          </div>
-        </div>
-
-        <div class="row-between pl-auto-row">
-          <button id="pl-auto" class="button button-secondary" type="button">Start auto</button>
-          <label class="pl-inline">
-            Speed
-            <input id="pl-speed" type="range" min="1" max="10" value="6" />
-          </label>
-        </div>
       </section>
 
       <section class="box card card-emphasized" id="pl-event-card">
@@ -114,38 +104,52 @@
           </div>
         </div>
       </section>
-
-      <section class="box card card-muted">
-        <h2>Randomness</h2>
-        <p class="pl-muted">Optional seed for reproducible trials.</p>
-        <label>
-          Seed
-          <input id="pl-seed" class="input" type="text" placeholder="e.g., 42" />
-        </label>
-        <div class="row">
-          <button id="pl-apply-seed" class="button button-secondary" type="button">Apply seed</button>
-          <button id="pl-randomize-seed" class="button button-text" type="button">Randomize</button>
-        </div>
-      </section>
     </aside>
 
     <div class="content-area">
       <div class="pl-content">
         <div class="pl-top-grid">
-          <section class="box card card-hero card-spacious">
-            <h2>Live Trial</h2>
-            <p class="pl-helper-text">Run trials to see probability in action and watch convergence happen.</p>
-            <div class="pl-live">
+          <section class="box card card-emphasized card-spacious">
+            <h2>Run Trials</h2>
+            <div class="pl-trial-controls">
+              <div class="pl-control-row">
+                <div class="pl-step-size-group">
+                  <span class="pl-control-label">Trials per step:</span>
+                  <div class="pl-button-group" role="group" aria-label="Manual trials run per step">
+                    <button class="pl-button-group-item active" data-value="1" type="button">1</button>
+                    <button class="pl-button-group-item" data-value="10" type="button">10</button>
+                    <button class="pl-button-group-item" data-value="100" type="button">50</button>
+                    <button class="pl-button-group-item" data-value="1000" type="button">100</button>
+                  </div>
+                  <input id="pl-step-size" type="hidden" value="1" />
+                </div>
+                <div class="pl-action-buttons">
+                  <button id="pl-step" class="button button-primary" type="button">Run Trials</button>
+                </div>
+              </div>
+
+              <hr />
+
+              <div class="pl-control-row pl-control-row-auto">
+                <button id="pl-auto" class="button button-secondary" type="button">Automatic Run</button>
+                <button id="pl-reset" class="button button-secondary" type="button">Reset Trials</button>
+              </div>
+            </div>
+
+            <!-- Device visualization -->
+            <div class="pl-device-section">
               <div id="pl-device-view" class="pl-device" aria-label="Trial device visualization"></div>
-              <div class="pl-live-metrics" aria-live="polite">
-                <div class="pl-live-metric">
-                  <div class="pl-live-label">Trials</div>
-                  <div id="pl-trials" class="pl-live-value">0</div>
-                </div>
-                <div class="pl-live-metric">
-                  <div class="pl-live-label">Last outcome</div>
-                  <div id="pl-last" class="pl-live-value">—</div>
-                </div>
+            </div>
+
+            <!-- Metrics at bottom -->
+            <div class="pl-trial-metrics">
+              <div class="box pl-trial-metric">
+                <div class="pl-metric-label">Trials</div>
+                <div id="pl-trials" class="pl-metric-value">0</div>
+              </div>
+              <div class="box pl-trial-metric">
+                <div class="pl-metric-label">Last outcome</div>
+                <div id="pl-last" class="pl-metric-value">—</div>
               </div>
             </div>
           </section>

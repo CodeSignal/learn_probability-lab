@@ -15,6 +15,7 @@ import { createRunner } from './src/probability-lab/engine/runner.js';
 import { getCssVar } from './src/probability-lab/ui/charts/colors.js';
 import render from './src/probability-lab/ui/render.js';
 import { createStore } from './src/probability-lab/state/store.js';
+import NumericSlider from './design-system/components/numeric-slider/numeric-slider.js';
 
 function $(id) {
   return document.getElementById(id);
@@ -22,6 +23,9 @@ function $(id) {
 
 const els = {
   status: $('status'),
+
+  setupDevice: $('pl-setup-device'),
+  setupSampleSpace: $('pl-setup-sample-space'),
 
   singleConfig: $('pl-single-config'),
   twoConfig: $('pl-two-config'),
@@ -39,11 +43,8 @@ const els = {
   step: $('pl-step'),
   stepSize: $('pl-step-size'),
   auto: $('pl-auto'),
-  speed: $('pl-speed'),
 
   seed: $('pl-seed'),
-  applySeed: $('pl-apply-seed'),
-  randomizeSeed: $('pl-randomize-seed'),
 
   eventCard: $('pl-event-card'),
   eventOutcomes: $('pl-event-outcomes'),
@@ -63,12 +64,21 @@ const els = {
   cellSummary: $('pl-cell-summary'),
 };
 
+// Store NumericSlider instances for each device configuration
+const sliderInstances = {
+  single: new Map(), // key: 'coin-0', 'coin-1', 'die-0', etc.
+  two: {
+    a: new Map(),
+    b: new Map(),
+  },
+};
+
 const store = createStore({
   rng: Math.random,
   seedText: '',
 
   mode: 'single',
-  speed: 6,
+  speed: 1,
   stepSize: 1,
 
   running: {
@@ -217,7 +227,7 @@ function updateControls() {
   const autoRunning = state.running.auto;
   const disableInputs = state.running.rafId !== null && state.running.auto;
 
-  els.auto.textContent = autoRunning ? 'Stop auto' : 'Start auto';
+  els.auto.textContent = autoRunning ? 'Stop Automatic Run' : 'Start Automatic Run';
   els.step.disabled = autoRunning;
 
   // Controls are disabled only during auto-run
@@ -233,9 +243,27 @@ function updateControls() {
     el.disabled = disableInputs;
   }
 
+  // Disable/enable NumericSlider instances
+  for (const slider of sliderInstances.single.values()) {
+    if (slider && typeof slider.setDisabled === 'function') {
+      slider.setDisabled(disableInputs);
+    }
+  }
+  for (const slider of sliderInstances.two.a.values()) {
+    if (slider && typeof slider.setDisabled === 'function') {
+      slider.setDisabled(disableInputs);
+    }
+  }
+  for (const slider of sliderInstances.two.b.values()) {
+    if (slider && typeof slider.setDisabled === 'function') {
+      slider.setDisabled(disableInputs);
+    }
+  }
+
+  // Also disable other inputs in bias containers (like spinner sectors)
   for (const container of [els.biasOptions, els.biasOptionsA, els.biasOptionsB]) {
     if (!container) continue;
-    for (const input of container.querySelectorAll('input, select, button, textarea')) {
+    for (const input of container.querySelectorAll('select')) {
       input.disabled = disableInputs;
     }
   }
@@ -283,66 +311,122 @@ function normalizeProbabilities(probabilities, changedIndex, newValue, maxValue 
 }
 
 function renderBiasControls(container, device, values, onChange) {
-  container.innerHTML = '';
-
-  function addRangeRow({ label, min, max, step, value, formatter, key, onChange: customOnChange }) {
-    const row = document.createElement('label');
-    row.className = 'row';
-
-    const name = document.createElement('span');
-    name.textContent = label;
-    name.style.minWidth = '88px';
-
-    const input = document.createElement('input');
-    input.type = 'range';
-    input.min = String(min);
-    input.max = String(max);
-    input.step = String(step);
-    input.value = String(value);
-
-    const out = document.createElement('span');
-    out.textContent = formatter(value);
-    out.style.minWidth = '62px';
-    out.style.textAlign = 'right';
-    out.style.fontVariantNumeric = 'tabular-nums';
-    out.style.color = getCssVar('--Colors-Text-Body-Medium', '#66718F');
-
-    input.addEventListener('input', () => {
-      const next = safeNumber(input.value, value);
-      out.textContent = formatter(next);
-    });
-
-    input.addEventListener('change', () => {
-      const next = safeNumber(input.value, value);
-      out.textContent = formatter(next);
-      if (customOnChange) {
-        customOnChange(next);
-      } else {
-        onChange(key, next);
-      }
-    });
-
-    row.append(name, input, out);
-    container.append(row);
+  // Determine which instance map to use based on container
+  let instanceMap;
+  if (container === els.biasOptions) {
+    instanceMap = sliderInstances.single;
+  } else if (container === els.biasOptionsA) {
+    instanceMap = sliderInstances.two.a;
+  } else if (container === els.biasOptionsB) {
+    instanceMap = sliderInstances.two.b;
+  } else {
+    instanceMap = sliderInstances.single; // fallback
   }
+
+  const deviceKey = device;
+
+  // Check if sliders already exist for this device
+  const existingKeys = [];
+  for (const key of instanceMap.keys()) {
+    if (key.startsWith(`${deviceKey}-`)) {
+      existingKeys.push(key);
+    }
+  }
+
+  // If sliders exist, update their values instead of recreating
+  if (existingKeys.length > 0) {
+    if (device === 'coin') {
+      const probabilities = values.coinProbabilities ?? [0.5, 0.5];
+      for (let i = 0; i < 2; i++) {
+        const sliderKey = `${deviceKey}-${i}`;
+        const slider = instanceMap.get(sliderKey);
+        if (slider) {
+          slider.setValue(Math.round(probabilities[i] * 100), null, false);
+        }
+      }
+    } else if (device === 'die') {
+      const probabilities = values.dieProbabilities ?? [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6];
+      for (let i = 0; i < 6; i++) {
+        const sliderKey = `${deviceKey}-${i}`;
+        const slider = instanceMap.get(sliderKey);
+        if (slider) {
+          slider.setValue(Math.round(probabilities[i] * 100), null, false);
+        }
+      }
+    } else {
+      // Spinner
+      const sliderKey = `${deviceKey}-skew`;
+      const slider = instanceMap.get(sliderKey);
+      if (slider) {
+        slider.setValue(Math.round(values.spinnerSkew * 100), null, false);
+      }
+    }
+    return;
+  }
+
+  // No existing sliders, create new ones
+  container.innerHTML = '';
 
   if (device === 'coin') {
     const probabilities = values.coinProbabilities ?? [0.5, 0.5];
     const labels = ['Heads', 'Tails'];
     for (let i = 0; i < 2; i++) {
-      addRangeRow({
-        label: `P(${labels[i]})`,
-        min: 0.01,
-        max: 0.99,
-        step: 0.01,
-        value: probabilities[i],
-        formatter: (v) => formatProbability(v, 0),
-        key: `coinProbabilities[${i}]`,
-        onChange: (newValue) => {
-          const normalized = normalizeProbabilities(probabilities, i, newValue, 0.99);
+      const sliderKey = `${deviceKey}-${i}`;
+      const wrapper = document.createElement('div');
+      wrapper.style.marginBottom = 'var(--UI-Spacing-spacing-sm)';
+
+      const labelEl = document.createElement('label');
+      labelEl.textContent = `P(${labels[i]})`;
+      labelEl.style.display = 'block';
+      labelEl.style.marginBottom = 'var(--UI-Spacing-spacing-xs)';
+      labelEl.style.fontSize = 'var(--UI-Typography-fontSize-sm)';
+      labelEl.style.fontWeight = 'var(--UI-Typography-fontWeight-medium)';
+      labelEl.style.color = 'var(--Colors-Text-Body-Strongest, #0A1122)';
+
+      const sliderContainer = document.createElement('div');
+      wrapper.appendChild(labelEl);
+      wrapper.appendChild(sliderContainer);
+      container.appendChild(wrapper);
+
+      const slider = new NumericSlider(sliderContainer, {
+        type: 'single',
+        min: 1,
+        max: 99,
+        step: 1,
+        value: Math.round(probabilities[i] * 100),
+        showInputs: true,
+        onChange: (percentageValue) => {
+          const probabilityValue = percentageValue / 100;
+
+          // Get current probabilities from all sliders
+          const currentProbabilities = [];
+          for (let j = 0; j < 2; j++) {
+            const otherKey = `${deviceKey}-${j}`;
+            const otherSlider = instanceMap.get(otherKey);
+            if (otherSlider) {
+              const otherValue = otherSlider.getValue();
+              currentProbabilities[j] = otherValue / 100;
+            } else {
+              currentProbabilities[j] = probabilities[j];
+            }
+          }
+
+          const normalized = normalizeProbabilities(currentProbabilities, i, probabilityValue, 0.99);
+
+          // Update all coin sliders with normalized values
+          for (let j = 0; j < 2; j++) {
+            const otherKey = `${deviceKey}-${j}`;
+            const otherSlider = instanceMap.get(otherKey);
+            if (otherSlider) {
+              otherSlider.setValue(Math.round(normalized[j] * 100), null, false);
+            }
+          }
+
           onChange('coinProbabilities', normalized);
         },
       });
+
+      instanceMap.set(sliderKey, slider);
     }
     return;
   }
@@ -351,32 +435,98 @@ function renderBiasControls(container, device, values, onChange) {
     const probabilities = values.dieProbabilities ?? [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6];
     for (let i = 0; i < 6; i++) {
       const faceNumber = i + 1;
-      addRangeRow({
-        label: `P(${faceNumber})`,
-        min: 0.01,
-        max: 0.8,
-        step: 0.01,
-        value: probabilities[i],
-        formatter: (v) => formatProbability(v, 0),
-        key: `dieProbabilities[${i}]`,
-        onChange: (newValue) => {
-          const normalized = normalizeProbabilities(probabilities, i, newValue, 0.8);
+      const sliderKey = `${deviceKey}-${i}`;
+      const wrapper = document.createElement('div');
+      wrapper.style.marginBottom = 'var(--UI-Spacing-spacing-sm)';
+
+      const labelEl = document.createElement('label');
+      labelEl.textContent = `P(${faceNumber})`;
+      labelEl.style.display = 'block';
+      labelEl.style.marginBottom = 'var(--UI-Spacing-spacing-xs)';
+      labelEl.style.fontSize = 'var(--UI-Typography-fontSize-sm)';
+      labelEl.style.fontWeight = 'var(--UI-Typography-fontWeight-medium)';
+      labelEl.style.color = 'var(--Colors-Text-Body-Strongest, #0A1122)';
+
+      const sliderContainer = document.createElement('div');
+      wrapper.appendChild(labelEl);
+      wrapper.appendChild(sliderContainer);
+      container.appendChild(wrapper);
+
+      const slider = new NumericSlider(sliderContainer, {
+        type: 'single',
+        min: 1,
+        max: 80,
+        step: 1,
+        value: Math.round(probabilities[i] * 100),
+        showInputs: true,
+        onChange: (percentageValue) => {
+          const probabilityValue = percentageValue / 100;
+
+          // Get current probabilities from all sliders
+          const currentProbabilities = [];
+          for (let j = 0; j < 6; j++) {
+            const otherKey = `${deviceKey}-${j}`;
+            const otherSlider = instanceMap.get(otherKey);
+            if (otherSlider) {
+              const otherValue = otherSlider.getValue();
+              currentProbabilities[j] = otherValue / 100;
+            } else {
+              currentProbabilities[j] = probabilities[j];
+            }
+          }
+
+          const normalized = normalizeProbabilities(currentProbabilities, i, probabilityValue, 0.8);
+
+          // Update all die sliders with normalized values
+          for (let j = 0; j < 6; j++) {
+            const otherKey = `${deviceKey}-${j}`;
+            const otherSlider = instanceMap.get(otherKey);
+            if (otherSlider) {
+              otherSlider.setValue(Math.round(normalized[j] * 100), null, false);
+            }
+          }
+
           onChange('dieProbabilities', normalized);
         },
       });
+
+      instanceMap.set(sliderKey, slider);
     }
     return;
   }
 
-  addRangeRow({
-    label: 'Skew',
-    min: -1,
-    max: 1,
-    step: 0.01,
-    value: values.spinnerSkew,
-    formatter: (v) => v.toFixed(2),
-    key: 'spinnerSkew',
+  // Spinner skew
+  const sliderKey = `${deviceKey}-skew`;
+  const wrapper = document.createElement('div');
+  wrapper.style.marginBottom = 'var(--UI-Spacing-spacing-sm)';
+
+  const labelEl = document.createElement('label');
+  labelEl.textContent = 'Skew';
+  labelEl.style.display = 'block';
+  labelEl.style.marginBottom = 'var(--UI-Spacing-spacing-xs)';
+  labelEl.style.fontSize = 'var(--UI-Typography-fontSize-sm)';
+  labelEl.style.fontWeight = 'var(--UI-Typography-fontWeight-medium)';
+  labelEl.style.color = 'var(--Colors-Text-Body-Strongest, #0A1122)';
+
+  const sliderContainer = document.createElement('div');
+  wrapper.appendChild(labelEl);
+  wrapper.appendChild(sliderContainer);
+  container.appendChild(wrapper);
+
+  const slider = new NumericSlider(sliderContainer, {
+    type: 'single',
+    min: -100,
+    max: 100,
+    step: 1,
+    value: Math.round(values.spinnerSkew * 100),
+    showInputs: true,
+    onChange: (percentageValue) => {
+      const skewValue = percentageValue / 100;
+      onChange('spinnerSkew', skewValue);
+    },
   });
+
+  instanceMap.set(sliderKey, slider);
 }
 
 function renderEventOptions() {
@@ -434,7 +584,6 @@ function applySeed(seedText) {
 
 function syncUiFromState() {
   const state = store.getState();
-  els.speed.value = String(state.speed);
   els.stepSize.value = String(state.stepSize);
   els.seed.value = state.seedText;
 
@@ -497,6 +646,15 @@ function updateTwoControlsForRelationship() {
       });
       changed = true;
     }
+
+    // Clean up device B sliders when linked
+    for (const slider of sliderInstances.two.b.values()) {
+      if (slider && typeof slider.destroy === 'function') {
+        slider.destroy();
+      }
+    }
+    sliderInstances.two.b.clear();
+
     els.biasOptionsB.innerHTML = '<p class="pl-muted">B is linked to A.</p>';
     return;
   }
@@ -544,10 +702,21 @@ function initEventListeners() {
     els.stepSize.value = String(clamped);
   });
 
-  els.speed.addEventListener('input', () => {
-    const clamped = clamp(Math.floor(safeNumber(els.speed.value, 6)), 1, 10);
-    store.setState((draft) => {
-      draft.speed = clamped;
+  // Handle button group selection
+  document.querySelectorAll('.pl-button-group-item').forEach((button) => {
+    button.addEventListener('click', () => {
+      // Remove active class from all buttons
+      document.querySelectorAll('.pl-button-group-item').forEach((btn) => {
+        btn.classList.remove('active');
+      });
+      // Add active class to clicked button
+      button.classList.add('active');
+      // Update hidden input and store
+      const value = parseInt(button.dataset.value, 10);
+      els.stepSize.value = String(value);
+      store.setState((draft) => {
+        draft.stepSize = value;
+      });
     });
   });
 
@@ -565,19 +734,23 @@ function initEventListeners() {
       runner.stopRunning();
     } else {
       const stateSlice = state.mode === 'two' ? state.two : state.single;
-      runner.startAuto(state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng, state.speed);
+      runner.startAuto(state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng, 1);
     }
   });
 
-  els.applySeed.addEventListener('click', () => applySeed(els.seed.value));
-  els.seed.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') applySeed(els.seed.value);
+  // Apply seed automatically on change
+  let seedTimeout = null;
+  els.seed.addEventListener('input', () => {
+    // Debounce to avoid resetting simulation too frequently during typing
+    clearTimeout(seedTimeout);
+    seedTimeout = setTimeout(() => {
+      applySeed(els.seed.value);
+    }, 500);
   });
 
-  els.randomizeSeed.addEventListener('click', () => {
-    const next = String(Math.floor(Math.random() * 1_000_000));
-    els.seed.value = next;
-    applySeed(next);
+  els.seed.addEventListener('change', () => {
+    clearTimeout(seedTimeout);
+    applySeed(els.seed.value);
   });
 
   els.twoWayTable.addEventListener('click', (event) => {
