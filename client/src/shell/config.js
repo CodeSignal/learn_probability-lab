@@ -3,6 +3,8 @@
 
 const VALID_MODES = ['single', 'two'];
 const VALID_DEVICES = ['coin', 'die', 'spinner'];
+const VALID_SECTIONS_SINGLE = ['barChart', 'convergence', 'frequencyTable'];
+const VALID_SECTIONS_TWO = ['jointDistribution', 'twoWayTable'];
 
 /**
  * Validates configuration object structure
@@ -45,6 +47,25 @@ function validateConfig(config) {
     }
   }
 
+  // Validate sections object
+  if (config.sections && typeof config.sections === 'object') {
+    const validatedSections = {};
+    const validSections = validated.mode === 'single' ? VALID_SECTIONS_SINGLE : VALID_SECTIONS_TWO;
+
+    for (const sectionKey of validSections) {
+      const value = config.sections[sectionKey];
+      if (typeof value === 'boolean') {
+        validatedSections[sectionKey] = value;
+      } else {
+        // Default to false (hidden) for missing/invalid values
+        validatedSections[sectionKey] = false;
+      }
+    }
+
+    validated.sections = validatedSections;
+  }
+  // If sections is missing entirely, don't add it (will use store defaults)
+
   return validated;
 }
 
@@ -66,6 +87,13 @@ export async function loadConfig() {
     return {
       mode: 'single',
       device: 'coin',
+      sections: {
+        barChart: false,
+        convergence: false,
+        frequencyTable: false,
+        jointDistribution: false,
+        twoWayTable: false,
+      },
     };
   }
 }

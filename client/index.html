@@ -108,9 +108,11 @@
 
     <div class="content-area">
       <div class="pl-content">
-        <div class="pl-top-grid">
-          <section class="box card card-emphasized card-spacious">
-            <h2>Run Trials</h2>
+        <!-- Trials section: always visible, standalone -->
+        <section class="box card card-emphasized card-spacious pl-run-card">
+          <h2>Run Trials</h2>
+          <div class="pl-run-grid">
+            <!-- Left column: Controls -->
             <div class="pl-trial-controls">
               <div class="pl-control-row">
                 <div class="pl-step-size-group">
@@ -130,36 +132,49 @@
 
               <hr />
 
+              <div class="pl-control-row">
+                <div class="pl-speed-group">
+                  <span class="pl-control-label">Speed (iterations/sec):</span>
+                  <div id="pl-auto-speed-container"></div>
+                </div>
+              </div>
+
               <div class="pl-control-row pl-control-row-auto">
                 <button id="pl-auto" class="button button-secondary" type="button">Automatic Run</button>
                 <button id="pl-reset" class="button button-secondary" type="button">Reset Trials</button>
               </div>
             </div>
 
-            <!-- Device visualization -->
-            <div class="pl-device-section">
-              <div id="pl-device-view" class="pl-device" aria-label="Trial device visualization"></div>
-            </div>
-
-            <!-- Metrics at bottom -->
-            <div class="pl-trial-metrics">
-              <div class="box pl-trial-metric">
-                <div class="pl-metric-label">Trials</div>
-                <div id="pl-trials" class="pl-metric-value">0</div>
+            <!-- Right column: Device + Metrics -->
+            <div class="pl-run-right">
+              <!-- Device visualization -->
+              <div class="pl-device-section">
+                <div id="pl-device-view" class="pl-device" aria-label="Trial device visualization"></div>
               </div>
-              <div class="box pl-trial-metric">
-                <div class="pl-metric-label">Last outcome</div>
-                <div id="pl-last" class="pl-metric-value">—</div>
+
+              <!-- Metrics -->
+              <div class="pl-trial-metrics">
+                <div class="box pl-trial-metric">
+                  <div class="pl-metric-label">Trials</div>
+                  <div id="pl-trials" class="pl-metric-value">0</div>
+                </div>
+                <div class="box pl-trial-metric">
+                  <div class="pl-metric-label">Last outcome</div>
+                  <div id="pl-last" class="pl-metric-value">—</div>
+                </div>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <section class="box card">
+        <!-- Single-event mode sections -->
+        <div id="pl-single-view" class="pl-content-grid">
+          <section class="box card" id="pl-bar-chart-section">
             <div class="pl-chart-header">
               <h2>Relative Frequency</h2>
               <p class="pl-chart-subtitle">Bars show observed frequencies. Horizontal lines show theoretical probabilities.</p>
             </div>
-            <canvas id="pl-bar-chart" class="pl-canvas" width="640" height="240" aria-label="Bar chart of relative frequencies"></canvas>
+            <canvas id="pl-bar-chart" class="pl-canvas" aria-label="Bar chart of relative frequencies"></canvas>
             <div class="pl-chart-legend">
               <div class="pl-legend-item">
                 <div class="pl-legend-indicator bar"></div>
@@ -171,15 +186,13 @@
               </div>
             </div>
           </section>
-        </div>
 
-        <div class="pl-bottom-grid">
           <section class="box card" id="pl-convergence-card">
             <div class="pl-chart-header">
               <h2>Convergence</h2>
               <p class="pl-chart-subtitle">Shows how estimated P(E) converges to theoretical probability over trials. Dashed line is the target.</p>
             </div>
-            <canvas id="pl-line-chart" class="pl-canvas" width="640" height="240" aria-label="Line chart of estimated probability over trials"></canvas>
+            <canvas id="pl-line-chart" class="pl-canvas" aria-label="Line chart of estimated probability over trials"></canvas>
             <div class="pl-chart-legend">
               <div class="pl-legend-item">
                 <div class="pl-legend-indicator bar"></div>
@@ -203,15 +216,16 @@
           </section>
         </div>
 
+        <!-- Two-event mode sections -->
         <div id="pl-two-view" hidden>
-          <div class="pl-bottom-grid">
-            <section class="box card">
+          <div class="pl-content-grid">
+            <section class="box card" id="pl-joint-distribution-card">
               <h2>Joint Distribution</h2>
-              <canvas id="pl-heatmap" class="pl-canvas" width="640" height="320" aria-label="Heatmap of joint relative frequencies"></canvas>
+              <canvas id="pl-heatmap" class="pl-canvas" aria-label="Heatmap of joint relative frequencies"></canvas>
               <div id="pl-cell-summary" class="pl-cell-summary" aria-live="polite"></div>
             </section>
 
-            <section class="box card">
+            <section class="box card" id="pl-two-way-table-card">
               <h2>Two-way Table</h2>
               <div class="pl-table-wrap">
                 <table id="pl-twoway-table" class="pl-table"></table>

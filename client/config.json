@@ -1,5 +1,10 @@
 {
   "mode": "single",
-  "device": "coin"
+  "device": "coin",
+  "sections": {
+    "barChart": true,
+    "convergence": false,
+    "frequencyTable": false
+  }
 }
 

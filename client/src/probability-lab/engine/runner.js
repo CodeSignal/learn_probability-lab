@@ -72,7 +72,12 @@ export function createRunner(runningState, callbacks) {
     runningState.cancel = false;
     if (onDone) onDone();
 
-    const tick = () => {
+    // Clamp speed to valid range (1-60 iterations/sec)
+    const clampedSpeed = Math.max(1, Math.min(60, speed || 60));
+    const delayMs = 1000 / clampedSpeed;
+    let lastTime = performance.now();
+
+    const tick = (currentTime) => {
       if (!runningState.auto || runningState.cancel) {
         runningState.auto = false;
         runningState.rafId = null;
@@ -80,15 +85,22 @@ export function createRunner(runningState, callbacks) {
         return;
       }
 
-      const chunk = 1;
+      // Check if enough time has passed for the next iteration
+      const elapsed = currentTime - lastTime;
+      if (elapsed >= delayMs) {
+        const chunk = 1;
 
-      if (mode === 'two') {
-        simulateTwo(stateSlice, rng, chunk);
-      } else {
-        simulateSingle(stateSlice, rng, chunk);
+        if (mode === 'two') {
+          simulateTwo(stateSlice, rng, chunk);
+        } else {
+          simulateSingle(stateSlice, rng, chunk);
+        }
+
+        if (onTick) onTick();
+        lastTime = currentTime;
       }
 
-      if (onTick) onTick();
+      // Continue the loop
       runningState.rafId = window.requestAnimationFrame(tick);
     };
 

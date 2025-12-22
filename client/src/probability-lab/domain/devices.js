@@ -7,15 +7,7 @@ import { buildCdf } from './cdf.js';
 export function buildDeviceDefinition(config) {
   if (config.device === 'coin') {
     const labels = ['Heads', 'Tails'];
-    let probabilities;
-
-    // Backward compatibility: if coinPHeads is provided, convert to coinProbabilities
-    if (config.coinPHeads !== undefined) {
-      const pHeads = clamp(config.coinPHeads, 0.01, 0.99);
-      probabilities = [pHeads, 1 - pHeads];
-    } else {
-      probabilities = config.coinProbabilities ?? [0.5, 0.5];
-    }
+    let probabilities = config.coinProbabilities ?? [0.5, 0.5];
 
     // Ensure all probabilities are clamped and normalized
     // First, normalize the input probabilities

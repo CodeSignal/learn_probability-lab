@@ -28,6 +28,7 @@ const els = {
   setupSampleSpace: $('pl-setup-sample-space'),
 
   singleConfig: $('pl-single-config'),
+  singleView: $('pl-single-view'),
   twoConfig: $('pl-two-config'),
   twoView: $('pl-two-view'),
 
@@ -43,6 +44,7 @@ const els = {
   step: $('pl-step'),
   stepSize: $('pl-step-size'),
   auto: $('pl-auto'),
+  autoSpeedContainer: $('pl-auto-speed-container'),
 
   seed: $('pl-seed'),
 
@@ -62,6 +64,13 @@ const els = {
   heatmap: $('pl-heatmap'),
   twoWayTable: $('pl-twoway-table'),
   cellSummary: $('pl-cell-summary'),
+
+  // Section containers for visibility control
+  barChartSection: $('pl-bar-chart-section'),
+  convergenceCard: $('pl-convergence-card'),
+  frequencyCard: $('pl-frequency-card'),
+  jointDistributionCard: $('pl-joint-distribution-card'),
+  twoWayTableCard: $('pl-two-way-table-card'),
 };
 
 // Store NumericSlider instances for each device configuration
@@ -73,13 +82,24 @@ const sliderInstances = {
   },
 };
 
+// Store speed slider instance
+let speedSlider = null;
+
 const store = createStore({
   rng: Math.random,
   seedText: '',
 
   mode: 'single',
-  speed: 1,
+  speed: 60,
   stepSize: 1,
+
+  sections: {
+    barChart: false,
+    convergence: false,
+    frequencyTable: false,
+    jointDistribution: false,
+    twoWayTable: false,
+  },
 
   running: {
     cancel: false,
@@ -129,7 +149,11 @@ const store = createStore({
 
 // Create runner instance with callbacks
 const runner = createRunner(store.getState().running, {
-  onTick: () => render(els, store.getState()),
+  onTick: () => {
+    const state = store.getState();
+    render(els, state);
+    applySectionVisibility(state);
+  },
   onDone: updateControls,
   onStop: updateControls,
 });
@@ -219,7 +243,38 @@ function resetSimulation() {
   else resetSingleSimulation();
 
   render(els, store.getState());
+  applySectionVisibility(store.getState());
   syncUiFromState();
+}
+
+function applySectionVisibility(state) {
+  const sections = state.sections || {};
+
+  if (state.mode === 'single') {
+    // Single mode sections - use style.display instead of hidden attribute to override CSS
+    if (els.barChartSection) {
+      els.barChartSection.style.display = sections.barChart ? '' : 'none';
+      els.barChartSection.hidden = !sections.barChart;
+    }
+    if (els.convergenceCard) {
+      els.convergenceCard.style.display = sections.convergence ? '' : 'none';
+      els.convergenceCard.hidden = !sections.convergence;
+    }
+    if (els.frequencyCard) {
+      els.frequencyCard.style.display = sections.frequencyTable ? '' : 'none';
+      els.frequencyCard.hidden = !sections.frequencyTable;
+    }
+  } else {
+    // Two mode sections
+    if (els.jointDistributionCard) {
+      els.jointDistributionCard.style.display = sections.jointDistribution ? '' : 'none';
+      els.jointDistributionCard.hidden = !sections.jointDistribution;
+    }
+    if (els.twoWayTableCard) {
+      els.twoWayTableCard.style.display = sections.twoWayTable ? '' : 'none';
+      els.twoWayTableCard.hidden = !sections.twoWayTable;
+    }
+  }
 }
 
 function updateControls() {
@@ -258,6 +313,11 @@ function updateControls() {
     if (slider && typeof slider.setDisabled === 'function') {
       slider.setDisabled(disableInputs);
     }
+  }
+
+  // Disable/enable speed slider
+  if (speedSlider && typeof speedSlider.setDisabled === 'function') {
+    speedSlider.setDisabled(disableInputs);
   }
 
   // Also disable other inputs in bias containers (like spinner sectors)
@@ -369,16 +429,22 @@ function renderBiasControls(container, device, values, onChange) {
 
   if (device === 'coin') {
     const probabilities = values.coinProbabilities ?? [0.5, 0.5];
-    const labels = ['Heads', 'Tails'];
+    const labels = ['H', 'T'];
     for (let i = 0; i < 2; i++) {
       const sliderKey = `${deviceKey}-${i}`;
       const wrapper = document.createElement('div');
       wrapper.style.marginBottom = 'var(--UI-Spacing-spacing-sm)';
+      wrapper.style.display = 'flex';
+      wrapper.style.flexDirection = 'row';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.gap = 'var(--UI-Spacing-spacing-sm)';
 
       const labelEl = document.createElement('label');
       labelEl.textContent = `P(${labels[i]})`;
-      labelEl.style.display = 'block';
-      labelEl.style.marginBottom = 'var(--UI-Spacing-spacing-xs)';
+      labelEl.style.marginTop = '0px';
+      labelEl.style.marginBottom = '0px';
+      labelEl.style.paddingLeft = '0px';
+      labelEl.style.paddingRight = '5px';
       labelEl.style.fontSize = 'var(--UI-Typography-fontSize-sm)';
       labelEl.style.fontWeight = 'var(--UI-Typography-fontWeight-medium)';
       labelEl.style.color = 'var(--Colors-Text-Body-Strongest, #0A1122)';
@@ -438,11 +504,17 @@ function renderBiasControls(container, device, values, onChange) {
       const sliderKey = `${deviceKey}-${i}`;
       const wrapper = document.createElement('div');
       wrapper.style.marginBottom = 'var(--UI-Spacing-spacing-sm)';
+      wrapper.style.display = 'flex';
+      wrapper.style.flexDirection = 'row';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.gap = 'var(--UI-Spacing-spacing-sm)';
 
       const labelEl = document.createElement('label');
+      labelEl.style.marginTop = '0px';
+      labelEl.style.marginBottom = '0px';
+      labelEl.style.paddingLeft = '0px';
+      labelEl.style.paddingRight = '5px';
       labelEl.textContent = `P(${faceNumber})`;
-      labelEl.style.display = 'block';
-      labelEl.style.marginBottom = 'var(--UI-Spacing-spacing-xs)';
       labelEl.style.fontSize = 'var(--UI-Typography-fontSize-sm)';
       labelEl.style.fontWeight = 'var(--UI-Typography-fontWeight-medium)';
       labelEl.style.color = 'var(--Colors-Text-Body-Strongest, #0A1122)';
@@ -499,11 +571,13 @@ function renderBiasControls(container, device, values, onChange) {
   const sliderKey = `${deviceKey}-skew`;
   const wrapper = document.createElement('div');
   wrapper.style.marginBottom = 'var(--UI-Spacing-spacing-sm)';
+  wrapper.style.display = 'flex';
+  wrapper.style.flexDirection = 'row';
+  wrapper.style.alignItems = 'center';
+  wrapper.style.gap = 'var(--UI-Spacing-spacing-sm)';
 
   const labelEl = document.createElement('label');
   labelEl.textContent = 'Skew';
-  labelEl.style.display = 'block';
-  labelEl.style.marginBottom = 'var(--UI-Spacing-spacing-xs)';
   labelEl.style.fontSize = 'var(--UI-Typography-fontSize-sm)';
   labelEl.style.fontWeight = 'var(--UI-Typography-fontWeight-medium)';
   labelEl.style.color = 'var(--Colors-Text-Body-Strongest, #0A1122)';
@@ -559,7 +633,9 @@ function renderEventOptions() {
       store.setState((draft) => {
         draft.single.eventSelected = next;
       });
-      render(els, store.getState());
+      const state = store.getState();
+      render(els, state);
+      applySectionVisibility(state);
     });
 
     label.append(checkbox, title);
@@ -590,6 +666,11 @@ function syncUiFromState() {
   els.spinnerSectors.value = String(state.single.spinnerSectors);
 
   els.relationship.value = state.two.relationship;
+
+  // Sync speed slider value
+  if (speedSlider && typeof speedSlider.setValue === 'function') {
+    speedSlider.setValue(state.speed, null, false);
+  }
 
   renderBiasControls(els.biasOptions, state.single.device, {
     coinProbabilities: state.single.coinProbabilities,
@@ -734,7 +815,7 @@ function initEventListeners() {
       runner.stopRunning();
     } else {
       const stateSlice = state.mode === 'two' ? state.two : state.single;
-      runner.startAuto(state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng, 1);
+      runner.startAuto(state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng, state.speed);
     }
   });
 
@@ -762,13 +843,15 @@ function initEventListeners() {
     store.setState((draft) => {
       draft.two.selectedCell = { r, c };
     });
-    render(els, store.getState());
+    const currentState = store.getState();
+    render(els, currentState);
+    applySectionVisibility(currentState);
   });
 
   els.heatmap.addEventListener('click', (event) => {
-    const state = store.getState();
-    const defA = state.two.definitionA;
-    const defB = state.two.definitionB;
+    const currentState = store.getState();
+    const defA = currentState.two.definitionA;
+    const defB = currentState.two.definitionB;
     if (!defA || !defB) return;
 
     const rect = els.heatmap.getBoundingClientRect();
@@ -789,11 +872,15 @@ function initEventListeners() {
     store.setState((draft) => {
       draft.two.selectedCell = { r: row, c: col };
     });
-    render(els, store.getState());
+    const updatedState = store.getState();
+    render(els, updatedState);
+    applySectionVisibility(updatedState);
   });
 
   window.addEventListener('resize', () => {
-    render(els, store.getState());
+    const state = store.getState();
+    render(els, state);
+    applySectionVisibility(state);
   });
 }
 
@@ -826,18 +913,57 @@ async function init() {
       draft.two.deviceA = config.deviceA;
       draft.two.deviceB = config.deviceB;
     }
+    if (config.sections) {
+      draft.sections = { ...draft.sections, ...config.sections };
+    }
     draft.rng = createRngFromSeed(draft.seedText);
   });
   syncUiFromState();
+
+  // Initialize speed slider
+  if (els.autoSpeedContainer && !speedSlider) {
+    const state = store.getState();
+    speedSlider = new NumericSlider(els.autoSpeedContainer, {
+      type: 'single',
+      min: 1,
+      max: 60,
+      step: 1,
+      value: state.speed,
+      showInputs: true,
+      onChange: (value) => {
+        const currentState = store.getState();
+        const wasRunning = currentState.running.auto;
+
+        store.setState((draft) => {
+          draft.speed = value;
+        });
+
+        // If auto mode is running, restart it with new speed
+        if (wasRunning) {
+          runner.stopRunning();
+          // Use setTimeout to ensure stopRunning completes before restarting
+          setTimeout(() => {
+            const newState = store.getState();
+            const stateSlice = newState.mode === 'two' ? newState.two : newState.single;
+            runner.startAuto(newState.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, newState.rng, newState.speed);
+          }, 0);
+        }
+      },
+    });
+  }
 
   resetSingleSimulation();
   resetTwoSimulation();
 
   initEventListeners();
   updateControls();
-  render(els, store.getState());
+  applySectionVisibility(store.getState());
 
-  setStatus('Ready');
+  // Defer initial render until after layout is complete
+  requestAnimationFrame(() => {
+    render(els, store.getState());
+    setStatus('Ready');
+  });
 }
 
 if (document.readyState === 'loading') {

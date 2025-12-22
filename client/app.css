@@ -204,6 +204,14 @@
   min-width: 0;
 }
 
+.bespoke .pl-speed-group {
+  display: flex;
+  align-items: center;
+  gap: var(--UI-Spacing-spacing-s);
+  flex: 1;
+  min-width: 0;
+}
+
 .bespoke .pl-control-label {
   font-size: var(--Fonts-Body-Default-sm);
   font-weight: 500;
@@ -263,6 +271,88 @@
 .bespoke .pl-action-buttons .button-secondary {
   height: 40px;
   padding: 0 var(--UI-Spacing-spacing-ml);
+}
+
+/* ===== COMPACT RUN TRIALS PANEL LAYOUT ===== */
+
+.bespoke .pl-run-card {
+  padding: var(--UI-Spacing-spacing-ml) !important;
+}
+
+.bespoke .pl-run-grid {
+  display: grid;
+  grid-template-columns: minmax(420px, 1fr) 320px;
+  gap: var(--UI-Spacing-spacing-xl);
+  align-items: start;
+}
+
+.bespoke .pl-run-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-s);
+}
+
+/* Reduce padding in controls when inside run card */
+.bespoke .pl-run-card .pl-trial-controls {
+  padding: 0;
+  margin-bottom: 0;
+}
+
+/* Compact device section in run card */
+.bespoke .pl-run-card .pl-device-section {
+  padding: var(--UI-Spacing-spacing-s) 0;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Smaller device size in run card */
+.bespoke .pl-run-card #pl-device-view.pl-device {
+  width: 120px;
+  height: 120px;
+}
+
+.bespoke .pl-run-card .pl-device .pl-coin,
+.bespoke .pl-run-card .pl-device .pl-die,
+.bespoke .pl-run-card .pl-device .pl-spinner {
+  width: 90px;
+  height: 90px;
+}
+
+.bespoke .pl-run-card .pl-device .pl-coin {
+  font-size: 42px;
+}
+
+.bespoke .pl-run-card .pl-device .pl-die {
+  border-radius: 16px;
+}
+
+.bespoke .pl-run-card .pl-device .pl-die .pl-pip {
+  width: 11px;
+  height: 11px;
+}
+
+.bespoke .pl-run-card .pl-device .pl-spinner-pointer {
+  border-left-width: 8px;
+  border-right-width: 8px;
+  border-bottom-width: 14px;
+  top: -5px;
+}
+
+/* Compact metrics in run card */
+.bespoke .pl-run-card .pl-trial-metrics {
+  padding-top: var(--UI-Spacing-spacing-s);
+  border-top: 1px solid var(--Colors-Stroke-Light);
+  gap: var(--UI-Spacing-spacing-xs);
+}
+
+.bespoke .pl-run-card .pl-trial-metric {
+  padding: var(--UI-Spacing-spacing-xs) var(--UI-Spacing-spacing-s);
+}
+
+.bespoke .pl-run-card .pl-trial-metric .pl-metric-value {
+  font-size: var(--Fonts-Body-Default-xl);
 }
 
 /* ===== LIVE TRIAL DEVICE SECTION ===== */
@@ -331,19 +421,9 @@
   min-height: 100%;
 }
 
-.bespoke .pl-top-grid {
+.bespoke .pl-content-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--UI-Spacing-spacing-xl);
-}
-
-.bespoke #probability-lab[data-mode="two"] .pl-top-grid {
-  grid-template-columns: 1fr;
-}
-
-.bespoke .pl-bottom-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: var(--UI-Spacing-spacing-xl);
 }
 
@@ -962,13 +1042,6 @@
     border-bottom: 1px solid var(--Colors-Stroke-Default);
   }
 
-  .bespoke .pl-top-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .bespoke .pl-bottom-grid {
-    grid-template-columns: 1fr;
-  }
 
   .bespoke .pl-two-config-grid {
     grid-template-columns: 1fr;
@@ -1008,6 +1081,16 @@
 
   .bespoke .pl-trial-metrics {
     grid-template-columns: 1fr;
+  }
+
+  /* Stack run trials grid on mobile */
+  .bespoke .pl-run-grid {
+    grid-template-columns: 1fr;
+    gap: var(--UI-Spacing-spacing-ml);
+  }
+
+  .bespoke .pl-run-card .pl-trial-controls {
+    padding: 0;
   }
 }
 

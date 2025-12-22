@@ -84,14 +84,8 @@ export function renderModeVisibility(els, state) {
   els.twoView.hidden = !isTwo;
   els.eventCard.hidden = isTwo;
 
-  const barCard = els.barChart.closest('section');
-  const convCard = els.lineChart.closest('section');
-  const freqCard = els.frequencyTable.closest('section');
-  const singleBottomGrid = els.lineChart.closest('.pl-bottom-grid');
-  if (barCard) barCard.hidden = isTwo;
-  if (convCard) convCard.hidden = isTwo;
-  if (freqCard) freqCard.hidden = isTwo;
-  if (singleBottomGrid) singleBottomGrid.hidden = isTwo;
+  // Show/hide single-event and two-event view containers
+  if (els.singleView) els.singleView.hidden = isTwo;
 }
 
 export default function render(els, state) {
