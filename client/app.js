@@ -441,13 +441,7 @@ function renderBiasControls(container, device, values, onChange) {
 
       const labelEl = document.createElement('label');
       labelEl.textContent = `P(${labels[i]})`;
-      labelEl.style.marginTop = '0px';
-      labelEl.style.marginBottom = '0px';
-      labelEl.style.paddingLeft = '0px';
-      labelEl.style.paddingRight = '5px';
-      labelEl.style.fontSize = 'var(--UI-Typography-fontSize-sm)';
-      labelEl.style.fontWeight = 'var(--UI-Typography-fontWeight-medium)';
-      labelEl.style.color = 'var(--Colors-Text-Body-Strongest, #0A1122)';
+      labelEl.classList.add('pl-slider-label');
 
       const sliderContainer = document.createElement('div');
       wrapper.appendChild(labelEl);
@@ -510,14 +504,8 @@ function renderBiasControls(container, device, values, onChange) {
       wrapper.style.gap = 'var(--UI-Spacing-spacing-sm)';
 
       const labelEl = document.createElement('label');
-      labelEl.style.marginTop = '0px';
-      labelEl.style.marginBottom = '0px';
-      labelEl.style.paddingLeft = '0px';
-      labelEl.style.paddingRight = '5px';
       labelEl.textContent = `P(${faceNumber})`;
-      labelEl.style.fontSize = 'var(--UI-Typography-fontSize-sm)';
-      labelEl.style.fontWeight = 'var(--UI-Typography-fontWeight-medium)';
-      labelEl.style.color = 'var(--Colors-Text-Body-Strongest, #0A1122)';
+      labelEl.classList.add('pl-slider-label');
 
       const sliderContainer = document.createElement('div');
       wrapper.appendChild(labelEl);
@@ -578,9 +566,7 @@ function renderBiasControls(container, device, values, onChange) {
 
   const labelEl = document.createElement('label');
   labelEl.textContent = 'Skew';
-  labelEl.style.fontSize = 'var(--UI-Typography-fontSize-sm)';
-  labelEl.style.fontWeight = 'var(--UI-Typography-fontWeight-medium)';
-  labelEl.style.color = 'var(--Colors-Text-Body-Strongest, #0A1122)';
+  labelEl.classList.add('pl-slider-label');
 
   const sliderContainer = document.createElement('div');
   wrapper.appendChild(labelEl);
@@ -616,13 +602,21 @@ function renderEventOptions() {
     option.className = 'pl-event-option';
 
     const label = document.createElement('label');
-    label.className = 'pl-event-label';
+    label.className = 'input-checkbox input-checkbox-small';
+    label.style.flex = '1';
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.checked = selectedLabels.has(def.labels[i]);
 
+    const box = document.createElement('span');
+    box.className = 'input-checkbox-box';
+
+    const checkmark = document.createElement('span');
+    checkmark.className = 'input-checkbox-checkmark';
+
     const title = document.createElement('span');
+    title.className = 'input-checkbox-label';
     title.textContent = def.labels[i];
 
     checkbox.addEventListener('change', () => {
@@ -638,7 +632,8 @@ function renderEventOptions() {
       applySectionVisibility(state);
     });
 
-    label.append(checkbox, title);
+    box.appendChild(checkmark);
+    label.append(checkbox, box, title);
 
     const p = document.createElement('div');
     p.className = 'pl-event-prob';
