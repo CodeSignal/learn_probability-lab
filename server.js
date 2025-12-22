@@ -16,6 +16,9 @@ try {
 }
 
 const DIST_DIR = path.join(__dirname, 'dist');
+// Config file path from environment variable or default
+const CONFIG_PATH_ENV = process.env.CONFIG_PATH || './config.json';
+const CONFIG_PATH = path.resolve(__dirname, CONFIG_PATH_ENV);
 // Check if IS_PRODUCTION is set to true
 const isProduction = process.env.IS_PRODUCTION === 'true';
 // In production mode, dist directory must exist
@@ -118,10 +121,42 @@ function handlePostRequest(req, res, parsedUrl) {
   }
 }
 
+// Handle GET requests for config.json
+function handleGetConfig(req, res) {
+  fs.readFile(CONFIG_PATH, 'utf8', (err, data) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Config file not found' }));
+      } else {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Failed to read config file' }));
+      }
+      return;
+    }
+
+    try {
+      // Validate JSON before sending
+      JSON.parse(data);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(data);
+    } catch (parseError) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Invalid JSON in config file' }));
+    }
+  });
+}
+
 // Create HTTP server
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
   let pathName = parsedUrl.pathname === '/' ? '/index.html' : parsedUrl.pathname;
+
+  // Handle GET requests for config.json
+  if (req.method === 'GET' && parsedUrl.pathname === '/config.json') {
+    handleGetConfig(req, res);
+    return;
+  }
 
   // Handle POST requests
   if (req.method === 'POST') {
