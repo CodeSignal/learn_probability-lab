@@ -24,7 +24,17 @@ export function updateDeviceViewSingle(deviceViewEl, def, singleState) {
   if (def.device === 'coin') {
     const coin = document.createElement('div');
     coin.className = 'pl-coin';
-    coin.textContent = label.startsWith('H') ? 'H' : 'T';
+    coin.id = 'pl-coin-element';
+
+    const heads = document.createElement('div');
+    heads.className = 'pl-coin-heads';
+    heads.textContent = 'H';
+
+    const tails = document.createElement('div');
+    tails.className = 'pl-coin-tails';
+    tails.textContent = 'T';
+
+    coin.append(heads, tails);
     deviceViewEl.append(coin);
     return;
   }
@@ -103,7 +113,16 @@ export function updateDeviceViewTwo(deviceViewEl, defA, defB, twoState) {
     if (def.device === 'coin') {
       const coin = document.createElement('div');
       coin.className = 'pl-coin';
-      coin.textContent = label.startsWith('H') ? 'H' : 'T';
+
+      const heads = document.createElement('div');
+      heads.className = 'pl-coin-heads';
+      heads.textContent = 'H';
+
+      const tails = document.createElement('div');
+      tails.className = 'pl-coin-tails';
+      tails.textContent = 'T';
+
+      coin.append(heads, tails);
       target.append(coin);
       return;
     }

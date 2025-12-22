@@ -50,6 +50,28 @@ export default function renderSingle(els, state) {
 
   updateDeviceViewSingle(els.deviceView, def, state.single);
 
+  // Trigger coin flip animation for single trials
+  // TODO: make it work for auto mode too
+  if (def.device === 'coin' && state.single.lastIndex !== null && !state.running.auto) {
+    const coin = els.deviceView.querySelector('#pl-coin-element');
+    if (coin) {
+      const label = def.labels[state.single.lastIndex] ?? '—';
+      const isHeads = label.startsWith('H');
+
+      // Reset animation
+      coin.style.animation = 'none';
+
+      // Trigger animation on next frame
+      requestAnimationFrame(() => {
+        coin.style.animation = isHeads
+          ? 'pl-flip-heads 2s forwards'
+          : 'pl-flip-tails 2s forwards';
+      });
+    }
+  }
+
+  // TODO: add nice die animation, e.g. https://github.com/3d-dice/dice-box
+
   const rel = state.single.trials === 0 ? def.labels.map(() => 0) : state.single.counts.map((c) => c / state.single.trials);
   drawBarChart(els.barChart, def.labels, rel, def.probabilities);
 

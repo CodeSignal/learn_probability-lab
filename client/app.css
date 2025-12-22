@@ -369,6 +369,16 @@
 .bespoke .pl-coin {
   width: 120px;
   height: 120px;
+  position: relative;
+  margin: 0;
+  transform-style: preserve-3d;
+}
+
+.bespoke .pl-coin-heads,
+.bespoke .pl-coin-tails {
+  position: absolute;
+  width: 100%;
+  height: 100%;
   border-radius: 999px;
   background: radial-gradient(circle at 30% 30%, var(--pl-accent-1), var(--pl-accent-2));
   border: 3px solid rgba(0, 0, 0, 0.08);
@@ -382,6 +392,11 @@
   line-height: 1;
   letter-spacing: -0.02em;
   user-select: none;
+  backface-visibility: hidden;
+}
+
+.bespoke .pl-coin-tails {
+  transform: rotateX(180deg);
 }
 
 .bespoke .pl-coin-subtitle {
@@ -738,6 +753,24 @@
 @keyframes pl-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
+}
+
+@keyframes pl-flip-heads {
+  0% {
+    transform: rotateX(0);
+  }
+  100% {
+    transform: rotateX(2520deg);
+  }
+}
+
+@keyframes pl-flip-tails {
+  0% {
+    transform: rotateX(0);
+  }
+  100% {
+    transform: rotateX(2340deg);
+  }
 }
 
 /* Device animations */
