@@ -3,8 +3,10 @@
   "device": "coin",
   "sections": {
     "barChart": true,
-    "convergence": false,
-    "frequencyTable": false
+    "convergence": true,
+    "frequencyTable": true,
+    "jointDistribution": false,
+    "twoWayTable": false
   }
 }
 
