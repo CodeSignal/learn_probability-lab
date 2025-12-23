@@ -80,12 +80,14 @@ export default function drawBarChart(canvas, labels, values, theory) {
       ctx.globalAlpha = 1;
 
       ctx.strokeStyle = strong;
+      ctx.setLineDash([6, 6]);
       ctx.lineWidth = 2;
       const yTheory = padding.top + (1 - theoryValue) * plotH;
       ctx.beginPath();
       ctx.moveTo(x + 2, yTheory);
       ctx.lineTo(x + barW - 2, yTheory);
       ctx.stroke();
+      ctx.setLineDash([]);
       ctx.lineWidth = 1;
 
       ctx.fillStyle = strong;
