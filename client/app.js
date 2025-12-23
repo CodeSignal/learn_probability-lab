@@ -602,21 +602,13 @@ function renderEventOptions() {
     option.className = 'pl-event-option';
 
     const label = document.createElement('label');
-    label.className = 'input-checkbox input-checkbox-small';
-    label.style.flex = '1';
+    label.className = 'pl-event-label';
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.checked = selectedLabels.has(def.labels[i]);
 
-    const box = document.createElement('span');
-    box.className = 'input-checkbox-box';
-
-    const checkmark = document.createElement('span');
-    checkmark.className = 'input-checkbox-checkmark';
-
     const title = document.createElement('span');
-    title.className = 'input-checkbox-label';
     title.textContent = def.labels[i];
 
     checkbox.addEventListener('change', () => {
@@ -632,8 +624,7 @@ function renderEventOptions() {
       applySectionVisibility(state);
     });
 
-    box.appendChild(checkmark);
-    label.append(checkbox, box, title);
+    label.append(checkbox, title);
 
     const p = document.createElement('div');
     p.className = 'pl-event-prob';
