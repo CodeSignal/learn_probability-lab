@@ -1,211 +1,198 @@
-# Repository Guidelines
+# CodeSignal Probability Lab - Repository Guidelines
 
-This repository contains the **CodeSignal Probability Lab** — a Bespoke Simulation for repeated-trial probability experiments (coin, die, spinner) that visualizes convergence: as you run more trials, relative frequencies become more stable and tend to approach theoretical probabilities.
+This repository contains the CodeSignal Probability Lab, a Bespoke simulation for repeated-trial
+probability experiments (coin, die, spinner) that visualizes convergence.
 
 ## Overview
 
-The Probability Lab is an educational simulation that helps students understand:
+The Probability Lab helps students understand:
 
-- **Sample space** (all possible outcomes)
-- **Events** (subsets of outcomes)
-- **Theoretical probability** (what "should" happen in the long run)
-- **Experimental probability** (what your data shows)
-- **Convergence** (how estimates stabilize with more trials)
+- Sample space (all possible outcomes)
+- Events (subsets of outcomes)
+- Theoretical probability (what should happen in the long run)
+- Experimental probability (what data shows)
+- Convergence (estimates stabilize as trials increase)
 
 ### Key Features
 
-- **One event mode**: Event builder (select outcomes), live bar chart, convergence chart, frequency table
-- **Two events mode**: Joint heatmap + two-way table; click a cell to see joint and conditional probabilities
-- **Bias controls**: Explore fair vs biased devices (coin, die, spinner)
-- **Seeded randomness**: Optionally reproduce runs with a seed
-- **Device types**: Coin, die, spinner (with configurable sectors)
-- **Event relationships**: Independent, copy (B = A), complement (B = not A)
+- One event mode: event builder, live bar chart, convergence chart, frequency table
+- Two events mode: joint heatmap + two-way table with joint/conditional reads
+- Bias controls: fair vs biased devices (coin, die, spinner)
+- Seeded randomness: reproduce runs with a seed
+- Event relationships: independent, copy (B = A), complement (B = not A)
 
-## Project Structure
-
-### Current Structure
+## Project Map
 
 ```
 client/
-  ├── index.html                          # Main HTML template
-  ├── app.js                              # App shell initialization (WebSocket, help modal)
-  ├── codesignal-probability-lab.js       # Main orchestration file
-  ├── codesignal-probability-lab.css      # App-specific styling
-  ├── bespoke-template.css                # Template-specific styles
-  ├── help-content.html                   # Help modal content
-  ├── config.json                         # Runtime configuration (mode, device)
-  ├── src/                                # Modular source code
-  │   ├── shell/                          # App shell (status, websocket, help, config)
-  │   ├── shared/                         # Shared utilities (math, format)
-  │   └── probability-lab/                # Probability Lab modules
-  │       ├── domain/                     # Domain logic (RNG, CDF, devices)
-  │       ├── engine/                     # Simulation engine (runner, simulate-single, simulate-two)
-  │       ├── state/                      # State management (store)
-  │       └── ui/                         # UI rendering (charts, tables, device-view, render)
-  └── design-system/                      # CodeSignal Design System
-      ├── colors/
-      ├── spacing/
-      ├── typography/
-      └── components/
-server.js                                  # Development server (Vite + API)
+  index.html                  # App shell and layout
+  app.js                       # Main entry (store, config, runner, UI wiring)
+  app.css                      # App styling
+  help-content.html            # Help modal content
+  config.json                  # Runtime configuration (dev default)
+  src/                         # Modular ES modules
+    shell/                     # status/websocket/help/config
+    shared/                    # math + format utilities
+    probability-lab/           # domain/engine/state/ui
+  design-system/               # CodeSignal Design System assets
+    agents.md                  # Design system deep reference (lowercase file)
+
+dist/                          # Production build output (vite build)
+server.js                      # HTTP + WebSocket server for prod/API
+vite.config.js                 # Vite root=client, dev proxy to /message and /ws
+vitest.config.js               # Vitest config
+
+tests/                         # Vitest suites (domain/engine/shared)
 ```
 
-## Architecture Notes
+## Commands
 
-### Current State
+1. Start dev servers (Vite on 3000 + API server on 3001):
+   `npm run start:dev`
+2. Build for production:
+   `npm run build`
+3. Start production server (serves dist + /message + /ws):
+   `npm run start:prod`
+4. Run tests:
+   `npm test`
 
-- **Modular ES module architecture**: `codesignal-probability-lab.js` serves as the main orchestration file
-- **ES modules**: All code uses ES modules with explicit imports/exports
-- **Vite setup**: Using Vite for development with full ES module support and dependency graph benefits
-- **Design System**: Modal component and all app code use ES modules with direct imports
+## Runtime Configuration
 
-### Key Components
+- Dev uses `client/config.json` served by Vite.
+- Production serves `/config.json` from `server.js` using `CONFIG_PATH` (default `./config.json`).
+- Config validation happens in `client/src/shell/config.js`.
 
-- **Simulation engine**: Pure functions for single and two-event trials (`engine/simulate-single.js`, `engine/simulate-two.js`, `engine/runner.js`)
-- **Rendering**: Charts (bar, line, heatmap), tables (frequency, two-way), device visualization (in `ui/` directory)
-- **State management**: Explicit store pattern with `createStore` providing `getState`, `setState`, and `subscribe` methods (`state/store.js`)
-- **Domain logic**: Pure utilities for RNG, CDF, and device definitions (`domain/`)
-- **Configuration**: Runtime configuration via `config.json` loaded at startup (`shell/config.js`). Supports mode (`single`/`two`) and device selection (`coin`/`die`/`spinner`). Falls back to defaults if config is missing or invalid.
+Supported config shapes:
 
-### Configuration
-
-The application loads configuration from `client/config.json` at startup. The configuration file supports:
-
-**Single mode** (`mode: "single"`):
+Single mode:
 ```json
 {
   "mode": "single",
-  "device": "coin"
+  "device": "coin",
+  "sections": {
+    "barChart": true,
+    "convergence": false,
+    "frequencyTable": false
+  }
 }
 ```
 
-**Two-event mode** (`mode: "two"`):
+Two-event mode:
 ```json
 {
   "mode": "two",
   "deviceA": "coin",
-  "deviceB": "die"
+  "deviceB": "die",
+  "sections": {
+    "jointDistribution": true,
+    "twoWayTable": true
+  }
 }
 ```
 
-- Valid modes: `"single"`, `"two"`
-- Valid devices: `"coin"`, `"die"`, `"spinner"`
-- Configuration is validated on load; invalid values fall back to defaults (`mode: "single"`, `device: "coin"`)
-- If `config.json` is missing or fails to load, the app uses default configuration
+Notes:
 
-## Key Conventions
+- Valid modes: `single`, `two`.
+- Valid devices: `coin`, `die`, `spinner`.
+- `sections` is optional; keys are validated and default to `false` if missing/invalid.
+
+## Architecture Notes
+
+- `client/app.js` is the main entrypoint and orchestrates state, rendering, and controls.
+- `client/src/probability-lab/engine` mutates state slices with pure, DOM-free logic.
+- `client/src/probability-lab/ui` is the only place that touches the DOM or canvases.
+- `server.js` serves static files in production and exposes `/message` + `/ws` for alerts.
+
+## Conventions
 
 ### Status Messages
 
-Use these exact status messages for consistency:
+Use these exact status messages:
 
-- "Ready" - Application loaded successfully
-- "Loading..." - Data is being loaded
-- "Saving..." - Data is being saved
-- "Changes saved" - Auto-save completed successfully
-- "Save failed (will retry)" - Server save failed, will retry
-- "Failed to load data" - Data loading failed
-- "Auto-save initialized" - Auto-save system started
+- Ready
+- Loading...
+- Failed to load config
 
 ### DOM Element IDs
 
-All Probability Lab-specific DOM elements use the `pl-` prefix:
+App shell:
 
-- Mode/configuration: `pl-mode`, `pl-single-config`, `pl-two-config`
-- Devices: `pl-device`, `pl-device-a`, `pl-device-b`
-- Controls: `pl-reset`, `pl-step`, `pl-step-size`, `pl-auto`
-- Seed: `pl-seed`, `pl-apply-seed`, `pl-randomize-seed`
-- Event: `pl-event-card`, `pl-event-outcomes`, `pl-event-est`, `pl-event-theory`
-- Visualization: `pl-device-view`, `pl-trials`, `pl-last`
-- Charts: `pl-bar-chart`, `pl-line-chart`, `pl-heatmap`
-- Tables: `pl-frequency-table`, `pl-twoway-table`, `pl-cell-summary`
+- status
+- btn-help
+- probability-lab
+
+Setup and configuration:
+
+- pl-setup-device, pl-setup-sample-space
+- pl-single-config, pl-two-config
+- pl-spinner-options, pl-spinner-sectors
+- pl-bias-options, pl-bias-options-a, pl-bias-options-b
+- pl-relationship, pl-seed
+
+Controls:
+
+- pl-reset, pl-step, pl-step-size, pl-auto, pl-auto-speed-container
+
+Event summary:
+
+- pl-event-card, pl-event-outcomes, pl-event-est, pl-event-theory
+
+Visualization:
+
+- pl-device-view, pl-trials, pl-last
+
+Single-event view:
+
+- pl-single-view
+- pl-bar-chart-section, pl-bar-chart
+- pl-convergence-card, pl-line-chart
+- pl-frequency-card, pl-frequency-table
+
+Two-event view:
+
+- pl-two-view
+- pl-joint-distribution-card, pl-heatmap, pl-cell-summary
+- pl-two-way-table-card, pl-twoway-table
 
 ### Device Types
 
-- **Coin**: Two outcomes (Heads, Tails)
-- **Die**: Six outcomes (1-6)
-- **Spinner**: Configurable sectors (2-10)
-
-### Modes
-
-- **One event**: Single sample space, event builder, bar chart, convergence chart, frequency table
-- **Two events**: Two sample spaces, joint heatmap, two-way table, conditional probabilities
+- Coin: two outcomes (Heads, Tails)
+- Die: six outcomes (1-6)
+- Spinner: configurable sectors (2-12)
 
 ### Event Relationships (Two Events Mode)
 
-- **Independent**: Events A and B are independent
-- **Copy**: B = A (same outcome)
-- **Complement**: B = not A (opposite outcome)
+- Independent: A and B drawn separately
+- Copy: B = A
+- Complement: B = not A (coin-only)
 
 ### Chart Types
 
-- **Bar chart**: Relative frequency of each outcome
-- **Line chart**: Convergence of estimated P(E) over trials
-- **Heatmap**: Joint relative frequencies for two events
+- Bar chart: relative frequency of each outcome
+- Line chart: convergence of estimated P(E) over trials
+- Heatmap: joint relative frequencies for two events
 
 ### Table Types
 
-- **Frequency table**: Theoretical probability, count, relative frequency, difference (Δ) for each outcome
-- **Two-way table**: Joint counts and probabilities for two events
+- Frequency table: theoretical probability, count, relative frequency, delta
+- Two-way table: joint counts and probabilities for two events
 
-## Development Workflow
+## Testing
 
-### Development Server
-
-```bash
-# Start development server (Vite + API server)
-npm run start:dev
-```
-
-Opens `http://localhost:3000` (Vite dev server) with API server on port 3001.
-
-### Production Build
-
-```bash
-# Build for production
-npm run build
-
-# Start production server
-npm run start:prod
-```
-
-### WebSocket Messaging
-
-The server provides a `POST /message` endpoint for real-time messaging:
-
-```bash
-curl -X POST http://localhost:3001/message \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Your message here"}'
-```
-
-This sends alerts to connected clients via WebSocket.
-
-## Error Handling
-
-- Wrap all async operations in try-catch blocks
-- Provide meaningful error messages to users
-- Log errors to console for debugging
-- Implement retry logic for network operations
-- Validate data before operations
+- Tests live under `tests/` and run with Vitest (`npm test`).
+- Test files are `tests/**/*.test.js` or `tests/**/*.spec.js`.
 
 ## Design System
 
-The Probability Lab uses the CodeSignal Design System. For component usage and styling guidelines, see:
-
-- [BESPOKE-TEMPLATE.md](./BESPOKE-TEMPLATE.md) - Template documentation with Design System reference
-- `client/design-system/` - Design System source files
-
-Key Design System components used:
-- Modal (help system)
-- Button, Input, Dropdown (controls)
-- Box/Card (content containers)
-- Typography, Colors, Spacing (styling)
+- Design system assets live in `client/design-system/`.
+- Primary references: `client/design-system/README.md`,
+  `client/design-system/agents.md`, and `client/design-system/llms.txt`.
+- Component-level guidance: `client/design-system/components/AGENTS.md`.
+- JS components available: modal, numeric-slider, dropdown, horizontal-cards.
+- The app currently imports modal and numeric-slider in `client/app.js`.
 
 ## Notes for AI Agents
 
-When working on the Probability Lab:
-
-1. **Use Design System components** directly
-2. **Maintain consistency** with existing patterns and structure
-3. **Keep guidelines up to date** by editing this AGENTS.md file as the codebase evolves
+1. Use Design System components and tokens whenever possible.
+2. Keep DOM IDs and config schemas in sync with `client/app.js` and `client/src/shell/config.js`.
+3. Maintain nested AGENTS files; they override this root doc for their directories.
