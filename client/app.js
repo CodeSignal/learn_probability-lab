@@ -441,7 +441,7 @@ function renderBiasControls(container, device, values, onChange) {
 
       const labelEl = document.createElement('label');
       labelEl.textContent = `P(${labels[i]})`;
-      labelEl.classList.add('pl-slider-label');
+      labelEl.classList.add('pl-slider-label', 'body-small');
 
       const sliderContainer = document.createElement('div');
       wrapper.appendChild(labelEl);
@@ -505,7 +505,7 @@ function renderBiasControls(container, device, values, onChange) {
 
       const labelEl = document.createElement('label');
       labelEl.textContent = `P(${faceNumber})`;
-      labelEl.classList.add('pl-slider-label');
+      labelEl.classList.add('pl-slider-label', 'body-small');
 
       const sliderContainer = document.createElement('div');
       wrapper.appendChild(labelEl);
@@ -566,7 +566,7 @@ function renderBiasControls(container, device, values, onChange) {
 
   const labelEl = document.createElement('label');
   labelEl.textContent = 'Skew';
-  labelEl.classList.add('pl-slider-label');
+  labelEl.classList.add('pl-slider-label', 'body-small');
 
   const sliderContainer = document.createElement('div');
   wrapper.appendChild(labelEl);
@@ -627,7 +627,7 @@ function renderEventOptions() {
     label.append(checkbox, title);
 
     const p = document.createElement('div');
-    p.className = 'pl-event-prob';
+    p.className = 'pl-event-prob body-xsmall';
     p.textContent = formatProbability(def.probabilities[i], 1);
 
     option.append(label, p);
@@ -722,7 +722,7 @@ function updateTwoControlsForRelationship() {
     }
     sliderInstances.two.b.clear();
 
-    els.biasOptionsB.innerHTML = '<p class="pl-muted">B is linked to A.</p>';
+    els.biasOptionsB.innerHTML = '<p class="pl-muted body-xsmall">B is linked to A.</p>';
     return;
   }
 
@@ -770,10 +770,10 @@ function initEventListeners() {
   });
 
   // Handle button group selection
-  document.querySelectorAll('.pl-button-group-item').forEach((button) => {
+  document.querySelectorAll('.pl-button-group .button').forEach((button) => {
     button.addEventListener('click', () => {
       // Remove active class from all buttons
-      document.querySelectorAll('.pl-button-group-item').forEach((btn) => {
+      document.querySelectorAll('.pl-button-group .button').forEach((btn) => {
         btn.classList.remove('active');
       });
       // Add active class to clicked button

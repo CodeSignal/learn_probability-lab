@@ -30,7 +30,7 @@
   <header class="header">
     <h1 class="heading-small">CodeSignal Probability Lab</h1>
     <div class="spacer"></div>
-    <div id="status" class="status heading-small">Ready</div>
+    <div id="status" class="status body-xsmall">Ready</div>
     <button id="btn-help" class="button button-text">Help</button>
   </header>
 
@@ -38,13 +38,13 @@
   <main class="main-layout" id="probability-lab">
     <aside class="sidebar">
       <section class="box card card-emphasized">
-        <h2>Experiment Setup</h2>
+        <h2 class="heading-xsmall">Experiment Setup</h2>
         <div id="pl-setup-device" class="pl-setup-device"></div>
         <div id="pl-setup-sample-space" class="pl-setup-sample-space"></div>
       </section>
 
       <section class="box card card-emphasized">
-        <h2>Experiment Settings</h2>
+        <h2 class="heading-xsmall">Experiment Settings</h2>
         <div id="pl-single-config">
           <div id="pl-spinner-options" hidden>
             <label>
@@ -68,12 +68,12 @@
         <div id="pl-two-config" hidden>
           <div class="pl-two-config-grid">
             <div class="pl-two-config-column">
-              <h3>Event A</h3>
+              <h3 class="heading-xxxsmall">Event A</h3>
               <div id="pl-bias-options-a"></div>
             </div>
 
             <div class="pl-two-config-column">
-              <h3>Event B</h3>
+              <h3 class="heading-xxxsmall">Event B</h3>
               <div id="pl-bias-options-b"></div>
             </div>
           </div>
@@ -90,17 +90,17 @@
       </section>
 
       <section class="box card card-emphasized" id="pl-event-card">
-        <h2>Event E</h2>
-        <p class="pl-helper-text">Select which outcomes count as success for your event.</p>
+        <h2 class="heading-xsmall">Event E</h2>
+        <p class="pl-helper-text body-xsmall">Select which outcomes count as success for your event.</p>
         <div id="pl-event-outcomes"></div>
         <div class="pl-metrics">
           <div class="pl-metric">
-            <div class="pl-metric-label">Estimated P(E)</div>
-            <div id="pl-event-est" class="pl-metric-value">—</div>
+            <div class="pl-metric-label body-xsmall">Estimated P(E)</div>
+            <div id="pl-event-est" class="pl-metric-value heading-xxxsmall">—</div>
           </div>
           <div class="pl-metric">
-            <div class="pl-metric-label">Theoretical P(E)</div>
-            <div id="pl-event-theory" class="pl-metric-value">—</div>
+            <div class="pl-metric-label body-xsmall">Theoretical P(E)</div>
+            <div id="pl-event-theory" class="pl-metric-value heading-xxxsmall">—</div>
           </div>
         </div>
       </section>
@@ -110,23 +110,23 @@
       <div class="pl-content">
         <!-- Trials section: always visible, standalone -->
         <section class="box card card-emphasized card-spacious pl-run-card">
-          <h2>Run Trials</h2>
+          <h2 class="heading-xsmall">Run Trials</h2>
           <div class="pl-run-grid">
             <!-- Left column: Controls -->
             <div class="pl-trial-controls">
               <div class="pl-control-row">
                 <div class="pl-step-size-group">
-                  <span class="pl-control-label">Trials per step:</span>
+                  <span class="pl-control-label body-small">Trials per step:</span>
                   <div class="pl-button-group" role="group" aria-label="Manual trials run per step">
-                    <button class="pl-button-group-item active" data-value="1" type="button">1</button>
-                    <button class="pl-button-group-item" data-value="10" type="button">10</button>
-                    <button class="pl-button-group-item" data-value="100" type="button">50</button>
-                    <button class="pl-button-group-item" data-value="1000" type="button">100</button>
+                    <button class="button button-secondary body-small active" data-value="1" type="button">1</button>
+                    <button class="button button-secondary body-small" data-value="10" type="button">10</button>
+                    <button class="button button-secondary body-small" data-value="100" type="button">50</button>
+                    <button class="button button-secondary body-small" data-value="1000" type="button">100</button>
                   </div>
                   <input id="pl-step-size" type="hidden" value="1" />
                 </div>
                 <div class="pl-action-buttons">
-                  <button id="pl-step" class="button button-primary" type="button">Run Trials</button>
+                  <button id="pl-step" class="button button-primary body-medium" type="button">Run Trials</button>
                 </div>
               </div>
 
@@ -134,7 +134,7 @@
 
               <div class="pl-control-row">
                 <div class="pl-speed-group">
-                  <span class="pl-control-label">Speed (iterations/sec):</span>
+                  <span class="pl-control-label body-small">Speed (iterations/sec):</span>
                   <div id="pl-auto-speed-container"></div>
                 </div>
               </div>
@@ -155,12 +155,12 @@
               <!-- Metrics -->
               <div class="pl-trial-metrics">
                 <div class="box pl-trial-metric">
-                  <div class="pl-metric-label">Trials</div>
-                  <div id="pl-trials" class="pl-metric-value">0</div>
+                  <div class="pl-metric-label body-xsmall">Trials</div>
+                  <div id="pl-trials" class="pl-metric-value heading-small">0</div>
                 </div>
                 <div class="box pl-trial-metric">
-                  <div class="pl-metric-label">Last outcome</div>
-                  <div id="pl-last" class="pl-metric-value">—</div>
+                  <div class="pl-metric-label body-xsmall">Last outcome</div>
+                  <div id="pl-last" class="pl-metric-value heading-small">—</div>
                 </div>
               </div>
             </div>
@@ -171,16 +171,16 @@
         <div id="pl-single-view" class="pl-content-grid">
           <section class="box card" id="pl-bar-chart-section">
             <div class="pl-chart-header">
-              <h2>Relative Frequency</h2>
-              <p class="pl-chart-subtitle">Bars show observed frequencies. Horizontal lines show theoretical probabilities.</p>
+              <h2 class="heading-xsmall">Relative Frequency</h2>
+              <p class="pl-chart-subtitle body-xsmall">Bars show observed frequencies. Horizontal lines show theoretical probabilities.</p>
             </div>
             <canvas id="pl-bar-chart" class="pl-canvas" aria-label="Bar chart of relative frequencies"></canvas>
             <div class="pl-chart-legend">
-              <div class="pl-legend-item">
+              <div class="pl-legend-item body-xsmall">
                 <div class="pl-legend-indicator bar"></div>
                 <span>Observed frequency</span>
               </div>
-              <div class="pl-legend-item">
+              <div class="pl-legend-item body-xsmall">
                 <div class="pl-legend-indicator line"></div>
                 <span>Theoretical probability</span>
               </div>
@@ -189,16 +189,16 @@
 
           <section class="box card" id="pl-convergence-card">
             <div class="pl-chart-header">
-              <h2>Convergence</h2>
-              <p class="pl-chart-subtitle">Shows how estimated P(E) converges to theoretical probability over trials. Dashed line is the target.</p>
+              <h2 class="heading-xsmall">Convergence</h2>
+              <p class="pl-chart-subtitle body-xsmall">Shows how estimated P(E) converges to theoretical probability over trials. Dashed line is the target.</p>
             </div>
             <canvas id="pl-line-chart" class="pl-canvas" aria-label="Line chart of estimated probability over trials"></canvas>
             <div class="pl-chart-legend">
-              <div class="pl-legend-item">
+              <div class="pl-legend-item body-xsmall">
                 <div class="pl-legend-indicator bar"></div>
                 <span>Estimated P(E)</span>
               </div>
-              <div class="pl-legend-item">
+              <div class="pl-legend-item body-xsmall">
                 <div class="pl-legend-indicator dashed"></div>
                 <span>Theoretical P(E)</span>
               </div>
@@ -207,11 +207,11 @@
 
           <section class="box card" id="pl-frequency-card">
             <div class="pl-chart-header">
-              <h2>Frequency Table</h2>
-              <p class="pl-chart-subtitle">Δ shows difference between observed and theoretical. Selected rows count toward Event E.</p>
+              <h2 class="heading-xsmall">Frequency Table</h2>
+              <p class="pl-chart-subtitle body-xsmall">Δ shows difference between observed and theoretical. Selected rows count toward Event E.</p>
             </div>
             <div class="pl-table-wrap">
-              <table id="pl-frequency-table" class="pl-table"></table>
+              <table id="pl-frequency-table" class="pl-table body-small"></table>
             </div>
           </section>
         </div>
@@ -220,15 +220,15 @@
         <div id="pl-two-view" hidden>
           <div class="pl-content-grid">
             <section class="box card" id="pl-joint-distribution-card">
-              <h2>Joint Distribution</h2>
+              <h2 class="heading-xsmall">Joint Distribution</h2>
               <canvas id="pl-heatmap" class="pl-canvas" aria-label="Heatmap of joint relative frequencies"></canvas>
-              <div id="pl-cell-summary" class="pl-cell-summary" aria-live="polite"></div>
+              <div id="pl-cell-summary" class="pl-cell-summary body-small" aria-live="polite"></div>
             </section>
 
             <section class="box card" id="pl-two-way-table-card">
-              <h2>Two-way Table</h2>
+              <h2 class="heading-xsmall">Two-way Table</h2>
               <div class="pl-table-wrap">
-                <table id="pl-twoway-table" class="pl-table"></table>
+                <table id="pl-twoway-table" class="pl-table body-small"></table>
               </div>
             </section>
           </div>

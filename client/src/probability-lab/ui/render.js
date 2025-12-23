@@ -32,25 +32,25 @@ export function renderExperimentSetup(els, state) {
 
     els.setupDevice.innerHTML = `
       <div class="pl-setup-device-item">
-        <span class="pl-setup-icon">${getDeviceIcon(deviceA)}</span>
-        <span class="pl-setup-device-name">${formatDeviceName(deviceA)}</span>
-        <span class="pl-setup-label">(Event A)</span>
+        <span class="pl-setup-icon body-large">${getDeviceIcon(deviceA)}</span>
+        <span class="pl-setup-device-name body-small">${formatDeviceName(deviceA)}</span>
+        <span class="pl-setup-label body-xsmall">(Event A)</span>
       </div>
       <div class="pl-setup-device-item">
-        <span class="pl-setup-icon">${getDeviceIcon(deviceB)}</span>
-        <span class="pl-setup-device-name">${formatDeviceName(deviceB)}</span>
-        <span class="pl-setup-label">(Event B)</span>
+        <span class="pl-setup-icon body-large">${getDeviceIcon(deviceB)}</span>
+        <span class="pl-setup-device-name body-small">${formatDeviceName(deviceB)}</span>
+        <span class="pl-setup-label body-xsmall">(Event B)</span>
       </div>
     `;
 
     els.setupSampleSpace.innerHTML = `
       <div class="pl-setup-sample-space-item">
-        <span class="pl-setup-label">Event A: Sample Space Ω =</span>
-        <span class="pl-setup-set">${formatSampleSpace(labelsA)}</span>
+        <span class="pl-setup-label body-xsmall">Event A: Sample Space Ω =</span>
+        <span class="pl-setup-set code-small">${formatSampleSpace(labelsA)}</span>
       </div>
       <div class="pl-setup-sample-space-item">
-        <span class="pl-setup-label">Event B: Sample Space Ω =</span>
-        <span class="pl-setup-set">${formatSampleSpace(labelsB)}</span>
+        <span class="pl-setup-label body-xsmall">Event B: Sample Space Ω =</span>
+        <span class="pl-setup-set code-small">${formatSampleSpace(labelsB)}</span>
       </div>
     `;
   } else {
@@ -60,15 +60,15 @@ export function renderExperimentSetup(els, state) {
 
     els.setupDevice.innerHTML = `
       <div class="pl-setup-device-item">
-        <span class="pl-setup-icon">${getDeviceIcon(device)}</span>
-        <span class="pl-setup-device-name">${formatDeviceName(device)}</span>
+        <span class="pl-setup-icon body-large">${getDeviceIcon(device)}</span>
+        <span class="pl-setup-device-name body-small">${formatDeviceName(device)}</span>
       </div>
     `;
 
     els.setupSampleSpace.innerHTML = `
       <div class="pl-setup-sample-space-item">
-        <span class="pl-setup-label">Sample Space Ω =</span>
-        <span class="pl-setup-set">${formatSampleSpace(labels)}</span>
+        <span class="pl-setup-label body-xsmall">Sample Space Ω =</span>
+        <span class="pl-setup-set code-small">${formatSampleSpace(labels)}</span>
       </div>
     `;
   }

@@ -32,7 +32,6 @@
 }
 
 .bespoke .header .status {
-  font-size: var(--Fonts-Body-Default-xs);
   color: var(--Colors-Text-Body-Medium);
 }
 
@@ -40,7 +39,7 @@
 .bespoke .main-layout {
   display: grid;
   grid-template-columns: 360px 1fr;
-  height: calc(100% - 42px);
+  height: calc(100% - var(--UI-Spacing-spacing-xxxl));
 }
 
 .bespoke .sidebar {
@@ -108,7 +107,6 @@
   margin-bottom: var(--UI-Spacing-spacing-none);
   padding-left: var(--UI-Spacing-spacing-none);
   padding-right: var(--UI-Spacing-spacing-xs);
-  font-size: var(--Fonts-Body-Default-sm);
   font-weight: 500;
   color: var(--Colors-Text-Body-Strongest);
 }
@@ -150,24 +148,17 @@
 
 .bespoke .box.card h2 {
   margin: 0;
-  font-family: var(--heading-family);
-  font-size: var(--Fonts-Body-Default-xl);
-  font-weight: 600;
   color: var(--Colors-Text-Body-Strongest);
 }
 
 .bespoke .box.card h3 {
   margin: 0 0 var(--UI-Spacing-spacing-xs) 0;
-  font-family: var(--heading-family);
-  font-size: var(--Fonts-Body-Default-lg);
-  font-weight: 600;
   color: var(--Colors-Text-Body-Strong);
 }
 
 .bespoke .pl-muted {
   margin: 0;
   color: var(--Colors-Text-Body-Medium);
-  font-size: var(--Fonts-Body-Default-xs);
 }
 
 .bespoke .pl-nowrap {
@@ -181,6 +172,7 @@
   margin: 0;
 }
 
+/* Device-specific: Range input width for inline controls */
 .bespoke .pl-inline input[type="range"] {
   width: 120px;
 }
@@ -223,7 +215,6 @@
 }
 
 .bespoke .pl-control-label {
-  font-size: var(--Fonts-Body-Default-sm);
   font-weight: 500;
   color: var(--Colors-Text-Body-Default);
   white-space: nowrap;
@@ -233,35 +224,47 @@
   display: flex;
   border-radius: var(--UI-Radius-radius-s);
   overflow: hidden;
-  border: 1.5px solid var(--Colors-Stroke-Default);
-  background: var(--Colors-Backgrounds-Main-Default);
 }
 
-.bespoke .pl-button-group-item {
-  padding: var(--UI-Spacing-spacing-xs) var(--UI-Spacing-spacing-ms);
-  border: none;
-  background: var(--Colors-Backgrounds-Main-Default);
-  color: var(--Colors-Text-Body-Default);
-  font-size: var(--Fonts-Body-Default-sm);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-right: 1px solid var(--Colors-Stroke-Light);
+/* Segmented control appearance: connect buttons visually */
+.bespoke .pl-button-group .button {
+  border-radius: 0;
   min-width: 44px;
 }
 
-.bespoke .pl-button-group-item:last-child {
+.bespoke .pl-button-group .button:first-child {
+  border-top-left-radius: var(--UI-Radius-radius-s);
+  border-bottom-left-radius: var(--UI-Radius-radius-s);
   border-right: none;
 }
 
-.bespoke .pl-button-group-item:hover {
+.bespoke .pl-button-group .button:not(:first-child):not(:last-child) {
+  border-left: none;
+  border-right: none;
+}
+
+.bespoke .pl-button-group .button:last-child {
+  border-top-right-radius: var(--UI-Radius-radius-s);
+  border-bottom-right-radius: var(--UI-Radius-radius-s);
+  border-left: none;
+}
+
+/* Enhanced hover state for non-active buttons */
+.bespoke .pl-button-group .button:not(.active):hover {
   background: var(--Colors-Backgrounds-Main-Light);
 }
 
-.bespoke .pl-button-group-item.active {
+/* Override active state to use primary color background */
+.bespoke .pl-button-group .button.active {
   background: var(--Colors-Primary-Default);
   color: var(--Colors-Text-Body-White);
+  border-color: var(--Colors-Primary-Default);
   font-weight: 600;
+}
+
+.bespoke .pl-button-group .button.active:hover {
+  background: var(--Colors-Primary-Default);
+  border-color: var(--Colors-Primary-Default);
 }
 
 .bespoke .pl-action-buttons {
@@ -271,15 +274,13 @@
 }
 
 .bespoke .pl-action-buttons .button-primary {
-  font-size: var(--Fonts-Body-Default-md);
-  height: 40px;
+  height: var(--UI-Input-sm);
   padding: 0 var(--UI-Spacing-spacing-ml);
-  font-weight: 600;
   min-width: 120px;
 }
 
 .bespoke .pl-action-buttons .button-secondary {
-  height: 40px;
+  height: var(--UI-Input-sm);
   padding: 0 var(--UI-Spacing-spacing-ml);
 }
 
@@ -289,6 +290,7 @@
   padding: var(--UI-Spacing-spacing-ml) !important;
 }
 
+/* Layout-specific: Grid column widths for run trials panel */
 .bespoke .pl-run-grid {
   display: grid;
   grid-template-columns: minmax(420px, 1fr) 320px;
@@ -318,6 +320,7 @@
 }
 
 /* Smaller device size in run card */
+/* Device-specific: Compact device dimensions for run card layout */
 .bespoke .pl-run-card #pl-device-view.pl-device {
   width: 120px;
   height: 120px;
@@ -330,19 +333,22 @@
   height: 90px;
 }
 
+/* Device-specific: Coin font size scaled for compact display */
 .bespoke .pl-run-card .pl-device .pl-coin {
   font-size: 42px;
 }
 
 .bespoke .pl-run-card .pl-device .pl-die {
-  border-radius: 16px;
+  border-radius: var(--UI-Radius-radius-ml);
 }
 
+/* Device-specific: Die pip size for compact display */
 .bespoke .pl-run-card .pl-device .pl-die .pl-pip {
   width: 11px;
   height: 11px;
 }
 
+/* Device-specific: Spinner pointer dimensions and positioning for compact display */
 .bespoke .pl-run-card .pl-device .pl-spinner-pointer {
   border-left-width: 8px;
   border-right-width: 8px;
@@ -361,9 +367,6 @@
   padding: var(--UI-Spacing-spacing-xs) var(--UI-Spacing-spacing-s);
 }
 
-.bespoke .pl-run-card .pl-trial-metric .pl-metric-value {
-  font-size: var(--Fonts-Body-Default-xl);
-}
 
 /* ===== LIVE TRIAL DEVICE SECTION ===== */
 
@@ -395,17 +398,12 @@
 }
 
 .bespoke .pl-trial-metric .pl-metric-label {
-  font-size: var(--Fonts-Body-Default-xs);
   color: var(--Colors-Text-Body-Medium);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: 600;
 }
 
 .bespoke .pl-trial-metric .pl-metric-value {
-  font-size: var(--Fonts-Body-Default-xxxl);
-  font-family: var(--heading-family);
-  font-weight: 700;
   color: var(--Colors-Primary-Default);
   line-height: 1.2;
 }
@@ -431,12 +429,14 @@
   min-height: 100%;
 }
 
+/* Layout-specific: Grid column min-width for responsive layout */
 .bespoke .pl-content-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: var(--UI-Spacing-spacing-xl);
 }
 
+/* Device-specific: Main device container dimensions */
 .bespoke .pl-device {
   width: 160px;
   height: 160px;
@@ -450,12 +450,13 @@
 }
 
 .bespoke .pl-device {
-  --pl-accent-1: #f5c84c;
-  --pl-accent-2: #d7a028;
-  --pl-accent-3: #ffffff;
-  --pl-ink: #0a1122;
+  --pl-accent-1: var(--Colors-Base-Accent-Yellow-700);
+  --pl-accent-2: var(--Colors-Base-Accent-Yellow-900);
+  --pl-accent-3: var(--Colors-Base-Neutral-00);
+  --pl-ink: var(--Colors-Base-Neutral-1450);
 }
 
+/* Device-specific: Coin dimensions for visual representation */
 .bespoke .pl-coin {
   width: 120px;
   height: 120px;
@@ -478,6 +479,7 @@
   display: grid;
   place-items: center;
   font-family: var(--heading-family);
+  /* Device-specific: Coin face font size for visual clarity */
   font-size: 56px;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -490,23 +492,25 @@
 }
 
 .bespoke .pl-coin-subtitle {
-  font-size: 10px;
+  font-size: var(--Fonts-Special-xxs);
   opacity: 0.75;
-  margin-top: -8px;
+  margin-top: calc(-1 * var(--UI-Spacing-spacing-s));
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
+/* Device-specific: Die dimensions for visual representation */
 .bespoke .pl-die {
   width: 120px;
   height: 120px;
-  border-radius: 20px;
+  border-radius: var(--UI-Radius-radius-mxl);
   background: linear-gradient(145deg, var(--pl-accent-3), rgba(0, 0, 0, 0.06));
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
   position: relative;
 }
 
+/* Device-specific: Die pip size for visual clarity */
 .bespoke .pl-die .pl-pip {
   width: 14px;
   height: 14px;
@@ -521,6 +525,7 @@
   opacity: 1;
 }
 
+/* Device-specific: Spinner dimensions for visual representation */
 .bespoke .pl-spinner {
   width: 120px;
   height: 120px;
@@ -536,6 +541,7 @@
   position: relative;
 }
 
+/* Device-specific: Spinner center dot size */
 .bespoke .pl-spinner::after {
   content: "";
   width: 12px;
@@ -549,6 +555,7 @@
   transform: translate(-50%, -50%);
 }
 
+/* Device-specific: Spinner pointer dimensions and positioning */
 .bespoke .pl-spinner-pointer {
   width: 0;
   height: 0;
@@ -562,6 +569,7 @@
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
 }
 
+/* Device-specific: Two-event mode device dimensions */
 .bespoke .pl-device.pl-device--two {
   width: 120px;
   height: 120px;
@@ -577,6 +585,7 @@
   gap: var(--UI-Spacing-spacing-xs);
 }
 
+/* Device-specific: Mini device dimensions for compact displays */
 .bespoke .pl-device.pl-device-mini {
   width: 54px;
   height: 54px;
@@ -594,19 +603,22 @@
   height: 54px;
 }
 
+/* Device-specific: Mini coin font size scaled for compact display */
 .bespoke .pl-device.pl-device-mini .pl-coin {
   font-size: 26px;
 }
 
 .bespoke .pl-device.pl-device-mini .pl-die {
-  border-radius: 12px;
+  border-radius: var(--UI-Radius-radius-m);
 }
 
+/* Device-specific: Mini die pip size */
 .bespoke .pl-device.pl-device-mini .pl-die .pl-pip {
   width: 8px;
   height: 8px;
 }
 
+/* Device-specific: Mini spinner pointer dimensions */
 .bespoke .pl-device.pl-device-mini .pl-spinner-pointer {
   border-left-width: 7px;
   border-right-width: 7px;
@@ -614,6 +626,7 @@
   top: -5px;
 }
 
+/* Content-specific: Canvas heights for chart visualization */
 .bespoke .pl-canvas {
   width: 100%;
   height: 280px;
@@ -645,7 +658,6 @@
 .bespoke .pl-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--Fonts-Body-Default-sm);
 }
 
 .bespoke .pl-table th,
@@ -691,15 +703,11 @@
 }
 
 .bespoke .pl-metric-label {
-  font-size: var(--Fonts-Body-Default-xs);
   color: var(--Colors-Text-Body-Medium);
 }
 
 .bespoke .pl-metric-value {
   margin-top: var(--UI-Spacing-spacing-xxs);
-  font-family: var(--heading-family);
-  font-size: var(--Fonts-Body-Default-lg);
-  font-weight: 700;
   color: var(--Colors-Text-Body-Strongest);
 }
 
@@ -723,7 +731,6 @@
 
 .bespoke .pl-event-prob {
   color: var(--Colors-Text-Body-Medium);
-  font-size: var(--Fonts-Body-Default-xs);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -735,7 +742,6 @@
   border: 1px solid var(--Colors-Stroke-Default);
   background: var(--Colors-Backgrounds-Main-Top);
   color: var(--Colors-Text-Body-Default);
-  font-size: var(--Fonts-Body-Default-sm);
 }
 
 /* ===== CARD VARIANTS ===== */
@@ -798,7 +804,7 @@
 .bespoke .pl-event-option:hover {
   background: var(--Colors-Base-Primary-20);
   border-color: var(--Colors-Primary-Light);
-  transform: translateX(2px);
+  transform: translateX(var(--UI-Spacing-spacing-min));
 }
 
 /* Enhanced input focus */
@@ -906,7 +912,6 @@
   margin-top: var(--UI-Spacing-spacing-xxs);
   margin-bottom: var(--UI-Spacing-spacing-s);
   color: var(--Colors-Text-Body-Medium);
-  font-size: var(--Fonts-Body-Default-xs);
   line-height: 1.5;
   max-width: 45ch;
 }
@@ -932,18 +937,14 @@
 }
 
 .bespoke .pl-setup-icon {
-  font-size: var(--Fonts-Body-Default-lg);
   line-height: 1;
 }
 
 .bespoke .pl-setup-device-name {
-  font-weight: 600;
   color: var(--Colors-Text-Body-Default);
-  font-size: var(--Fonts-Body-Default-sm);
 }
 
 .bespoke .pl-setup-label {
-  font-size: var(--Fonts-Body-Default-xs);
   color: var(--Colors-Text-Body-Medium);
 }
 
@@ -961,10 +962,7 @@
 }
 
 .bespoke .pl-setup-set {
-  font-family: var(--code-family);
-  font-size: var(--Fonts-Body-Default-sm);
   color: var(--Colors-Text-Body-Default);
-  font-weight: 500;
 }
 
 /* Chart context */
@@ -978,7 +976,6 @@
 .bespoke .pl-chart-subtitle {
   margin: 0;
   color: var(--Colors-Text-Body-Medium);
-  font-size: var(--Fonts-Body-Default-xs);
   line-height: 1.5;
 }
 
@@ -996,12 +993,11 @@
   display: flex;
   align-items: center;
   gap: var(--UI-Spacing-spacing-xs);
-  font-size: var(--Fonts-Body-Default-xs);
   color: var(--Colors-Text-Body-Medium);
 }
 
 .bespoke .pl-legend-indicator {
-  width: 24px;
+  width: var(--UI-Spacing-spacing-mxl);
   height: 12px;
   border-radius: var(--UI-Radius-radius-min);
 }
@@ -1021,9 +1017,9 @@
   background: repeating-linear-gradient(
     to right,
     var(--Colors-Text-Body-Strongest) 0,
-    var(--Colors-Text-Body-Strongest) 4px,
-    transparent 4px,
-    transparent 8px
+    var(--Colors-Text-Body-Strongest) var(--UI-Spacing-spacing-xxs),
+    transparent var(--UI-Spacing-spacing-xxs),
+    transparent var(--UI-Spacing-spacing-s)
   );
 }
 
@@ -1094,6 +1090,6 @@
 
 /* Improve visibility of NumericSlider input fields */
 .bespoke .numeric-slider-input {
-  min-width: 60px !important;
-  max-width: 60px !important;
+  min-width: var(--UI-Spacing-spacing-4xl) !important;
+  max-width: var(--UI-Spacing-spacing-4xl) !important;
 }
