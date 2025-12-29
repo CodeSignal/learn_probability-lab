@@ -27,7 +27,7 @@ export default function drawBarChart(canvas, labels, values, theory) {
       ctx.fillText('Run some trials to see the chart', w / 2, h / 2 - 10);
       ctx.font = '14px var(--body-family)';
       ctx.fillStyle = getCssVar('--Colors-Text-Body-Light', '#808AA5');
-      ctx.fillText('Click "Run" in the sidebar to start', w / 2, h / 2 + 15);
+      ctx.fillText('Click "Run Trials" to start', w / 2, h / 2 + 15);
       return;
     }
 
@@ -97,4 +97,3 @@ export default function drawBarChart(canvas, labels, values, theory) {
     }
   });
 }
-

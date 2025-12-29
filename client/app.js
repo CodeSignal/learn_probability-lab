@@ -45,6 +45,8 @@ const els = {
   stepSize: $('pl-step-size'),
   auto: $('pl-auto'),
   autoSpeedContainer: $('pl-auto-speed-container'),
+  runModeManual: $('pl-run-mode-manual'),
+  runModeAuto: $('pl-run-mode-auto'),
 
   seed: $('pl-seed'),
 
@@ -284,6 +286,11 @@ function updateControls() {
 
   els.auto.textContent = autoRunning ? 'Stop Automatic Run' : 'Start Automatic Run';
   els.step.disabled = autoRunning;
+  els.step.textContent = state.stepSize === 1 ? 'Run 1 Trial' : `Run ${state.stepSize} Trials`;
+
+  if (els.runModeAuto) {
+    els.runModeAuto.classList.toggle('pl-run-mode-active', autoRunning);
+  }
 
   // Controls are disabled only during auto-run
   const toDisable = [
@@ -296,6 +303,10 @@ function updateControls() {
   for (const el of toDisable) {
     if (!el) continue;
     el.disabled = disableInputs;
+  }
+
+  for (const button of document.querySelectorAll('#pl-run-mode-manual .pl-button-group .button')) {
+    button.disabled = disableInputs;
   }
 
   // Disable/enable NumericSlider instances
@@ -602,13 +613,21 @@ function renderEventOptions() {
     option.className = 'pl-event-option';
 
     const label = document.createElement('label');
-    label.className = 'pl-event-label';
+    label.className = 'input-checkbox';
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.checked = selectedLabels.has(def.labels[i]);
 
+    const box = document.createElement('span');
+    box.className = 'input-checkbox-box';
+
+    const checkmark = document.createElement('span');
+    checkmark.className = 'input-checkbox-checkmark';
+    box.appendChild(checkmark);
+
     const title = document.createElement('span');
+    title.className = 'input-checkbox-label';
     title.textContent = def.labels[i];
 
     checkbox.addEventListener('change', () => {
@@ -624,11 +643,16 @@ function renderEventOptions() {
       applySectionVisibility(state);
     });
 
-    label.append(checkbox, title);
+    label.append(checkbox, box, title);
 
     const p = document.createElement('div');
     p.className = 'pl-event-prob body-xsmall';
     p.textContent = formatProbability(def.probabilities[i], 1);
+
+    option.addEventListener('click', (event) => {
+      if (event.target.closest('label')) return;
+      checkbox.click();
+    });
 
     option.append(label, p);
     els.eventOutcomes.append(option);
@@ -761,12 +785,12 @@ function initEventListeners() {
   });
 
   els.stepSize.addEventListener('change', () => {
-    const state = store.getState();
     const clamped = clamp(Math.floor(safeNumber(els.stepSize.value, 100)), 1, 1_000_000);
     store.setState((draft) => {
       draft.stepSize = clamped;
     });
     els.stepSize.value = String(clamped);
+    updateControls();
   });
 
   // Handle button group selection
@@ -784,6 +808,7 @@ function initEventListeners() {
       store.setState((draft) => {
         draft.stepSize = value;
       });
+      updateControls();
     });
   });
 

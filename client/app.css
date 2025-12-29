@@ -37,24 +37,8 @@
 
 /* Main Layout - base styles from template, overridden below */
 .bespoke .main-layout {
-  display: grid;
-  grid-template-columns: 360px 1fr;
+  display: block;
   height: calc(100% - var(--UI-Spacing-spacing-xxxl));
-}
-
-.bespoke .sidebar {
-  padding: var(--UI-Spacing-spacing-s);
-  overflow: auto;
-  border-right: 1px solid var(--Colors-Stroke-Default);
-  background: var(--Colors-Backgrounds-Main-Default);
-  display: flex;
-  flex-direction: column;
-  gap: var(--UI-Spacing-spacing-mxl);
-}
-
-.bespoke .content-area {
-  width: 100%;
-  height: 100%;
   overflow: auto;
 }
 
@@ -284,24 +268,94 @@
   padding: 0 var(--UI-Spacing-spacing-ml);
 }
 
+/* ===== RUN TRIALS CARD ===== */
+
+.bespoke .pl-run-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--UI-Spacing-spacing-s);
+}
+
+.bespoke .pl-run-header .button {
+  flex-shrink: 0;
+}
+
+.bespoke .pl-run-subtitle {
+  margin: 0;
+  color: var(--Colors-Text-Body-Medium);
+  line-height: 1.5;
+}
+
+.bespoke .pl-run-modes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--UI-Spacing-spacing-s);
+}
+
+.bespoke .pl-run-mode {
+  border: 1px solid var(--Colors-Stroke-Default);
+  border-radius: var(--UI-Radius-radius-s);
+  background: var(--Colors-Backgrounds-Main-Default);
+  padding: var(--UI-Spacing-spacing-s);
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-s);
+  min-width: 0;
+}
+
+.bespoke .pl-run-mode-title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-xxs);
+}
+
+.bespoke .pl-run-mode-title h3 {
+  margin: 0;
+}
+
+.bespoke .pl-run-mode-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-s);
+  flex: 1;
+}
+
+.bespoke .pl-run-mode-controls > .button {
+  width: 100%;
+  margin-top: auto;
+}
+
+.bespoke .pl-run-mode .pl-step-size-group,
+.bespoke .pl-run-mode .pl-speed-group {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--UI-Spacing-spacing-xs);
+}
+
+.bespoke .pl-run-mode .pl-control-label {
+  white-space: normal;
+}
+
+.bespoke .pl-run-mode .pl-button-group {
+  width: 100%;
+}
+
+.bespoke .pl-run-mode .pl-button-group .button {
+  flex: 1;
+  min-width: 0;
+}
+
+.bespoke .pl-run-mode.pl-run-mode-active {
+  border-color: var(--Colors-Primary-Light);
+  background: var(--Colors-Base-Primary-20);
+  box-shadow: 0 0 0 1px var(--Colors-Primary-Lightest);
+}
+
 /* ===== COMPACT RUN TRIALS PANEL LAYOUT ===== */
 
 .bespoke .pl-run-card {
   padding: var(--UI-Spacing-spacing-ml) !important;
-}
-
-/* Layout-specific: Grid column widths for run trials panel */
-.bespoke .pl-run-grid {
-  display: grid;
-  grid-template-columns: minmax(420px, 1fr) 320px;
-  gap: var(--UI-Spacing-spacing-xl);
-  align-items: start;
-}
-
-.bespoke .pl-run-right {
-  display: flex;
-  flex-direction: column;
-  gap: var(--UI-Spacing-spacing-s);
 }
 
 /* Reduce padding in controls when inside run card */
@@ -309,64 +363,6 @@
   padding: 0;
   margin-bottom: 0;
 }
-
-/* Compact device section in run card */
-.bespoke .pl-run-card .pl-device-section {
-  padding: var(--UI-Spacing-spacing-s) 0;
-  margin-bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Smaller device size in run card */
-/* Device-specific: Compact device dimensions for run card layout */
-.bespoke .pl-run-card #pl-device-view.pl-device {
-  width: 120px;
-  height: 120px;
-}
-
-.bespoke .pl-run-card .pl-device .pl-coin,
-.bespoke .pl-run-card .pl-device .pl-die,
-.bespoke .pl-run-card .pl-device .pl-spinner {
-  width: 90px;
-  height: 90px;
-}
-
-/* Device-specific: Coin font size scaled for compact display */
-.bespoke .pl-run-card .pl-device .pl-coin {
-  font-size: 42px;
-}
-
-.bespoke .pl-run-card .pl-device .pl-die {
-  border-radius: var(--UI-Radius-radius-ml);
-}
-
-/* Device-specific: Die pip size for compact display */
-.bespoke .pl-run-card .pl-device .pl-die .pl-pip {
-  width: 11px;
-  height: 11px;
-}
-
-/* Device-specific: Spinner pointer dimensions and positioning for compact display */
-.bespoke .pl-run-card .pl-device .pl-spinner-pointer {
-  border-left-width: 8px;
-  border-right-width: 8px;
-  border-bottom-width: 14px;
-  top: -5px;
-}
-
-/* Compact metrics in run card */
-.bespoke .pl-run-card .pl-trial-metrics {
-  padding-top: var(--UI-Spacing-spacing-s);
-  border-top: 1px solid var(--Colors-Stroke-Light);
-  gap: var(--UI-Spacing-spacing-xs);
-}
-
-.bespoke .pl-run-card .pl-trial-metric {
-  padding: var(--UI-Spacing-spacing-xs) var(--UI-Spacing-spacing-s);
-}
-
 
 /* ===== LIVE TRIAL DEVICE SECTION ===== */
 
@@ -427,6 +423,13 @@
   flex-direction: column;
   gap: var(--UI-Spacing-spacing-xl);
   min-height: 100%;
+}
+
+.bespoke .pl-top-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--UI-Spacing-spacing-xl);
+  align-items: start;
 }
 
 /* Layout-specific: Grid column min-width for responsive layout */
@@ -711,9 +714,93 @@
   color: var(--Colors-Text-Body-Strongest);
 }
 
-.bespoke #pl-event-outcomes {
+.bespoke .pl-event-card {
+  margin-top: var(--UI-Spacing-spacing-ml);
+  border: 1px solid var(--Colors-Stroke-Default);
+  border-radius: var(--UI-Radius-radius-s);
+  background: var(--Colors-Backgrounds-Main-Top);
+}
+
+.bespoke .pl-event-details {
+  counter-reset: plEventSelected;
+}
+
+.bespoke .pl-event-details input[type="checkbox"]:checked {
+  counter-increment: plEventSelected;
+}
+
+.bespoke .pl-event-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--UI-Spacing-spacing-ml);
+  padding: var(--UI-Spacing-spacing-s);
+  cursor: pointer;
+  list-style: none;
+}
+
+.bespoke .pl-event-summary::marker {
+  content: "";
+}
+
+.bespoke .pl-event-summary::-webkit-details-marker {
+  display: none;
+}
+
+.bespoke .pl-event-summary::after {
+  content: ">";
+  color: var(--Colors-Text-Body-Medium);
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.bespoke .pl-event-details[open] .pl-event-summary::after {
+  transform: rotate(90deg);
+}
+
+.bespoke .pl-event-summary-main {
   display: flex;
   flex-direction: column;
+  gap: var(--UI-Spacing-spacing-xxs);
+  min-width: 0;
+}
+
+.bespoke .pl-event-summary-count::after {
+  content: counter(plEventSelected) " selected";
+  color: var(--Colors-Text-Body-Medium);
+}
+
+.bespoke .pl-event-summary-metrics {
+  display: flex;
+  gap: var(--UI-Spacing-spacing-ml);
+}
+
+.bespoke .pl-event-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--UI-Spacing-spacing-xxs);
+}
+
+.bespoke .pl-event-metric-label {
+  color: var(--Colors-Text-Body-Medium);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.bespoke .pl-event-metric-value {
+  color: var(--Colors-Text-Body-Strongest);
+  font-weight: 600;
+}
+
+.bespoke .pl-event-details-body {
+  padding: var(--UI-Spacing-spacing-s);
+  border-top: 1px solid var(--Colors-Stroke-Light);
+}
+
+.bespoke #pl-event-outcomes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: var(--UI-Spacing-spacing-xs);
   margin-top: var(--UI-Spacing-spacing-xs);
 }
@@ -804,7 +891,7 @@
 .bespoke .pl-event-option:hover {
   background: var(--Colors-Base-Primary-20);
   border-color: var(--Colors-Primary-Light);
-  transform: translateX(var(--UI-Spacing-spacing-min));
+  transform: translateY(-1px);
 }
 
 /* Enhanced input focus */
@@ -965,6 +1052,37 @@
   color: var(--Colors-Text-Body-Default);
 }
 
+/* Device visualization in setup card */
+.bespoke .pl-setup-device-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--UI-Spacing-spacing-ml) 0;
+  margin-top: var(--UI-Spacing-spacing-ml);
+  margin-bottom: var(--UI-Spacing-spacing-s);
+  border-top: 1px solid var(--Colors-Stroke-Light);
+}
+
+/* Device size in setup card - use standard size */
+.bespoke .pl-setup-device-section #pl-device-view.pl-device {
+  width: 160px;
+  height: 160px;
+}
+
+/* Trial metrics in setup card */
+.bespoke .pl-setup-trial-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--UI-Spacing-spacing-s);
+  padding-top: var(--UI-Spacing-spacing-s);
+  border-top: 1px solid var(--Colors-Stroke-Light);
+  margin-top: var(--UI-Spacing-spacing-s);
+}
+
+.bespoke .pl-setup-trial-metrics .pl-trial-metric {
+  padding: var(--UI-Spacing-spacing-xs) var(--UI-Spacing-spacing-s);
+}
+
 /* Chart context */
 .bespoke .pl-chart-header {
   display: flex;
@@ -1025,15 +1143,12 @@
 
 @media (max-width: 980px) {
   .bespoke .main-layout {
-    grid-template-columns: 1fr;
     height: auto;
   }
 
-  .bespoke .sidebar {
-    border-right: none;
-    border-bottom: 1px solid var(--Colors-Stroke-Default);
+  .bespoke .pl-top-grid {
+    grid-template-columns: 1fr;
   }
-
 
   .bespoke .pl-two-config-grid {
     grid-template-columns: 1fr;
@@ -1075,10 +1190,8 @@
     grid-template-columns: 1fr;
   }
 
-  /* Stack run trials grid on mobile */
-  .bespoke .pl-run-grid {
+  .bespoke .pl-setup-trial-metrics {
     grid-template-columns: 1fr;
-    gap: var(--UI-Spacing-spacing-ml);
   }
 
   .bespoke .pl-run-card .pl-trial-controls {
