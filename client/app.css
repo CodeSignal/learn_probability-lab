@@ -277,12 +277,6 @@
   flex-shrink: 0;
 }
 
-.bespoke .pl-run-subtitle {
-  margin: 0;
-  color: var(--Colors-Text-Body-Medium);
-  line-height: 1.5;
-}
-
 .bespoke .pl-run-modes {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
