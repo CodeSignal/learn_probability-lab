@@ -12,7 +12,6 @@ import { buildDeviceDefinition } from './src/probability-lab/domain/devices.js';
 import simulateSingleTrials from './src/probability-lab/engine/simulate-single.js';
 import simulateTwoTrials from './src/probability-lab/engine/simulate-two.js';
 import { createRunner } from './src/probability-lab/engine/runner.js';
-import { getCssVar } from './src/probability-lab/ui/charts/colors.js';
 import render from './src/probability-lab/ui/render.js';
 import { createStore } from './src/probability-lab/state/store.js';
 import NumericSlider from './design-system/components/numeric-slider/numeric-slider.js';
@@ -238,6 +237,8 @@ function resetSimulation() {
   runner.stopRunning();
   store.setState((draft) => {
     draft.running.cancel = false;
+    // Rewind RNG to the start of the seeded sequence on every reset
+    draft.rng = createRngFromSeed(draft.seedText);
   });
 
   const state = store.getState();

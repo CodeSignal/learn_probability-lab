@@ -23,8 +23,8 @@ export function mulberry32(seed) {
 }
 
 export function createRngFromSeed(seedText) {
-  const normalized = (seedText ?? '').trim();
-  if (!normalized) return Math.random;
+  let normalized = (seedText ?? '').trim();
+  if (!normalized) normalized = '42';
   return mulberry32(hashStringToUint32(normalized));
 }
 
