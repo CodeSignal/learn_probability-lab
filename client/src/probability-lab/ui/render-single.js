@@ -44,6 +44,9 @@ export default function renderSingle(els, state) {
   renderSpinnerSectorsVisibility(els, state.single);
 
   const selectedIndices = getEventIndicesFromLabels(def, state.single);
+  if (els.eventSelectedCount) {
+    els.eventSelectedCount.textContent = `${selectedIndices.size} selected`;
+  }
   const stats = currentEventStats(def, state.single);
   els.eventEst.textContent = stats.estimated === null ? '—' : formatProbability(stats.estimated, 2);
   els.eventTheory.textContent = stats.theoretical === null ? '—' : formatProbability(stats.theoretical, 2);
@@ -81,4 +84,3 @@ export default function renderSingle(els, state) {
 
   els.frequencyTable.innerHTML = buildFrequencyTableHtml(def, state.single.counts, state.single.trials, selectedIndices);
 }
-

@@ -27,7 +27,7 @@ npm run start:prod
 ## Key Files
 
 - `client/index.html` – app shell + layout
-- `client/codesignal-probability-lab.js` – simulation engine + rendering
-- `client/codesignal-probability-lab.css` – app-specific styling
+- `client/app.js` – simulation engine + rendering
+- `client/app.css` – app-specific styling
 - `client/help-content.html` – Help modal content
 

@@ -427,7 +427,7 @@
 
 .bespoke .pl-top-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(280px, 1.05fr) minmax(360px, 1.6fr) minmax(240px, 0.85fr);
   gap: var(--UI-Spacing-spacing-xl);
   align-items: start;
 }
@@ -822,6 +822,63 @@
   white-space: nowrap;
 }
 
+/* ===== SETTINGS MODAL ===== */
+
+.bespoke .pl-settings-modal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-ml);
+}
+
+.bespoke .pl-settings-section {
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-s);
+  padding: var(--UI-Spacing-spacing-ml);
+  border: 1px solid var(--Colors-Stroke-Default);
+  background: var(--Colors-Backgrounds-Main-Top);
+}
+
+.bespoke .pl-settings-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-xxs);
+}
+
+.bespoke .pl-settings-divider {
+  margin: var(--UI-Spacing-spacing-s) 0;
+}
+
+.bespoke .pl-settings-section label {
+  margin: 0;
+}
+
+/* ===== BIAS CONTROLS ===== */
+
+.bespoke .pl-bias-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-s);
+}
+
+.bespoke .pl-bias-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--UI-Spacing-spacing-s);
+}
+
+.bespoke .pl-bias-row-label {
+  color: var(--Colors-Text-Body-Strongest);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.bespoke .pl-bias-row-control {
+  min-width: 0;
+}
+
 .bespoke .pl-cell-summary {
   margin-top: var(--UI-Spacing-spacing-s);
   padding: var(--UI-Spacing-spacing-s);
@@ -1010,11 +1067,62 @@
 
 /* ===== EXPERIMENT SETUP SECTION ===== */
 
+.bespoke .pl-setup-card,
+.bespoke .pl-monitor-card {
+  padding: var(--UI-Spacing-spacing-ml);
+}
+
+.bespoke .pl-top-card-header {
+  margin-bottom: var(--UI-Spacing-spacing-xs);
+}
+
+.bespoke .pl-setup-summary-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+  gap: var(--UI-Spacing-spacing-ml);
+}
+
+.bespoke .pl-setup-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-xxs);
+  min-width: 0;
+}
+
+.bespoke .pl-setup-summary-label {
+  color: var(--Colors-Text-Body-Medium);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.bespoke .pl-setup-sample-space-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--UI-Spacing-spacing-xs);
+  flex-wrap: wrap;
+}
+
+.bespoke .pl-setup-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-s);
+}
+
+.bespoke .pl-setup-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--UI-Spacing-spacing-xs);
+}
+
+.bespoke .pl-spinner-options label.row {
+  margin: 0;
+}
+
 .bespoke .pl-setup-device {
   display: flex;
   flex-direction: column;
-  gap: var(--UI-Spacing-spacing-xs);
-  margin-bottom: var(--UI-Spacing-spacing-ml);
+  gap: var(--UI-Spacing-spacing-xxs);
 }
 
 .bespoke .pl-setup-device-item {
@@ -1038,7 +1146,7 @@
 .bespoke .pl-setup-sample-space {
   display: flex;
   flex-direction: column;
-  gap: var(--UI-Spacing-spacing-xs);
+  gap: var(--UI-Spacing-spacing-xxs);
 }
 
 .bespoke .pl-setup-sample-space-item {
@@ -1052,35 +1160,75 @@
   color: var(--Colors-Text-Body-Default);
 }
 
-/* Device visualization in setup card */
-.bespoke .pl-setup-device-section {
+/* Compact event summary row (single mode) */
+.bespoke .pl-event-inline {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: var(--UI-Spacing-spacing-ml) 0;
-  margin-top: var(--UI-Spacing-spacing-ml);
-  margin-bottom: var(--UI-Spacing-spacing-s);
-  border-top: 1px solid var(--Colors-Stroke-Light);
+  justify-content: space-between;
+  gap: var(--UI-Spacing-spacing-ml);
+  padding: var(--UI-Spacing-spacing-s);
+  border-radius: var(--UI-Radius-radius-s);
+  border: 1px solid var(--Colors-Stroke-Light);
+  background: var(--Colors-Backgrounds-Main-Top);
 }
 
-/* Device size in setup card - use standard size */
-.bespoke .pl-setup-device-section #pl-device-view.pl-device {
-  width: 160px;
-  height: 160px;
+.bespoke .pl-event-inline-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-xxs);
+  min-width: 0;
 }
 
-/* Trial metrics in setup card */
-.bespoke .pl-setup-trial-metrics {
+.bespoke .pl-event-inline-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--UI-Spacing-spacing-xs);
+}
+
+.bespoke .pl-event-inline-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--UI-Spacing-spacing-ml);
+}
+
+.bespoke .pl-event-inline-metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-xxs);
+}
+
+.bespoke .pl-event-inline-label {
+  color: var(--Colors-Text-Body-Medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bespoke .pl-event-inline-value {
+  color: var(--Colors-Text-Body-Strongest);
+  font-weight: 600;
+}
+
+/* Live trial monitor (device + metrics) */
+.bespoke .pl-monitor-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: var(--UI-Spacing-spacing-s);
-  padding-top: var(--UI-Spacing-spacing-s);
-  border-top: 1px solid var(--Colors-Stroke-Light);
-  margin-top: var(--UI-Spacing-spacing-s);
+  align-items: center;
 }
 
-.bespoke .pl-setup-trial-metrics .pl-trial-metric {
-  padding: var(--UI-Spacing-spacing-xs) var(--UI-Spacing-spacing-s);
+.bespoke .pl-monitor-card #pl-device-view.pl-device {
+  width: 132px;
+  height: 132px;
+}
+
+.bespoke .pl-monitor-metrics {
+  display: grid;
+  gap: var(--UI-Spacing-spacing-s);
+}
+
+.bespoke .pl-monitor-card #pl-last {
+  overflow-wrap: anywhere;
+  line-height: 1.3;
 }
 
 /* Chart context */
@@ -1150,6 +1298,10 @@
     grid-template-columns: 1fr;
   }
 
+  .bespoke .pl-setup-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
   .bespoke .pl-two-config-grid {
     grid-template-columns: 1fr;
   }
@@ -1190,8 +1342,13 @@
     grid-template-columns: 1fr;
   }
 
-  .bespoke .pl-setup-trial-metrics {
+  .bespoke .pl-monitor-grid {
     grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .bespoke .pl-monitor-metrics {
+    width: 100%;
   }
 
   .bespoke .pl-run-card .pl-trial-controls {

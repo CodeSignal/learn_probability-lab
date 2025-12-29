@@ -38,33 +38,36 @@
   <main class="main-layout" id="probability-lab">
     <div class="pl-content">
       <div class="pl-top-grid">
-        <section class="box card card-emphasized">
-          <h2 class="heading-xsmall">Experiment Setup</h2>
-          <div id="pl-setup-device" class="pl-setup-device"></div>
-          <div id="pl-setup-sample-space" class="pl-setup-sample-space"></div>
-
-          <div class="pl-setup-device-section">
-            <div id="pl-device-view" class="pl-device" aria-label="Trial device visualization"></div>
+        <section class="box card card-emphasized pl-setup-card">
+          <div class="pl-top-card-header row-between">
+            <h2 class="heading-xsmall">Experiment Setup</h2>
+            <button id="pl-open-settings" class="button button-secondary button-small" type="button">Edit Settings</button>
           </div>
 
-          <div class="pl-setup-trial-metrics">
-            <div class="box pl-trial-metric">
-              <div class="pl-metric-label body-xsmall">Trials</div>
-              <div id="pl-trials" class="pl-metric-value heading-small">0</div>
+          <div class="pl-setup-summary-grid">
+            <div class="pl-setup-summary-item">
+              <div class="pl-setup-summary-label body-xsmall">Device</div>
+              <div id="pl-setup-device" class="pl-setup-device"></div>
             </div>
-            <div class="box pl-trial-metric">
-              <div class="pl-metric-label body-xsmall">Last outcome</div>
-              <div id="pl-last" class="pl-metric-value heading-small">—</div>
+
+            <div class="pl-setup-summary-item">
+              <div class="pl-setup-summary-label body-xsmall">Sample space Ω</div>
+              <div class="pl-setup-sample-space-row">
+                <div id="pl-setup-sample-space" class="pl-setup-sample-space"></div>
+              </div>
             </div>
           </div>
-        </section>
 
-        <section class="box card card-emphasized">
-          <h2 class="heading-xsmall">Experiment Settings</h2>
-          <div id="pl-single-config">
-            <div id="pl-spinner-options" hidden>
-              <label>
-                Spinner sectors
+          <div class="pl-setup-meta">
+            <div class="pl-setup-tags" aria-label="Experiment settings summary">
+              <span id="pl-seed-summary" class="tag secondary">Seed: —</span>
+              <span id="pl-bias-summary" class="tag secondary">Bias: —</span>
+              <span id="pl-relationship-summary" class="tag secondary" hidden>Relationship: —</span>
+            </div>
+
+            <div id="pl-spinner-options" class="pl-spinner-options" hidden>
+              <label class="row">
+                <span class="body-small">Spinner sectors</span>
                 <select id="pl-spinner-sectors" class="input">
                   <option value="4">4</option>
                   <option value="6">6</option>
@@ -73,60 +76,25 @@
               </label>
             </div>
 
-            <div id="pl-bias-options"></div>
-
-            <label>
-              Seed
-              <input id="pl-seed" class="input" type="number" placeholder="42" />
-            </label>
-
-            <div id="pl-event-card" class="pl-event-card">
-              <details class="pl-event-details">
-                <summary class="pl-event-summary">
-                  <div class="pl-event-summary-main">
-                    <span class="pl-event-title heading-xxxsmall">Event E</span>
-                    <span class="pl-event-summary-count body-xsmall"></span>
-                  </div>
-                  <div class="pl-event-summary-metrics">
-                    <div class="pl-event-metric">
-                      <span class="pl-event-metric-label body-xsmall">Estimated P(E)</span>
-                      <span id="pl-event-est" class="pl-event-metric-value body-small">—</span>
-                    </div>
-                    <div class="pl-event-metric">
-                      <span class="pl-event-metric-label body-xsmall">Theoretical P(E)</span>
-                      <span id="pl-event-theory" class="pl-event-metric-value body-small">—</span>
-                    </div>
-                  </div>
-                </summary>
-                <div class="pl-event-details-body">
-                  <p class="pl-helper-text body-xsmall">Select which outcomes count as success for your event.</p>
-                  <div id="pl-event-outcomes"></div>
+            <div id="pl-event-card" class="pl-event-inline">
+              <div class="pl-event-inline-main">
+                <div class="pl-event-inline-title">
+                  <span class="heading-xxxsmall">Event E</span>
+                  <span id="pl-event-selected-count" class="pl-muted body-xsmall">—</span>
                 </div>
-              </details>
-            </div>
-          </div>
 
-          <div id="pl-two-config" hidden>
-            <div class="pl-two-config-grid">
-              <div class="pl-two-config-column">
-                <h3 class="heading-xxxsmall">Event A</h3>
-                <div id="pl-bias-options-a"></div>
-              </div>
-
-              <div class="pl-two-config-column">
-                <h3 class="heading-xxxsmall">Event B</h3>
-                <div id="pl-bias-options-b"></div>
+                <div class="pl-event-inline-metrics">
+                  <div class="pl-event-inline-metric">
+                    <span class="pl-event-inline-label body-xsmall">Estimated P(E)</span>
+                    <span id="pl-event-est" class="pl-event-inline-value body-small">—</span>
+                  </div>
+                  <div class="pl-event-inline-metric">
+                    <span class="pl-event-inline-label body-xsmall">Theoretical P(E)</span>
+                    <span id="pl-event-theory" class="pl-event-inline-value body-small">—</span>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <label>
-              Relationship
-              <select id="pl-relationship" class="input">
-                <option value="independent">Independent</option>
-                <option value="copy">B = A (linked)</option>
-                <option value="complement">Coin complement</option>
-              </select>
-            </label>
           </div>
         </section>
 
@@ -184,6 +152,81 @@
               </section>
             </div>
           </div>
+        </section>
+
+        <section class="box card card-emphasized pl-monitor-card">
+          <h2 class="heading-xsmall">Live Trial</h2>
+          <div class="pl-monitor-grid">
+            <div id="pl-device-view" class="pl-device" aria-label="Trial device visualization"></div>
+            <div class="pl-monitor-metrics">
+              <div class="box pl-trial-metric">
+                <div class="pl-metric-label body-xsmall">Trials</div>
+                <div id="pl-trials" class="pl-metric-value heading-small">0</div>
+              </div>
+              <div class="box pl-trial-metric">
+                <div class="pl-metric-label body-xsmall">Last outcome</div>
+                <div id="pl-last" class="pl-metric-value heading-small">—</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div id="pl-settings-modal" class="pl-settings-modal" hidden>
+        <p class="pl-helper-text body-xsmall">Changing settings resets trials for the current experiment.</p>
+
+        <section class="box pl-settings-section" id="pl-settings-section-probabilities">
+          <div class="pl-settings-section-header">
+            <h3 class="heading-xxxsmall">Outcome probabilities</h3>
+            <p class="pl-muted body-xsmall">These settings change the theoretical probabilities for each outcome in Ω.</p>
+          </div>
+
+          <div id="pl-single-config">
+            <div id="pl-bias-options" class="pl-bias-options"></div>
+
+            <hr class="pl-settings-divider" />
+
+            <div class="pl-settings-section-header" id="pl-settings-section-event">
+              <h3 class="heading-xxxsmall">Define event E</h3>
+              <p class="pl-muted body-xsmall">Choose which outcomes count as success for your event.</p>
+            </div>
+            <div id="pl-event-outcomes"></div>
+          </div>
+
+          <div id="pl-two-config" hidden>
+            <div class="pl-two-config-grid">
+              <div class="pl-two-config-column">
+                <h3 class="heading-xxxsmall">Event A</h3>
+                <div id="pl-bias-options-a" class="pl-bias-options"></div>
+              </div>
+
+              <div class="pl-two-config-column">
+                <h3 class="heading-xxxsmall">Event B</h3>
+                <div id="pl-bias-options-b" class="pl-bias-options"></div>
+              </div>
+            </div>
+
+            <label>
+              Relationship
+              <select id="pl-relationship" class="input">
+                <option value="independent">Independent</option>
+                <option value="copy">B = A (linked)</option>
+                <option value="complement">Coin complement</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section class="box pl-settings-section" id="pl-settings-section-randomness">
+          <div class="pl-settings-section-header">
+            <h3 class="heading-xxxsmall">Randomness</h3>
+            <p class="pl-muted body-xsmall">Use a seed to reproduce the same results across runs.</p>
+          </div>
+
+          <label class="row">
+            <span class="body-small">Seed</span>
+            <input id="pl-seed" class="input" type="number" placeholder="42" />
+          </label>
         </section>
       </div>
 

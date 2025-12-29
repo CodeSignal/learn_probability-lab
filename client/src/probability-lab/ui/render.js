@@ -20,8 +20,43 @@ function formatSampleSpace(labels) {
   return `{${labels.join(', ')}}`;
 }
 
+function nearlyEqual(a, b, tolerance = 1e-3) {
+  return Math.abs(a - b) <= tolerance;
+}
+
+function isFairDevice(device, values) {
+  if (device === 'coin') {
+    const p = values.coinProbabilities ?? [0.5, 0.5];
+    return p.length === 2 && nearlyEqual(p[0], 0.5) && nearlyEqual(p[1], 0.5);
+  }
+
+  if (device === 'die') {
+    const p = values.dieProbabilities ?? Array(6).fill(1 / 6);
+    return p.length === 6 && p.every((value) => nearlyEqual(value, 1 / 6));
+  }
+
+  if (device === 'spinner') {
+    const skew = values.spinnerSkew ?? 0;
+    return nearlyEqual(skew, 0, 1e-2);
+  }
+
+  return false;
+}
+
+function setTag(tagEl, { text, variant }) {
+  if (!tagEl) return;
+  tagEl.textContent = text;
+
+  tagEl.classList.remove('default', 'secondary', 'success', 'warning', 'info', 'error', 'outline');
+  tagEl.classList.add(variant);
+}
+
 export function renderExperimentSetup(els, state) {
   if (!els.setupDevice || !els.setupSampleSpace) return;
+
+  const seed = (state.seedText ?? '').trim();
+  const seedText = seed ? `Seed: ${seed}` : 'Seed: Random';
+  setTag(els.seedSummary, { text: seedText, variant: seed ? 'info' : 'secondary' });
 
   if (state.mode === 'two') {
     // Two-event mode: show both devices and sample spaces
@@ -30,26 +65,56 @@ export function renderExperimentSetup(els, state) {
     const labelsA = state.two.definitionA?.labels;
     const labelsB = state.two.definitionB?.labels;
 
+    const fairA = isFairDevice(deviceA, {
+      coinProbabilities: state.two.coinProbabilitiesA,
+      dieProbabilities: state.two.dieProbabilitiesA,
+      spinnerSkew: state.two.spinnerSkewA,
+    });
+    const linked = state.two.relationship === 'copy' || state.two.relationship === 'complement';
+    const fairB = linked
+      ? fairA
+      : isFairDevice(deviceB, {
+        coinProbabilities: state.two.coinProbabilitiesB,
+        dieProbabilities: state.two.dieProbabilitiesB,
+        spinnerSkew: state.two.spinnerSkewB,
+      });
+
+    const biasText = linked
+      ? `Bias: A ${fairA ? 'fair' : 'custom'} · B linked`
+      : `Bias: A ${fairA ? 'fair' : 'custom'} · B ${fairB ? 'fair' : 'custom'}`;
+    setTag(els.biasSummary, { text: biasText, variant: fairA && fairB ? 'success' : 'warning' });
+
+    if (els.relationshipSummary) {
+      const relationship = state.two.relationship || 'independent';
+      const label = relationship === 'copy'
+        ? 'B = A'
+        : relationship === 'complement'
+          ? 'Complement'
+          : 'Independent';
+      els.relationshipSummary.hidden = false;
+      setTag(els.relationshipSummary, { text: `Relationship: ${label}`, variant: 'secondary' });
+    }
+
     els.setupDevice.innerHTML = `
       <div class="pl-setup-device-item">
         <span class="pl-setup-icon body-large">${getDeviceIcon(deviceA)}</span>
         <span class="pl-setup-device-name body-small">${formatDeviceName(deviceA)}</span>
-        <span class="pl-setup-label body-xsmall">(Event A)</span>
+        <span class="pl-setup-label body-xsmall">A</span>
       </div>
       <div class="pl-setup-device-item">
         <span class="pl-setup-icon body-large">${getDeviceIcon(deviceB)}</span>
         <span class="pl-setup-device-name body-small">${formatDeviceName(deviceB)}</span>
-        <span class="pl-setup-label body-xsmall">(Event B)</span>
+        <span class="pl-setup-label body-xsmall">B</span>
       </div>
     `;
 
     els.setupSampleSpace.innerHTML = `
       <div class="pl-setup-sample-space-item">
-        <span class="pl-setup-label body-xsmall">Event A: Sample Space Ω =</span>
+        <span class="pl-setup-label body-xsmall">A</span>
         <span class="pl-setup-set code-small">${formatSampleSpace(labelsA)}</span>
       </div>
       <div class="pl-setup-sample-space-item">
-        <span class="pl-setup-label body-xsmall">Event B: Sample Space Ω =</span>
+        <span class="pl-setup-label body-xsmall">B</span>
         <span class="pl-setup-set code-small">${formatSampleSpace(labelsB)}</span>
       </div>
     `;
@@ -57,6 +122,14 @@ export function renderExperimentSetup(els, state) {
     // Single mode: show single device and sample space
     const device = state.single.device || '—';
     const labels = state.single.definition?.labels;
+
+    const fair = isFairDevice(device, {
+      coinProbabilities: state.single.coinProbabilities,
+      dieProbabilities: state.single.dieProbabilities,
+      spinnerSkew: state.single.spinnerSkew,
+    });
+    setTag(els.biasSummary, { text: `Bias: ${fair ? 'Uniform' : 'Biased'}`, variant: fair ? 'success' : 'warning' });
+    if (els.relationshipSummary) els.relationshipSummary.hidden = true;
 
     els.setupDevice.innerHTML = `
       <div class="pl-setup-device-item">
@@ -67,7 +140,6 @@ export function renderExperimentSetup(els, state) {
 
     els.setupSampleSpace.innerHTML = `
       <div class="pl-setup-sample-space-item">
-        <span class="pl-setup-label body-xsmall">Sample Space Ω =</span>
         <span class="pl-setup-set code-small">${formatSampleSpace(labels)}</span>
       </div>
     `;
@@ -95,4 +167,3 @@ export default function render(els, state) {
   if (state.mode === 'two') renderTwo(els, state);
   else renderSingle(els, state);
 }
-

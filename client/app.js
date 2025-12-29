@@ -25,6 +25,9 @@ const els = {
 
   setupDevice: $('pl-setup-device'),
   setupSampleSpace: $('pl-setup-sample-space'),
+  seedSummary: $('pl-seed-summary'),
+  biasSummary: $('pl-bias-summary'),
+  relationshipSummary: $('pl-relationship-summary'),
 
   singleConfig: $('pl-single-config'),
   singleView: $('pl-single-view'),
@@ -38,6 +41,9 @@ const els = {
   biasOptionsA: $('pl-bias-options-a'),
   biasOptionsB: $('pl-bias-options-b'),
   relationship: $('pl-relationship'),
+
+  openSettings: $('pl-open-settings'),
+  settingsModal: $('pl-settings-modal'),
 
   reset: $('pl-reset'),
   step: $('pl-step'),
@@ -53,6 +59,7 @@ const els = {
   eventOutcomes: $('pl-event-outcomes'),
   eventEst: $('pl-event-est'),
   eventTheory: $('pl-event-theory'),
+  eventSelectedCount: $('pl-event-selected-count'),
 
   deviceView: $('pl-device-view'),
   trials: $('pl-trials'),
@@ -85,6 +92,7 @@ const sliderInstances = {
 
 // Store speed slider instance
 let speedSlider = null;
+let settingsModal = null;
 
 const store = createStore({
   rng: Math.random,
@@ -299,6 +307,7 @@ function updateControls() {
     els.stepSize,
     els.seed,
     els.relationship,
+    els.openSettings,
   ];
 
   for (const el of toDisable) {
@@ -445,17 +454,14 @@ function renderBiasControls(container, device, values, onChange) {
     for (let i = 0; i < 2; i++) {
       const sliderKey = `${deviceKey}-${i}`;
       const wrapper = document.createElement('div');
-      wrapper.style.marginBottom = 'var(--UI-Spacing-spacing-sm)';
-      wrapper.style.display = 'flex';
-      wrapper.style.flexDirection = 'row';
-      wrapper.style.alignItems = 'center';
-      wrapper.style.gap = 'var(--UI-Spacing-spacing-sm)';
+      wrapper.className = 'pl-bias-row';
 
-      const labelEl = document.createElement('label');
+      const labelEl = document.createElement('span');
       labelEl.textContent = `P(${labels[i]})`;
-      labelEl.classList.add('pl-slider-label', 'body-small');
+      labelEl.classList.add('pl-bias-row-label', 'body-small');
 
       const sliderContainer = document.createElement('div');
+      sliderContainer.className = 'pl-bias-row-control';
       wrapper.appendChild(labelEl);
       wrapper.appendChild(sliderContainer);
       container.appendChild(wrapper);
@@ -509,17 +515,14 @@ function renderBiasControls(container, device, values, onChange) {
       const faceNumber = i + 1;
       const sliderKey = `${deviceKey}-${i}`;
       const wrapper = document.createElement('div');
-      wrapper.style.marginBottom = 'var(--UI-Spacing-spacing-sm)';
-      wrapper.style.display = 'flex';
-      wrapper.style.flexDirection = 'row';
-      wrapper.style.alignItems = 'center';
-      wrapper.style.gap = 'var(--UI-Spacing-spacing-sm)';
+      wrapper.className = 'pl-bias-row';
 
-      const labelEl = document.createElement('label');
+      const labelEl = document.createElement('span');
       labelEl.textContent = `P(${faceNumber})`;
-      labelEl.classList.add('pl-slider-label', 'body-small');
+      labelEl.classList.add('pl-bias-row-label', 'body-small');
 
       const sliderContainer = document.createElement('div');
+      sliderContainer.className = 'pl-bias-row-control';
       wrapper.appendChild(labelEl);
       wrapper.appendChild(sliderContainer);
       container.appendChild(wrapper);
@@ -570,17 +573,14 @@ function renderBiasControls(container, device, values, onChange) {
   // Spinner skew
   const sliderKey = `${deviceKey}-skew`;
   const wrapper = document.createElement('div');
-  wrapper.style.marginBottom = 'var(--UI-Spacing-spacing-sm)';
-  wrapper.style.display = 'flex';
-  wrapper.style.flexDirection = 'row';
-  wrapper.style.alignItems = 'center';
-  wrapper.style.gap = 'var(--UI-Spacing-spacing-sm)';
+  wrapper.className = 'pl-bias-row';
 
-  const labelEl = document.createElement('label');
+  const labelEl = document.createElement('span');
   labelEl.textContent = 'Skew';
-  labelEl.classList.add('pl-slider-label', 'body-small');
+  labelEl.classList.add('pl-bias-row-label', 'body-small');
 
   const sliderContainer = document.createElement('div');
+  sliderContainer.className = 'pl-bias-row-control';
   wrapper.appendChild(labelEl);
   wrapper.appendChild(sliderContainer);
   container.appendChild(wrapper);
@@ -667,6 +667,42 @@ function applySeed(seedText) {
     draft.rng = createRngFromSeed(trimmed);
   });
   resetSimulation();
+}
+
+function openSettingsModal(scrollTarget) {
+  if (!settingsModal) return;
+
+  settingsModal.open();
+
+  if (!scrollTarget) return;
+  requestAnimationFrame(() => {
+    const targetEl = settingsModal.content.querySelector(scrollTarget);
+    if (!targetEl) return;
+    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+function initSettingsModal() {
+  if (settingsModal) return;
+  if (!els.settingsModal) return;
+
+  const modalContent = els.settingsModal;
+  const wasHidden = modalContent.hidden;
+  // Keep it hidden in-page to avoid layout shift while we move it into the modal dialog.
+  modalContent.hidden = true;
+
+  settingsModal = new Modal({
+    size: 'large',
+    title: 'Experiment Settings',
+    content: modalContent,
+    footerButtons: [{ label: 'Done', type: 'primary' }],
+  });
+
+  if (wasHidden) modalContent.hidden = false;
+
+  if (els.openSettings) {
+    els.openSettings.addEventListener('click', () => openSettingsModal('#pl-settings-section-probabilities'));
+  }
 }
 
 function syncUiFromState() {
@@ -769,6 +805,8 @@ function updateTwoControlsForRelationship() {
 }
 
 function initEventListeners() {
+  initSettingsModal();
+
   els.spinnerSectors.addEventListener('change', () => {
     const clamped = clamp(parseInt(els.spinnerSectors.value, 10), 2, 12);
     store.setState((draft) => {
