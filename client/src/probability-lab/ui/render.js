@@ -76,8 +76,8 @@ export function renderExperimentSetup(els, state) {
       });
 
     const biasText = linked
-      ? `Bias: A ${fairA ? 'fair' : 'custom'} · B linked`
-      : `Bias: A ${fairA ? 'fair' : 'custom'} · B ${fairB ? 'fair' : 'custom'}`;
+      ? `Bias (A / B): ${fairA ? 'Uniform' : 'Biased'} / Linked`
+      : `Bias (A / B): ${fairA ? 'Uniform' : 'Biased'} / ${fairB ? 'Uniform' : 'Biased'}`;
     setTag(els.biasSummary, { text: biasText, variant: fairA && fairB ? 'success' : 'warning' });
 
     if (els.relationshipSummary) {
@@ -88,6 +88,7 @@ export function renderExperimentSetup(els, state) {
           ? 'Complement'
           : 'Independent';
       els.relationshipSummary.hidden = false;
+      els.relationshipSummary.style.display = '';
       setTag(els.relationshipSummary, { text: `Relationship: ${label}`, variant: 'secondary' });
     }
 
@@ -125,7 +126,10 @@ export function renderExperimentSetup(els, state) {
       spinnerSkew: state.single.spinnerSkew,
     });
     setTag(els.biasSummary, { text: `Bias: ${fair ? 'Uniform' : 'Biased'}`, variant: fair ? 'success' : 'warning' });
-    if (els.relationshipSummary) els.relationshipSummary.hidden = true;
+    if (els.relationshipSummary) {
+      els.relationshipSummary.hidden = true;
+      els.relationshipSummary.style.display = 'none';
+    }
 
     els.setupDevice.innerHTML = `
       <div class="pl-setup-device-item">
