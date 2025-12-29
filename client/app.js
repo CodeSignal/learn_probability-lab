@@ -48,6 +48,8 @@ const els = {
   autoSpeedContainer: $('pl-auto-speed-container'),
   runModeManual: $('pl-run-mode-manual'),
   runModeAuto: $('pl-run-mode-auto'),
+  runModeToggleManual: $('pl-run-mode-toggle-manual'),
+  runModeToggleAuto: $('pl-run-mode-toggle-auto'),
 
   seed: $('pl-seed'),
 
@@ -93,6 +95,7 @@ const store = createStore({
   mode: 'single',
   speed: 60,
   stepSize: 1,
+  runMode: 'manual',
 
   sections: {
     barChart: false,
@@ -306,6 +309,22 @@ function updateControls() {
 
   if (els.runModeAuto) {
     els.runModeAuto.classList.toggle('pl-run-mode-active', autoRunning);
+  }
+
+  // Update run mode visibility
+  if (els.runModeManual) {
+    els.runModeManual.classList.toggle('hidden', state.runMode !== 'manual');
+  }
+  if (els.runModeAuto) {
+    els.runModeAuto.classList.toggle('hidden', state.runMode !== 'auto');
+  }
+
+  // Update toggle button active states
+  if (els.runModeToggleManual) {
+    els.runModeToggleManual.classList.toggle('active', state.runMode === 'manual');
+  }
+  if (els.runModeToggleAuto) {
+    els.runModeToggleAuto.classList.toggle('active', state.runMode === 'auto');
   }
 
   // Controls are disabled only during auto-run
@@ -804,13 +823,56 @@ function initEventListeners() {
     updateControls();
   });
 
-  // Handle button group selection
-  document.querySelectorAll('.pl-button-group .button').forEach((button) => {
-    button.addEventListener('click', () => {
-      // Remove active class from all buttons
-      document.querySelectorAll('.pl-button-group .button').forEach((btn) => {
-        btn.classList.remove('active');
+  // Handle run mode toggle buttons
+  if (els.runModeToggleManual) {
+    els.runModeToggleManual.addEventListener('click', () => {
+      const state = store.getState();
+      // If switching from auto to manual and auto is running, stop it
+      if (state.runMode === 'auto' && state.running.auto) {
+        runner.stopRunning();
+      }
+      // Update active states in the toggle group
+      const toggleGroup = els.runModeToggleManual.closest('.pl-button-group');
+      if (toggleGroup) {
+        toggleGroup.querySelectorAll('.button').forEach((btn) => {
+          btn.classList.remove('active');
+        });
+        els.runModeToggleManual.classList.add('active');
+      }
+      store.setState((draft) => {
+        draft.runMode = 'manual';
       });
+      updateControls();
+    });
+  }
+
+  if (els.runModeToggleAuto) {
+    els.runModeToggleAuto.addEventListener('click', () => {
+      // Update active states in the toggle group
+      const toggleGroup = els.runModeToggleAuto.closest('.pl-button-group');
+      if (toggleGroup) {
+        toggleGroup.querySelectorAll('.button').forEach((btn) => {
+          btn.classList.remove('active');
+        });
+        els.runModeToggleAuto.classList.add('active');
+      }
+      store.setState((draft) => {
+        draft.runMode = 'auto';
+      });
+      updateControls();
+    });
+  }
+
+  // Handle button group selection (for step size buttons)
+  document.querySelectorAll('.pl-button-group .button[data-value]').forEach((button) => {
+    button.addEventListener('click', () => {
+      // Remove active class from all buttons in the same group
+      const group = button.closest('.pl-button-group');
+      if (group) {
+        group.querySelectorAll('.button').forEach((btn) => {
+          btn.classList.remove('active');
+        });
+      }
       // Add active class to clicked button
       button.classList.add('active');
       // Update hidden input and store

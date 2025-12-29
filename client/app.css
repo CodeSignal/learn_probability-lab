@@ -278,10 +278,20 @@
   flex-shrink: 0;
 }
 
-.bespoke .pl-run-modes {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+.bespoke .pl-run-mode-toggle {
+  display: flex;
+  align-items: center;
   gap: var(--UI-Spacing-spacing-s);
+}
+
+.bespoke .pl-run-modes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-s);
+}
+
+.bespoke .pl-run-mode.hidden {
+  display: none;
 }
 
 .bespoke .pl-run-mode {

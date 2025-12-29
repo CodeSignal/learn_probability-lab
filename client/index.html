@@ -79,6 +79,22 @@
         <section class="box card card-emphasized card-spacious pl-run-card">
           <div class="pl-run-header row-between">
             <h2 class="heading-xsmall">Run Trials</h2>
+            <div class="pl-run-mode-toggle">
+              <div class="pl-button-group" role="group" aria-label="Trial run mode">
+                <button
+                  id="pl-run-mode-toggle-manual"
+                  class="button button-secondary button-small active"
+                  data-mode="manual"
+                  type="button"
+                >Manual</button>
+                <button
+                  id="pl-run-mode-toggle-auto"
+                  class="button button-secondary button-small"
+                  data-mode="auto"
+                  type="button"
+                >Automatic</button>
+              </div>
+            </div>
             <button
               id="pl-reset"
               class="button button-tertiary button-small"
@@ -111,7 +127,7 @@
                 </div>
               </section>
 
-              <section id="pl-run-mode-auto" class="pl-run-mode" aria-label="Automatic run">
+              <section id="pl-run-mode-auto" class="pl-run-mode hidden" aria-label="Automatic run">
                 <header class="pl-run-mode-title">
                   <h3 class="heading-xxxsmall">Automatic run</h3>
                   <p class="pl-muted body-xsmall">Keep running trials until you stop it.</p>
