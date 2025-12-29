@@ -342,6 +342,12 @@
   box-shadow: 0 0 0 1px var(--Colors-Primary-Lightest);
 }
 
+@media (prefers-color-scheme: dark) {
+  .bespoke .pl-run-mode.pl-run-mode-active {
+    background: var(--Colors-Base-Primary-1200);
+  }
+}
+
 /* ===== COMPACT RUN TRIALS PANEL LAYOUT ===== */
 
 .bespoke .pl-run-card {
