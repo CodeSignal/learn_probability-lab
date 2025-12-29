@@ -1,6 +1,6 @@
 {
   "mode": "single",
-  "device": "coin",
+  "device": "die",
   "sections": {
     "barChart": true,
     "convergence": true,

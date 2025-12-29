@@ -1,7 +1,6 @@
 // CodeSignal Probability Lab
 // A convergence-focused probability simulator (coin / die / spinner).
 import Modal from './design-system/components/modal/modal.js';
-import { setStatus } from './src/shell/status.js';
 import { initializeWebSocket } from './src/shell/websocket.js';
 import { initializeHelpModal } from './src/shell/help.js';
 import { loadConfig } from './src/shell/config.js';
@@ -21,11 +20,8 @@ function $(id) {
 }
 
 const els = {
-  status: $('status'),
-
   setupDevice: $('pl-setup-device'),
   setupSampleSpace: $('pl-setup-sample-space'),
-  seedSummary: $('pl-seed-summary'),
   biasSummary: $('pl-bias-summary'),
   relationshipSummary: $('pl-relationship-summary'),
 
@@ -936,13 +932,11 @@ function initEventListeners() {
 
 async function init() {
   // Initialize help modal and WebSocket (non-blocking)
-  initializeHelpModal(Modal, setStatus);
+  initializeHelpModal(Modal);
   initializeWebSocket();
 
   // Initialize probability lab
   if (!els.singleConfig) return;
-
-  setStatus('Loading...');
 
   // Load configuration from config.json
   let config;
@@ -950,7 +944,6 @@ async function init() {
     config = await loadConfig();
   } catch (error) {
     console.error('Failed to load config:', error);
-    setStatus('Failed to load config');
     return;
   }
 
@@ -1012,7 +1005,6 @@ async function init() {
   // Defer initial render until after layout is complete
   requestAnimationFrame(() => {
     render(els, store.getState());
-    setStatus('Ready');
   });
 }
 

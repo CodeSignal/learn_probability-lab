@@ -54,10 +54,6 @@ function setTag(tagEl, { text, variant }) {
 export function renderExperimentSetup(els, state) {
   if (!els.setupDevice || !els.setupSampleSpace) return;
 
-  const seed = (state.seedText ?? '').trim();
-  const seedText = seed ? `Seed: ${seed}` : 'Seed: Random';
-  setTag(els.seedSummary, { text: seedText, variant: seed ? 'info' : 'secondary' });
-
   if (state.mode === 'two') {
     // Two-event mode: show both devices and sample spaces
     const deviceA = state.two.deviceA || '—';

@@ -31,10 +31,6 @@
   margin: 0;
 }
 
-.bespoke .header .status {
-  color: var(--Colors-Text-Body-Medium);
-}
-
 /* Main Layout - base styles from template, overridden below */
 .bespoke .main-layout {
   display: block;
@@ -1011,12 +1007,6 @@
 .bespoke .pl-live-value.pl-updated {
   color: var(--Colors-Alert-Success-Default);
   animation: pl-flash 0.5s ease;
-}
-
-/* Running status pulse */
-.bespoke #status.running {
-  animation: pl-pulse 1.5s ease infinite;
-  color: var(--Colors-Alert-Warning-Default);
 }
 
 /* Color utility classes */

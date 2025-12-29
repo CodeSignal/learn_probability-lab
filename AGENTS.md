@@ -31,7 +31,7 @@ client/
   help-content.html            # Help modal content
   config.json                  # Runtime configuration (dev default)
   src/                         # Modular ES modules
-    shell/                     # status/websocket/help/config
+    shell/                     # websocket/help/config
     shared/                    # math + format utilities
     probability-lab/           # domain/engine/state/ui
   design-system/               # CodeSignal Design System assets
@@ -105,19 +105,10 @@ Notes:
 
 ## Conventions
 
-### Status Messages
-
-Use these exact status messages:
-
-- Ready
-- Loading...
-- Failed to load config
-
 ### DOM Element IDs
 
 App shell:
 
-- status
 - btn-help
 - probability-lab
 

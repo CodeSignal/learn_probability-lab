@@ -4,7 +4,7 @@ Scope: `client/src` ES modules (no framework, no bundler-specific globals).
 
 ## Directory Layout
 
-- `shell/`: status messaging, websocket, help modal, config loader.
+- `shell/`: websocket, help modal, config loader.
 - `shared/`: pure utilities (math, formatting).
 - `probability-lab/`: domain logic, simulation engine, state, and UI rendering.
 

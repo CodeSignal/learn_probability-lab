@@ -3,7 +3,7 @@
 
 import helpContentHtml from '../../help-content.html?raw';
 
-export async function initializeHelpModal(Modal, setStatus) {
+export async function initializeHelpModal(Modal) {
   try {
     const helpContent = helpContentHtml;
 
@@ -21,9 +21,6 @@ export async function initializeHelpModal(Modal, setStatus) {
       });
     }
 
-    if (setStatus) {
-      setStatus('Ready');
-    }
   } catch (error) {
     console.error('Failed to load help content:', error);
     // Fallback to placeholder content
@@ -38,10 +35,6 @@ export async function initializeHelpModal(Modal, setStatus) {
       helpButton.addEventListener('click', () => {
         helpModal.open();
       });
-    }
-
-    if (setStatus) {
-      setStatus('Ready');
     }
   }
 }
