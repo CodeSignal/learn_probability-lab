@@ -25,6 +25,7 @@
   border-bottom: 1px solid var(--Colors-Stroke-Default);
   background: var(--Colors-Backgrounds-Main-Top);
   width: 100%;
+  box-sizing: border-box;
 }
 
 .bespoke .header h1 {
