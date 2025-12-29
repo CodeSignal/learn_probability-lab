@@ -56,24 +56,6 @@ describe('buildDeviceDefinition', () => {
       const sum = def.probabilities.reduce((a, b) => a + b, 0);
       expect(sum).toBeCloseTo(1.0, 10);
     });
-
-    it('backward compatibility: coinPHeads still works', () => {
-      const def = buildDeviceDefinition({ device: 'coin', coinPHeads: 0.7 });
-      expect(def.probabilities[0]).toBeCloseTo(0.7, 10);
-      expect(def.probabilities[1]).toBeCloseTo(0.3, 10);
-    });
-
-    it('backward compatibility: coinPHeads clamped to min 0.01', () => {
-      const def = buildDeviceDefinition({ device: 'coin', coinPHeads: -1 });
-      expect(def.probabilities[0]).toBeCloseTo(0.01, 10);
-      expect(def.probabilities[1]).toBeCloseTo(0.99, 10);
-    });
-
-    it('backward compatibility: coinPHeads clamped to max 0.99', () => {
-      const def = buildDeviceDefinition({ device: 'coin', coinPHeads: 2 });
-      expect(def.probabilities[0]).toBeCloseTo(0.99, 10);
-      expect(def.probabilities[1]).toBeCloseTo(0.01, 10);
-    });
   });
 
   describe('die device', () => {

@@ -15,7 +15,7 @@ Two-event mode (`state.two`):
 
 - `deviceA`, `deviceB`
 - `spinnerSectorsA/B`, `coinProbabilitiesA/B`, `dieProbabilitiesA/B`, `spinnerSkewA/B`
-- `relationship` (`independent`, `copy`, `complement`)
+- `relationship` (`independent`, `dependent`)
 - `definitionA`, `definitionB`
 - `trials`, `countsA`, `countsB`, `joint`, `lastA`, `lastB`, `selectedCell`
 

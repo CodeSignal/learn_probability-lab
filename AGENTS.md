@@ -19,7 +19,7 @@ The Probability Lab helps students understand:
 - Two events mode: joint heatmap + two-way table with joint/conditional reads
 - Bias controls: fair vs biased devices (coin, die, spinner)
 - Seeded randomness: reproduce runs with a seed
-- Event relationships: independent, copy (B = A), complement (B = not A)
+- Event relationships: independent, dependent
 
 ## Project Map
 
@@ -154,8 +154,7 @@ Two-event view:
 ### Event Relationships (Two Events Mode)
 
 - Independent: A and B drawn separately
-- Copy: B = A
-- Complement: B = not A (coin-only)
+- Dependent: Probabilistic dependence where "high" outcomes of A make "high" outcomes of B more likely
 
 ### Chart Types
 

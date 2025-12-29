@@ -198,7 +198,6 @@ function resetSingleSimulation() {
 
 function resetTwoSimulation() {
   const state = store.getState();
-  const relationship = state.two.relationship;
 
   const defA = buildDeviceDefinition({
     device: state.two.deviceA,
@@ -208,21 +207,13 @@ function resetTwoSimulation() {
     spinnerSkew: state.two.spinnerSkewA,
   });
 
-  let defB;
-  if (relationship === 'copy' || relationship === 'complement') {
-    defB = { ...defA };
-    defB.cdf = [...defA.cdf];
-    defB.labels = [...defA.labels];
-    defB.probabilities = [...defA.probabilities];
-  } else {
-    defB = buildDeviceDefinition({
-      device: state.two.deviceB,
-      spinnerSectors: state.two.spinnerSectorsB,
-      coinProbabilities: state.two.coinProbabilitiesB,
-      dieProbabilities: state.two.dieProbabilitiesB,
-      spinnerSkew: state.two.spinnerSkewB,
-    });
-  }
+  const defB = buildDeviceDefinition({
+    device: state.two.deviceB,
+    spinnerSectors: state.two.spinnerSectorsB,
+    coinProbabilities: state.two.coinProbabilitiesB,
+    dieProbabilities: state.two.dieProbabilitiesB,
+    spinnerSkew: state.two.spinnerSkewB,
+  });
 
   store.setState((draft) => {
     draft.two.definitionA = defA;
@@ -258,7 +249,17 @@ function applySectionVisibility(state) {
   const sections = state.sections || {};
 
   if (state.mode === 'single') {
-    // Single mode sections - use style.display instead of hidden attribute to override CSS
+    // Hide two-mode sections
+    if (els.jointDistributionCard) {
+      els.jointDistributionCard.style.display = 'none';
+      els.jointDistributionCard.hidden = true;
+    }
+    if (els.twoWayTableCard) {
+      els.twoWayTableCard.style.display = 'none';
+      els.twoWayTableCard.hidden = true;
+    }
+
+    // Show/hide single mode sections based on config - use style.display instead of hidden attribute to override CSS
     if (els.barChartSection) {
       els.barChartSection.style.display = sections.barChart ? '' : 'none';
       els.barChartSection.hidden = !sections.barChart;
@@ -272,7 +273,21 @@ function applySectionVisibility(state) {
       els.frequencyCard.hidden = !sections.frequencyTable;
     }
   } else {
-    // Two mode sections
+    // Hide single-mode sections
+    if (els.barChartSection) {
+      els.barChartSection.style.display = 'none';
+      els.barChartSection.hidden = true;
+    }
+    if (els.convergenceCard) {
+      els.convergenceCard.style.display = 'none';
+      els.convergenceCard.hidden = true;
+    }
+    if (els.frequencyCard) {
+      els.frequencyCard.style.display = 'none';
+      els.frequencyCard.hidden = true;
+    }
+
+    // Show/hide two mode sections based on config
     if (els.jointDistributionCard) {
       els.jointDistributionCard.style.display = sections.jointDistribution ? '' : 'none';
       els.jointDistributionCard.hidden = !sections.jointDistribution;
@@ -747,41 +762,6 @@ function syncUiFromState() {
 
 function updateTwoControlsForRelationship() {
   const state = store.getState();
-  const complementOption = els.relationship.querySelector('option[value="complement"]');
-  const canComplement = state.two.deviceA === 'coin';
-  if (complementOption) complementOption.disabled = !canComplement;
-
-  let changed = false;
-  if (state.two.relationship === 'complement' && !canComplement) {
-    store.setState((draft) => {
-      draft.two.relationship = 'copy';
-    });
-    els.relationship.value = 'copy';
-    changed = true;
-  }
-
-  const linked = state.two.relationship === 'copy' || state.two.relationship === 'complement';
-
-  if (linked) {
-    const currentState = store.getState();
-    if (currentState.two.deviceB !== currentState.two.deviceA) {
-      store.setState((draft) => {
-        draft.two.deviceB = draft.two.deviceA;
-      });
-      changed = true;
-    }
-
-    // Clean up device B sliders when linked
-    for (const slider of sliderInstances.two.b.values()) {
-      if (slider && typeof slider.destroy === 'function') {
-        slider.destroy();
-      }
-    }
-    sliderInstances.two.b.clear();
-
-    els.biasOptionsB.innerHTML = '<p class="pl-muted body-xsmall">B is linked to A.</p>';
-    return;
-  }
 
   renderBiasControls(
     els.biasOptionsB,

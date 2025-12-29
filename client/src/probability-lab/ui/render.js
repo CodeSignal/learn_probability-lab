@@ -66,27 +66,20 @@ export function renderExperimentSetup(els, state) {
       dieProbabilities: state.two.dieProbabilitiesA,
       spinnerSkew: state.two.spinnerSkewA,
     });
-    const linked = state.two.relationship === 'copy' || state.two.relationship === 'complement';
-    const fairB = linked
-      ? fairA
-      : isFairDevice(deviceB, {
-        coinProbabilities: state.two.coinProbabilitiesB,
-        dieProbabilities: state.two.dieProbabilitiesB,
-        spinnerSkew: state.two.spinnerSkewB,
-      });
+    const fairB = isFairDevice(deviceB, {
+      coinProbabilities: state.two.coinProbabilitiesB,
+      dieProbabilities: state.two.dieProbabilitiesB,
+      spinnerSkew: state.two.spinnerSkewB,
+    });
 
-    const biasText = linked
-      ? `Bias (A / B): ${fairA ? 'Uniform' : 'Biased'} / Linked`
-      : `Bias (A / B): ${fairA ? 'Uniform' : 'Biased'} / ${fairB ? 'Uniform' : 'Biased'}`;
+    const biasText = `Bias (A / B): ${fairA ? 'Uniform' : 'Biased'} / ${fairB ? 'Uniform' : 'Biased'}`;
     setTag(els.biasSummary, { text: biasText, variant: fairA && fairB ? 'success' : 'warning' });
 
     if (els.relationshipSummary) {
       const relationship = state.two.relationship || 'independent';
-      const label = relationship === 'copy'
-        ? 'B = A'
-        : relationship === 'complement'
-          ? 'Complement'
-          : 'Independent';
+      const label = relationship === 'dependent'
+        ? 'Dependent'
+        : 'Independent';
       els.relationshipSummary.hidden = false;
       els.relationshipSummary.style.display = '';
       setTag(els.relationshipSummary, { text: `Relationship: ${label}`, variant: 'secondary' });

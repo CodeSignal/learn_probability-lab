@@ -10,7 +10,7 @@
   height: 100%;
 }
 
-.bespoke * {
+.bespoke .input {
   box-sizing: border-box;
 }
 
@@ -411,7 +411,7 @@
   padding: var(--UI-Spacing-spacing-s);
   display: flex;
   flex-direction: column;
-  gap: var(--UI-Spacing-spacing-xl);
+  gap: var(--UI-Spacing-spacing-s);
   min-height: 100%;
 }
 

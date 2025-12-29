@@ -77,16 +77,19 @@ describe('mulberry32', () => {
 });
 
 describe('createRngFromSeed', () => {
-  it('returns Math.random for empty seed', () => {
+  it('returns deterministic RNG function for empty seed', () => {
     const rng1 = createRngFromSeed('');
     const rng2 = createRngFromSeed(null);
     const rng3 = createRngFromSeed(undefined);
     const rng4 = createRngFromSeed('   ');
 
-    expect(rng1).toBe(Math.random);
-    expect(rng2).toBe(Math.random);
-    expect(rng3).toBe(Math.random);
-    expect(rng4).toBe(Math.random);
+    expect(typeof rng1).toBe('function');
+    expect(typeof rng2).toBe('function');
+    expect(typeof rng3).toBe('function');
+    expect(typeof rng4).toBe('function');
+
+    expect(rng1()).toBe(rng2());
+    expect(rng3()).toBe(rng4());
   });
 
   it('returns deterministic RNG function for valid seed', () => {
