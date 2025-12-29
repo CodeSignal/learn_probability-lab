@@ -1144,54 +1144,6 @@
   color: var(--Colors-Text-Body-Default);
 }
 
-/* Compact event summary row (single mode) */
-.bespoke .pl-event-inline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--UI-Spacing-spacing-ml);
-  padding: var(--UI-Spacing-spacing-s);
-  border-radius: var(--UI-Radius-radius-s);
-  border: 1px solid var(--Colors-Stroke-Light);
-  background: var(--Colors-Backgrounds-Main-Top);
-}
-
-.bespoke .pl-event-inline-main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--UI-Spacing-spacing-xxs);
-  min-width: 0;
-}
-
-.bespoke .pl-event-inline-title {
-  display: flex;
-  align-items: baseline;
-  gap: var(--UI-Spacing-spacing-xs);
-}
-
-.bespoke .pl-event-inline-metrics {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--UI-Spacing-spacing-ml);
-}
-
-.bespoke .pl-event-inline-metric {
-  display: flex;
-  flex-direction: column;
-  gap: var(--UI-Spacing-spacing-xxs);
-}
-
-.bespoke .pl-event-inline-label {
-  color: var(--Colors-Text-Body-Medium);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.bespoke .pl-event-inline-value {
-  color: var(--Colors-Text-Body-Strongest);
-  font-weight: 600;
-}
-
 /* Live trial monitor (device + metrics) */
 .bespoke .pl-monitor-grid {
   display: grid;

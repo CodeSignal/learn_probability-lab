@@ -51,11 +51,7 @@ const els = {
 
   seed: $('pl-seed'),
 
-  eventCard: $('pl-event-card'),
   eventOutcomes: $('pl-event-outcomes'),
-  eventEst: $('pl-event-est'),
-  eventTheory: $('pl-event-theory'),
-  eventSelectedCount: $('pl-event-selected-count'),
 
   deviceView: $('pl-device-view'),
   trials: $('pl-trials'),

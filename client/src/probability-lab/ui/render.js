@@ -147,7 +147,6 @@ export function renderModeVisibility(els, state) {
   els.singleConfig.hidden = isTwo;
   els.twoConfig.hidden = !isTwo;
   els.twoView.hidden = !isTwo;
-  els.eventCard.hidden = isTwo;
 
   // Show/hide single-event and two-event view containers
   if (els.singleView) els.singleView.hidden = isTwo;
