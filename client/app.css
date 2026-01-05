@@ -83,15 +83,6 @@
   margin: var(--UI-Spacing-spacing-s) 0;
 }
 
-.bespoke .pl-slider-label {
-  margin-top: var(--UI-Spacing-spacing-none);
-  margin-bottom: var(--UI-Spacing-spacing-none);
-  padding-left: var(--UI-Spacing-spacing-none);
-  padding-right: var(--UI-Spacing-spacing-xs);
-  font-weight: 500;
-  color: var(--Colors-Text-Body-Strongest);
-}
-
 .bespoke select {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -146,18 +137,6 @@
   white-space: nowrap;
 }
 
-.bespoke .pl-inline {
-  display: flex;
-  align-items: center;
-  gap: var(--UI-Spacing-spacing-s);
-  margin: 0;
-}
-
-/* Device-specific: Range input width for inline controls */
-.bespoke .pl-inline input[type="range"] {
-  width: 120px;
-}
-
 /* ===== LIVE TRIAL CONTROLS ===== */
 
 .bespoke .pl-trial-controls {
@@ -166,17 +145,6 @@
   gap: var(--UI-Spacing-spacing-s);
   padding: var(--UI-Spacing-spacing-s) var(--UI-Spacing-spacing-ml);
   margin-bottom: var(--UI-Spacing-spacing-s);
-}
-
-.bespoke .pl-control-row {
-  display: flex;
-  align-items: center;
-  gap: var(--UI-Spacing-spacing-ml);
-  flex-wrap: wrap;
-}
-
-.bespoke .pl-control-row-auto {
-  padding-top: var(--UI-Spacing-spacing-s);
 }
 
 .bespoke .pl-step-size-group {
@@ -248,23 +216,6 @@
   border-color: var(--Colors-Primary-Default);
 }
 
-.bespoke .pl-action-buttons {
-  display: flex;
-  gap: var(--UI-Spacing-spacing-s);
-  margin-left: auto;
-}
-
-.bespoke .pl-action-buttons .button-primary {
-  height: var(--UI-Input-sm);
-  padding: 0 var(--UI-Spacing-spacing-ml);
-  min-width: 120px;
-}
-
-.bespoke .pl-action-buttons .button-secondary {
-  height: var(--UI-Input-sm);
-  padding: 0 var(--UI-Spacing-spacing-ml);
-}
-
 /* ===== RUN TRIALS CARD ===== */
 
 .bespoke .pl-run-header {
@@ -332,6 +283,7 @@
   flex-direction: column;
   align-items: stretch;
   gap: var(--UI-Spacing-spacing-xs);
+  padding-right: var(--UI-Spacing-spacing-s);
 }
 
 .bespoke .pl-run-mode .pl-control-label {
@@ -371,33 +323,14 @@
   margin-bottom: 0;
 }
 
-/* ===== LIVE TRIAL DEVICE SECTION ===== */
-
-.bespoke .pl-device-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--UI-Spacing-spacing-ml) 0;
-  margin-bottom: var(--UI-Spacing-spacing-s);
-}
-
 /* ===== LIVE TRIAL METRICS ===== */
-
-.bespoke .pl-trial-metrics {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--UI-Spacing-spacing-s);
-  padding-top: var(--UI-Spacing-spacing-ml);
-  border-top: 1px solid var(--Colors-Stroke-Light);
-}
 
 .bespoke .pl-trial-metric {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: var(--UI-Spacing-spacing-xxs);
-  padding: var(--UI-Spacing-spacing-s);
+  padding: var(--UI-Spacing-spacing-xxs);
 }
 
 .bespoke .pl-trial-metric .pl-metric-label {
@@ -428,25 +361,25 @@
   padding: var(--UI-Spacing-spacing-s);
   display: flex;
   flex-direction: column;
-  gap: var(--UI-Spacing-spacing-s);
+  gap: var(--UI-Spacing-spacing-ml); /* Vertical spacing */
   min-height: 100%;
 }
 
 .bespoke .pl-top-grid {
   display: grid;
   grid-template-columns: minmax(280px, 1.05fr) minmax(360px, 1.6fr) minmax(240px, 0.85fr);
-  gap: var(--UI-Spacing-spacing-xl);
+  gap: var(--UI-Spacing-spacing-ml); /* Horizontal spacing */
   align-items: start;
 }
 
-/* Layout-specific: Grid column min-width for responsive layout */
+/* Grid column min-width for responsive layout */
 .bespoke .pl-content-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-  gap: var(--UI-Spacing-spacing-xl);
+  gap: var(--UI-Spacing-spacing-ml); /* Horizontal spacing */
 }
 
-/* Device-specific: Main device container dimensions */
+/* Main device container dimensions */
 .bespoke .pl-device {
   width: 160px;
   height: 160px;
@@ -466,7 +399,7 @@
   --pl-ink: var(--Colors-Base-Neutral-1450);
 }
 
-/* Device-specific: Coin dimensions for visual representation */
+/* Coin dimensions for visual representation */
 .bespoke .pl-coin {
   width: 120px;
   height: 120px;
@@ -489,7 +422,7 @@
   display: grid;
   place-items: center;
   font-family: var(--heading-family);
-  /* Device-specific: Coin face font size for visual clarity */
+  /* Coin face font size for visual clarity */
   font-size: 56px;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -509,7 +442,7 @@
   letter-spacing: 0.08em;
 }
 
-/* Device-specific: Die dimensions for visual representation */
+/* Die dimensions for visual representation */
 .bespoke .pl-die {
   width: 120px;
   height: 120px;
@@ -520,7 +453,7 @@
   position: relative;
 }
 
-/* Device-specific: Die pip size for visual clarity */
+/* Die pip size for visual clarity */
 .bespoke .pl-die .pl-pip {
   width: 14px;
   height: 14px;
@@ -535,7 +468,7 @@
   opacity: 1;
 }
 
-/* Device-specific: Spinner dimensions for visual representation */
+/* Spinner dimensions for visual representation */
 .bespoke .pl-spinner {
   width: 120px;
   height: 120px;
@@ -551,7 +484,7 @@
   position: relative;
 }
 
-/* Device-specific: Spinner center dot size */
+/* Spinner center dot size */
 .bespoke .pl-spinner::after {
   content: "";
   width: 12px;
@@ -565,7 +498,7 @@
   transform: translate(-50%, -50%);
 }
 
-/* Device-specific: Spinner pointer dimensions and positioning */
+/* Spinner pointer dimensions and positioning */
 .bespoke .pl-spinner-pointer {
   width: 0;
   height: 0;
@@ -579,7 +512,7 @@
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
 }
 
-/* Device-specific: Two-event mode device dimensions */
+/* Two-event mode device dimensions */
 .bespoke .pl-device.pl-device--two {
   width: 120px;
   height: 120px;
@@ -595,7 +528,7 @@
   gap: var(--UI-Spacing-spacing-xs);
 }
 
-/* Device-specific: Mini device dimensions for compact displays */
+/* Mini device dimensions for compact displays */
 .bespoke .pl-device.pl-device-mini {
   width: 54px;
   height: 54px;
@@ -613,7 +546,7 @@
   height: 54px;
 }
 
-/* Device-specific: Mini coin font size scaled for compact display */
+/* Mini coin font size scaled for compact display */
 .bespoke .pl-device.pl-device-mini .pl-coin {
   font-size: 26px;
 }
@@ -622,13 +555,13 @@
   border-radius: var(--UI-Radius-radius-m);
 }
 
-/* Device-specific: Mini die pip size */
+/* Mini die pip size */
 .bespoke .pl-device.pl-device-mini .pl-die .pl-pip {
   width: 8px;
   height: 8px;
 }
 
-/* Device-specific: Mini spinner pointer dimensions */
+/* Mini spinner pointer dimensions */
 .bespoke .pl-device.pl-device-mini .pl-spinner-pointer {
   border-left-width: 7px;
   border-right-width: 7px;
@@ -697,19 +630,6 @@
 
 .bespoke .pl-table .pl-selected-row {
   background: rgba(92, 148, 255, 0.12);
-}
-
-.bespoke .pl-metrics {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--UI-Spacing-spacing-s);
-}
-
-.bespoke .pl-metric {
-  padding: var(--UI-Spacing-spacing-s);
-  border: 1px solid var(--Colors-Stroke-Default);
-  border-radius: var(--UI-Radius-radius-s);
-  background: var(--Colors-Backgrounds-Main-Top);
 }
 
 .bespoke .pl-metric-label {
@@ -1014,8 +934,7 @@
 }
 
 /* Value update animations */
-.bespoke .pl-trial-metric .pl-metric-value.pl-updated,
-.bespoke .pl-live-value.pl-updated {
+.bespoke .pl-trial-metric .pl-metric-value.pl-updated {
   color: var(--Colors-Alert-Success-Default);
   animation: pl-flash 0.5s ease;
 }
@@ -1044,13 +963,6 @@
 }
 
 /* ===== USER GUIDANCE COMPONENTS ===== */
-
-.bespoke .pl-card-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--UI-Spacing-spacing-xxs);
-  margin-bottom: var(--UI-Spacing-spacing-s);
-}
 
 /* Helper text under titles */
 .bespoke .pl-helper-text {
@@ -1226,11 +1138,6 @@
   opacity: 0.85;
 }
 
-.bespoke .pl-legend-indicator.line {
-  height: 2px;
-  background: var(--Colors-Text-Body-Strongest);
-}
-
 .bespoke .pl-legend-indicator.dashed {
   height: 2px;
   background: repeating-linear-gradient(
@@ -1263,36 +1170,9 @@
     padding: var(--UI-Spacing-spacing-s);
   }
 
-  .bespoke .pl-control-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .bespoke .pl-step-size-group {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .bespoke .pl-action-buttons {
-    margin-left: 0;
-    width: 100%;
-  }
-
-  .bespoke .pl-action-buttons .button {
-    flex: 1;
-  }
-
-  .bespoke .pl-control-row-auto {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .bespoke .pl-inline {
-    width: 100%;
-  }
-
-  .bespoke .pl-trial-metrics {
-    grid-template-columns: 1fr;
   }
 
   .bespoke .pl-monitor-grid {
@@ -1313,6 +1193,7 @@
 
 /* Improve visibility of NumericSlider input fields */
 .bespoke .numeric-slider-input {
-  min-width: var(--UI-Spacing-spacing-4xl) !important;
-  max-width: var(--UI-Spacing-spacing-4xl) !important;
+  min-width: var(--UI-Spacing-spacing-xxxl) !important;
+  max-width: var(--UI-Spacing-spacing-xxxl) !important;
+  margin-right: var(--UI-Spacing-spacing-s) !important;
 }
