@@ -57,7 +57,8 @@ export default function drawBarChart(canvas, labels, values, theory) {
     if (labels.length === 0) return;
 
     const gap = labels.length > 1 ? Math.min(14, plotW / (labels.length * 2)) : 0;
-    const barW = (plotW - gap * (labels.length - 1)) / labels.length;
+    const slotW = (plotW - gap * (labels.length - 1)) / labels.length;
+    const barW = slotW * 0.8; // Bars are 80% of slot width
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
@@ -65,7 +66,8 @@ export default function drawBarChart(canvas, labels, values, theory) {
     for (let i = 0; i < labels.length; i += 1) {
       const value = clamp(values[i] ?? 0, 0, 1);
       const theoryValue = clamp(theory[i] ?? 0, 0, 1);
-      const x = padding.left + i * (barW + gap);
+      const slotX = padding.left + i * (slotW + gap);
+      const x = slotX + (slotW - barW) / 2; // Center bar in its slot
       const barH = value * plotH;
       const y = padding.top + plotH - barH;
 
@@ -93,7 +95,7 @@ export default function drawBarChart(canvas, labels, values, theory) {
       ctx.fillStyle = strong;
       ctx.font = '12px var(--body-family)';
       const label = String(labels[i]);
-      ctx.fillText(label, x + barW / 2, padding.top + plotH + 8);
+      ctx.fillText(label, slotX + slotW / 2, padding.top + plotH + 8); // Center label on slot
     }
   });
 }
