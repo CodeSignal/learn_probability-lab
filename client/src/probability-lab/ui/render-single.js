@@ -1,5 +1,5 @@
 // Single-mode rendering
-import drawBarChart from './charts/bar-chart.js';
+import drawBarChart, { setupBarChartHover } from './charts/bar-chart.js';
 import drawLineChart from './charts/line-chart.js';
 import { buildFrequencyTableHtml } from './tables.js';
 import { updateDeviceViewSingle } from './device-view.js';
@@ -71,7 +71,8 @@ export default function renderSingle(els, state) {
   // TODO: add nice die animation, e.g. https://github.com/3d-dice/dice-box
 
   const rel = state.single.trials === 0 ? def.labels.map(() => 0) : state.single.counts.map((c) => c / state.single.trials);
-  drawBarChart(els.barChart, def.labels, rel, def.probabilities);
+  drawBarChart(els.barChart, def.labels, rel, def.probabilities, state.single.counts, state.single.trials);
+  setupBarChartHover(els.barChart, def.labels, state.single.counts, state.single.trials);
 
   const historyTrials = state.single.history.map((p) => p.trials);
   const historyEst = state.single.history.map((p) => Array.from(selectedIndices).reduce((acc, idx) => acc + (p.rel[idx] ?? 0), 0));

@@ -1197,3 +1197,15 @@
   max-width: var(--UI-Spacing-spacing-xxxl) !important;
   margin-right: var(--UI-Spacing-spacing-s) !important;
 }
+
+/* ===== BAR CHART TOOLTIP ===== */
+
+.pl-bar-chart-tooltip {
+  padding: var(--UI-Spacing-spacing-s) var(--UI-Spacing-spacing-ml);
+  font-family: var(--body-family);
+  font-size: var(--UI-Typography-body-small-size);
+  line-height: var(--UI-Typography-body-small-line-height);
+  color: var(--Colors-Text-Body-Default);
+  white-space: nowrap;
+  max-width: none;
+}
