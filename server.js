@@ -3,22 +3,11 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
-// Try to load WebSocket module, fallback if not available
-let WebSocket = null;
-let isWebSocketAvailable = false;
-try {
-  WebSocket = require('ws');
-  isWebSocketAvailable = true;
-  console.log('WebSocket support enabled');
-} catch (error) {
-  console.log('WebSocket support disabled (ws package not installed)');
-  console.log('Install with: npm install ws');
-}
-
 const DIST_DIR = path.join(__dirname, 'dist');
 // Config file path from environment variable or default
 const CONFIG_PATH_ENV = process.env.CONFIG_PATH || './config.json';
 const CONFIG_PATH = path.resolve(__dirname, CONFIG_PATH_ENV);
+const ACTIVITY_LOG_PATH = path.join(__dirname, 'activity.log');
 // Check if IS_PRODUCTION is set to true
 const isProduction = process.env.IS_PRODUCTION === 'true';
 // In production mode, dist directory must exist
@@ -27,9 +16,6 @@ if (isProduction && !fs.existsSync(DIST_DIR)) {
 }
 // Force port 3000 in production, otherwise use PORT environment variable or default to 3000
 const PORT = isProduction ? 3000 : (process.env.PORT || 3000);
-
-// Track connected WebSocket clients
-const wsClients = new Set();
 
 // MIME types for different file extensions
 const mimeTypes = {
@@ -72,53 +58,63 @@ function serveFile(filePath, res) {
 
 // Handle POST requests
 function handlePostRequest(req, res, parsedUrl) {
-  if (parsedUrl.pathname === '/message') {
+  if (parsedUrl.pathname === '/log') {
     let body = '';
 
-    req.on('data', chunk => {
+    req.on('data', (chunk) => {
       body += chunk.toString();
     });
 
     req.on('end', () => {
+      if (res.headersSent) return;
+
+      if (!body) {
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        res.end('Empty body');
+        return;
+      }
+
+      let event;
       try {
-        const data = JSON.parse(body);
-        const message = data.message;
-
-        if (!message) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Message is required' }));
-          return;
-        }
-
-        // Check if WebSocket is available
-        if (!isWebSocketAvailable) {
-          res.writeHead(503, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({
-            error: 'WebSocket functionality not available',
-            details: 'Install the ws package with: npm install ws'
-          }));
-          return;
-        }
-
-        // Broadcast message to all connected WebSocket clients
-        wsClients.forEach(client => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ type: 'message', message: message }));
-          }
-        });
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, clientCount: wsClients.size }));
-
+        event = JSON.parse(body);
       } catch (error) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Invalid JSON' }));
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        res.end('Invalid JSON');
+        return;
+      }
+
+      if (!event || typeof event !== 'object') {
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        res.end('Invalid payload');
+        return;
+      }
+
+      const line = `${JSON.stringify(event)}\n`;
+      fs.appendFile(ACTIVITY_LOG_PATH, line, (err) => {
+        if (res.headersSent) return;
+
+        if (err) {
+          res.writeHead(500, { 'Content-Type': 'text/plain' });
+          res.end('Failed to write log');
+          return;
+        }
+        res.writeHead(204);
+        res.end();
+      });
+    });
+
+    req.on('error', () => {
+      if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Request error');
       }
     });
-  } else {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('Not found');
+
+    return;
   }
+
+  res.writeHead(404, { 'Content-Type': 'text/plain' });
+  res.end('Not found');
 }
 
 // Handle GET requests for config.json
@@ -189,32 +185,6 @@ const server = http.createServer((req, res) => {
   }
 });
 
-// Create WebSocket server only if WebSocket is available
-// Note: WebSocket upgrade handling is performed automatically by the ws library
-// when attached to the HTTP server. The HTTP request handler should NOT send
-// a response for upgrade requests - the ws library handles the upgrade internally.
-if (isWebSocketAvailable) {
-  const wss = new WebSocket.Server({
-    server,
-    path: '/ws'
-  });
-
-  wss.on('connection', (ws, req) => {
-    console.log('New WebSocket client connected');
-    wsClients.add(ws);
-
-    ws.on('close', () => {
-      console.log('WebSocket client disconnected');
-      wsClients.delete(ws);
-    });
-
-    ws.on('error', (error) => {
-      console.error('WebSocket error:', error);
-      wsClients.delete(ws);
-    });
-  });
-}
-
 // Start server
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
@@ -222,11 +192,6 @@ server.listen(PORT, () => {
     console.log(`Serving static files from: ${DIST_DIR}`);
   } else {
     console.log(`Development mode - static files served by Vite`);
-  }
-  if (isWebSocketAvailable) {
-    console.log(`WebSocket server running on /ws`);
-  } else {
-    console.log(`WebSocket functionality disabled - install 'ws' package to enable`);
   }
   console.log('Press Ctrl+C to stop the server');
 });

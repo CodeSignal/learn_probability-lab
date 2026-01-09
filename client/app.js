@@ -1,9 +1,9 @@
 // CodeSignal Probability Lab
 // A convergence-focused probability simulator (coin / die / spinner).
 import Modal from './design-system/components/modal/modal.js';
-import { initializeWebSocket } from './src/shell/websocket.js';
 import { initializeHelpModal } from './src/shell/help.js';
 import { loadConfig } from './src/shell/config.js';
+import { createActivityLogger } from './src/shell/activity-logger.js';
 import { clamp, safeNumber } from './src/shared/math.js';
 import { formatProbability } from './src/shared/format.js';
 import { createRngFromSeed } from './src/probability-lab/domain/rng.js';
@@ -151,12 +151,15 @@ const store = createStore({
   },
 });
 
+const activityLogger = createActivityLogger();
+
 // Create runner instance with callbacks
 const runner = createRunner(store.getState().running, {
   onTick: () => {
     const state = store.getState();
     render(els, state);
     applySectionVisibility(state);
+    activityLogger.maybeLogStatus(state);
   },
   onDone: updateControls,
   onStop: updateControls,
@@ -227,7 +230,7 @@ function resetTwoSimulation() {
   });
 }
 
-function resetSimulation() {
+function resetSimulation({ reason = 'unknown', logSettings = false } = {}) {
   runner.stopRunning();
   store.setState((draft) => {
     draft.running.cancel = false;
@@ -242,6 +245,12 @@ function resetSimulation() {
   render(els, store.getState());
   applySectionVisibility(store.getState());
   syncUiFromState();
+
+  const currentState = store.getState();
+  if (logSettings) {
+    activityLogger.logSettingsChange(currentState);
+  }
+  activityLogger.logRunReset(currentState, reason);
 }
 
 function applySectionVisibility(state) {
@@ -668,6 +677,7 @@ function renderEventOptions() {
       const state = store.getState();
       render(els, state);
       applySectionVisibility(state);
+      activityLogger.logSettingsChange(state);
     });
 
     label.append(checkbox, box, title);
@@ -692,7 +702,7 @@ function applySeed(seedText) {
     draft.seedText = trimmed;
     draft.rng = createRngFromSeed(trimmed);
   });
-  resetSimulation();
+  resetSimulation({ reason: 'seed_change', logSettings: true });
 }
 
 function openSettingsModal(scrollTarget) {
@@ -753,7 +763,7 @@ function syncUiFromState() {
     store.setState((draft) => {
       draft.single[key] = value;
     });
-    resetSimulation();
+    resetSimulation({ reason: 'bias_change', logSettings: true });
   });
 
   renderBiasControls(
@@ -768,7 +778,7 @@ function syncUiFromState() {
       store.setState((draft) => {
         draft.two[`${key}A`] = value;
       });
-      resetSimulation();
+      resetSimulation({ reason: 'bias_change', logSettings: true });
     },
   );
 
@@ -790,7 +800,7 @@ function updateTwoControlsForRelationship() {
       store.setState((draft) => {
         draft.two[`${key}B`] = value;
       });
-      resetSimulation();
+      resetSimulation({ reason: 'bias_change', logSettings: true });
     },
   );
 }
@@ -803,7 +813,7 @@ function initEventListeners() {
     store.setState((draft) => {
       draft.single.spinnerSectors = clamped;
     });
-    resetSimulation();
+    resetSimulation({ reason: 'bias_change', logSettings: true });
   });
 
   els.relationship.addEventListener('change', () => {
@@ -811,7 +821,7 @@ function initEventListeners() {
       draft.two.relationship = els.relationship.value;
     });
     updateTwoControlsForRelationship();
-    resetSimulation();
+    resetSimulation({ reason: 'relationship_change', logSettings: true });
   });
 
   els.stepSize.addEventListener('change', () => {
@@ -891,7 +901,9 @@ function initEventListeners() {
     runner.runTrials(state.stepSize, state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng);
   });
 
-  els.reset.addEventListener('click', resetSimulation);
+  els.reset.addEventListener('click', () => {
+    resetSimulation({ reason: 'user_reset' });
+  });
 
   els.auto.addEventListener('click', () => {
     const state = store.getState();
@@ -969,9 +981,8 @@ function initEventListeners() {
 }
 
 async function init() {
-  // Initialize help modal and WebSocket (non-blocking)
+  // Initialize help modal (non-blocking)
   initializeHelpModal(Modal);
-  initializeWebSocket();
 
   // Initialize probability lab
   if (!els.singleConfig) return;
@@ -1039,6 +1050,7 @@ async function init() {
   initEventListeners();
   updateControls();
   applySectionVisibility(store.getState());
+  activityLogger.logAppStart(store.getState());
 
   // Defer initial render until after layout is complete
   requestAnimationFrame(() => {

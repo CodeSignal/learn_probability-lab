@@ -4,7 +4,7 @@ Scope: `client/src` ES modules (no framework, no bundler-specific globals).
 
 ## Directory Layout
 
-- `shell/`: websocket, help modal, config loader.
+- `shell/`: help modal, config loader.
 - `shared/`: pure utilities (math, formatting).
 - `probability-lab/`: domain logic, simulation engine, state, and UI rendering.
 
@@ -23,11 +23,6 @@ Scope: `client/src` ES modules (no framework, no bundler-specific globals).
 
 - `shell/help.js` uses Vite `?raw` import for `help-content.html`.
 - Keep that import path intact if the help content moves.
-
-## WebSocket
-
-- `shell/websocket.js` connects to `/ws` and expects JSON messages like:
-  `{ "type": "message", "message": "..." }`.
 
 ## Guardrails
 

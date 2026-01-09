@@ -31,15 +31,15 @@ client/
   help-content.html            # Help modal content
   config.json                  # Runtime configuration (dev default)
   src/                         # Modular ES modules
-    shell/                     # websocket/help/config
+    shell/                     # help/config
     shared/                    # math + format utilities
     probability-lab/           # domain/engine/state/ui
   design-system/               # CodeSignal Design System assets
     agents.md                  # Design system deep reference (lowercase file)
 
 dist/                          # Production build output (vite build)
-server.js                      # HTTP + WebSocket server for prod/API
-vite.config.js                 # Vite root=client, dev proxy to /message and /ws
+server.js                      # HTTP server for prod/API
+vite.config.js                 # Vite root=client, dev proxy config
 vitest.config.js               # Vitest config
 
 tests/                         # Vitest suites (domain/engine/shared)
@@ -51,7 +51,7 @@ tests/                         # Vitest suites (domain/engine/shared)
    `npm run start:dev`
 2. Build for production:
    `npm run build`
-3. Start production server (serves dist + /message + /ws):
+3. Start production server (serves dist):
    `npm run start:prod`
 4. Run tests:
    `npm test`
@@ -101,7 +101,7 @@ Notes:
 - `client/app.js` is the main entrypoint and orchestrates state, rendering, and controls.
 - `client/src/probability-lab/engine` mutates state slices with pure, DOM-free logic.
 - `client/src/probability-lab/ui` is the only place that touches the DOM or canvases.
-- `server.js` serves static files in production and exposes `/message` + `/ws` for alerts.
+- `server.js` serves static files in production.
 
 ## Conventions
 

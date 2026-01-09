@@ -8,13 +8,8 @@ export default defineConfig({
     allowedHosts: true,
     port: 3000,
     proxy: {
-      '/message': {
+      '/log': {
         target: 'http://localhost:3001',
-        changeOrigin: true
-      },
-      '/ws': {
-        target: 'ws://localhost:3001',
-        ws: true,
         changeOrigin: true
       }
     }
