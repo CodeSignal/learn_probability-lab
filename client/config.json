@@ -1,6 +1,12 @@
 {
   "mode": "single",
-  "device": "die",
+  "device": "custom",
+  "deviceSettings": {
+    "name": "Exam",
+    "icon": "📚",
+    "outcomes": ["Pass", "Fail"],
+    "probabilities": [0.7, 0.3]
+  },
   "sections": {
     "barChart": true,
     "convergence": true,
