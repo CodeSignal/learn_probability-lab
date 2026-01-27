@@ -397,20 +397,12 @@ function updateControls() {
   }
 }
 
-function computeMaxProbability(outcomeCount) {
-  // Each other outcome needs at least 1%
-  // maxValue = 1 - 0.01 * (outcomeCount - 1)
-  // Clamped to reasonable bounds
-  const minReserve = 0.01 * (outcomeCount - 1);
-  return Math.min(0.99, Math.max(0.5, 1 - minReserve));
-}
-
-function normalizeProbabilities(probabilities, changedIndex, newValue, maxValue = 0.8) {
+function normalizeProbabilities(probabilities, changedIndex, newValue) {
   // Clone array to avoid mutation
   const result = [...probabilities];
 
-  // Clamp new value
-  const clamped = clamp(newValue, 0.01, maxValue);
+  // Clamp new value to 0-1 range
+  const clamped = clamp(newValue, 0, 1);
   result[changedIndex] = clamped;
 
   // Calculate remaining probability
@@ -428,7 +420,7 @@ function normalizeProbabilities(probabilities, changedIndex, newValue, maxValue 
       }
     }
   } else {
-    // Fallback: equal distribution (shouldn't happen in practice)
+    // Fallback: equal distribution among non-changed outcomes
     const equal = remaining / (result.length - 1);
     for (let i = 0; i < result.length; i++) {
       if (i !== changedIndex) {
@@ -446,7 +438,6 @@ function renderOutcomeSliders(
   deviceKey,
   labels,
   probabilities,
-  maxValue,
   onChange
 ) {
   // Check if sliders already exist for this device
@@ -473,8 +464,6 @@ function renderOutcomeSliders(
   container.innerHTML = '';
   container.classList.remove('pl-bias-options--custom');
 
-  const maxPercentage = Math.round(maxValue * 100);
-
   for (let i = 0; i < labels.length; i++) {
     const sliderKey = `${deviceKey}-${i}`;
     const wrapper = document.createElement('div');
@@ -492,8 +481,8 @@ function renderOutcomeSliders(
 
     const slider = new NumericSlider(sliderContainer, {
       type: 'single',
-      min: 1,
-      max: maxPercentage,
+      min: 0,
+      max: 100,
       step: 1,
       value: Math.round(probabilities[i] * 100),
       showInputs: true,
@@ -513,7 +502,7 @@ function renderOutcomeSliders(
           }
         }
 
-        const normalized = normalizeProbabilities(currentProbabilities, i, probabilityValue, maxValue);
+        const normalized = normalizeProbabilities(currentProbabilities, i, probabilityValue);
 
         // Update all sliders with normalized values
         for (let j = 0; j < labels.length; j++) {
@@ -568,14 +557,12 @@ function renderBiasControls(container, device, values, onChange) {
       probabilities = Array.from({ length: outcomes.length }, () => uniformProb);
     }
 
-    const maxValue = computeMaxProbability(outcomes.length);
     renderOutcomeSliders(
       container,
       instanceMap,
       deviceKey,
       outcomes,
       probabilities,
-      maxValue,
       (normalized) => onChange('customProbabilities', normalized)
     );
     return;
@@ -592,7 +579,6 @@ function renderBiasControls(container, device, values, onChange) {
       deviceKey,
       labels,
       probabilities,
-      0.99,
       (normalized) => onChange('coinProbabilities', normalized)
     );
     return;
@@ -607,7 +593,6 @@ function renderBiasControls(container, device, values, onChange) {
       deviceKey,
       labels,
       probabilities,
-      0.80,
       (normalized) => onChange('dieProbabilities', normalized)
     );
     return;
