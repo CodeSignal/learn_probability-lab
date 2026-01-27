@@ -19,14 +19,11 @@ function renderCustomDevice(target, def, index, { compact = false } = {}) {
     nameWrap.append(icon);
   }
 
-  const name = document.createElement('span');
+  const name = document.createElement('h2');
+  name.className = 'heading-xxxsmall';
   name.textContent = def.name || 'Custom';
   nameWrap.append(name);
   header.append(nameWrap);
-
-  const selected = document.createElement('div');
-  selected.className = `pl-custom-selected ${compact ? 'body-xsmall' : 'heading-xxxsmall'}`;
-  selected.textContent = def.labels[index] ?? '—';
 
   const grid = document.createElement('div');
   grid.className = 'pl-custom-outcomes';
@@ -39,7 +36,7 @@ function renderCustomDevice(target, def, index, { compact = false } = {}) {
     grid.append(item);
   }
 
-  wrapper.append(header, selected, grid);
+  wrapper.append(header, grid);
   target.append(wrapper);
 }
 
