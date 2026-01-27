@@ -32,4 +32,5 @@ Scope: everything under `client/` (Vite root, UI, and design system assets).
 ## References
 
 - Core modules: `client/src/AGENTS.md` and `client/src/probability-lab/AGENTS.md`.
-- Design System: `client/design-system/agents.md` and `client/design-system/components/AGENTS.md`.
+- Design System: `client/design-system/README.md`, `client/design-system/agents.md`, and
+  `client/design-system/llms.txt` (git submodule; treat as read-only).

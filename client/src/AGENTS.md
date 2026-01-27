@@ -4,7 +4,7 @@ Scope: `client/src` ES modules (no framework, no bundler-specific globals).
 
 ## Directory Layout
 
-- `shell/`: help modal, config loader.
+- `shell/`: help modal, config loader, activity logger.
 - `shared/`: pure utilities (math, formatting).
 - `probability-lab/`: domain logic, simulation engine, state, and UI rendering.
 
@@ -18,11 +18,20 @@ Scope: `client/src` ES modules (no framework, no bundler-specific globals).
 
 - `shell/config.js` fetches `/config.json` and validates known keys.
 - If you add config fields, update both the validator and the app state defaults.
+- Custom devices:
+  - `device: "custom"` uses `deviceSettings` (single mode) or `deviceASettings` / `deviceBSettings`
+    (two-event mode).
+  - `outcomes` is validated (2-50 unique, non-empty strings); `probabilities` is optional and
+    normalized when provided.
 
 ## Help Modal
 
 - `shell/help.js` uses Vite `?raw` import for `help-content.html`.
 - Keep that import path intact if the help content moves.
+
+## Activity Logging
+
+- `shell/activity-logger.js` POSTs JSON events to `/log` (see `server.js`).
 
 ## Guardrails
 
