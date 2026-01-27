@@ -512,6 +512,83 @@
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
 }
 
+/* Custom device visualization */
+.bespoke .pl-device.pl-device--custom {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding: var(--UI-Spacing-spacing-s);
+}
+
+.bespoke .pl-custom-device {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-xs);
+  width: 100%;
+  overflow: hidden;
+}
+
+.bespoke .pl-custom-device-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--UI-Spacing-spacing-xs);
+}
+
+.bespoke .pl-custom-device-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--UI-Spacing-spacing-xxs);
+  color: var(--Colors-Text-Body-Strongest);
+  font-weight: 600;
+}
+
+.bespoke .pl-custom-device-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.bespoke .pl-custom-selected {
+  text-align: center;
+  color: var(--Colors-Text-Body-Strongest);
+}
+
+.bespoke .pl-custom-outcomes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+  gap: var(--UI-Spacing-spacing-xxs);
+}
+
+.bespoke .pl-custom-outcome {
+  padding: 4px 6px;
+  border-radius: var(--UI-Radius-radius-s);
+  border: 1px solid var(--Colors-Stroke-Default);
+  background: var(--Colors-Backgrounds-Main-Default);
+  color: var(--Colors-Text-Body-Medium);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.bespoke .pl-custom-outcome--selected {
+  border-color: var(--Colors-Primary-Default);
+  background: var(--Colors-Base-Primary-20);
+  color: var(--Colors-Text-Body-Strongest);
+  font-weight: 600;
+}
+
+.bespoke .pl-custom-device--mini .pl-custom-device-header {
+  display: none;
+}
+
+.bespoke .pl-custom-device--mini .pl-custom-outcomes {
+  grid-template-columns: repeat(auto-fit, minmax(20px, 1fr));
+}
+
+.bespoke .pl-custom-device--mini .pl-custom-outcome {
+  padding: 2px 3px;
+}
+
 /* Two-event mode device dimensions */
 .bespoke .pl-device.pl-device--two {
   width: 120px;
@@ -804,6 +881,20 @@
 
 .bespoke .pl-bias-row-control {
   min-width: 0;
+}
+
+.bespoke .pl-bias-options--custom .pl-bias-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.bespoke .pl-custom-bias-prob {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--Colors-Text-Body-Medium);
+}
+
+.bespoke .pl-custom-bias-note {
+  color: var(--Colors-Text-Body-Medium);
 }
 
 .bespoke .pl-cell-summary {

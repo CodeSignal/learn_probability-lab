@@ -2,6 +2,47 @@
 import { clamp } from '../../shared/math.js';
 import { getCssVar } from './charts/colors.js';
 
+function renderCustomDevice(target, def, index, { compact = false } = {}) {
+  const wrapper = document.createElement('div');
+  wrapper.className = `pl-custom-device${compact ? ' pl-custom-device--mini' : ''}`;
+
+  const header = document.createElement('div');
+  header.className = 'pl-custom-device-header';
+
+  const nameWrap = document.createElement('div');
+  nameWrap.className = 'pl-custom-device-name body-xsmall';
+
+  if (def.icon) {
+    const icon = document.createElement('span');
+    icon.className = 'pl-custom-device-icon';
+    icon.textContent = def.icon;
+    nameWrap.append(icon);
+  }
+
+  const name = document.createElement('span');
+  name.textContent = def.name || 'Custom';
+  nameWrap.append(name);
+  header.append(nameWrap);
+
+  const selected = document.createElement('div');
+  selected.className = `pl-custom-selected ${compact ? 'body-xsmall' : 'heading-xxxsmall'}`;
+  selected.textContent = def.labels[index] ?? '—';
+
+  const grid = document.createElement('div');
+  grid.className = 'pl-custom-outcomes';
+
+  for (let i = 0; i < def.labels.length; i += 1) {
+    const item = document.createElement('div');
+    item.className = 'pl-custom-outcome body-xsmall';
+    if (i === index) item.classList.add('pl-custom-outcome--selected');
+    item.textContent = def.labels[i];
+    grid.append(item);
+  }
+
+  wrapper.append(header, selected, grid);
+  target.append(wrapper);
+}
+
 export function buildSpinnerGradient(sectors) {
   // Classic palette colors
   const colors = ['#f5c84c', '#d7a028', '#6cb4ff', '#a855f7', '#10b981', '#f97316', '#ef4444', '#0ea5e9'];
@@ -15,12 +56,17 @@ export function buildSpinnerGradient(sectors) {
 
 export function updateDeviceViewSingle(deviceViewEl, def, singleState) {
   deviceViewEl.classList.remove('pl-device--two');
+  deviceViewEl.classList.toggle('pl-device--custom', def.device === 'custom');
   deviceViewEl.dataset.device = def.device;
 
   deviceViewEl.innerHTML = '';
   if (singleState.lastIndex === null) return;
 
   const label = def.labels[singleState.lastIndex] ?? '—';
+  if (def.device === 'custom') {
+    renderCustomDevice(deviceViewEl, def, singleState.lastIndex);
+    return;
+  }
   if (def.device === 'coin') {
     const coin = document.createElement('div');
     coin.className = 'pl-coin';
@@ -98,6 +144,7 @@ export function updateDeviceViewTwo(deviceViewEl, defA, defB, twoState) {
   const lastB = twoState.lastB;
 
   deviceViewEl.classList.add('pl-device--two');
+  deviceViewEl.classList.remove('pl-device--custom');
   deviceViewEl.innerHTML = '';
 
   if (lastA === null || lastB === null) return;
@@ -110,6 +157,10 @@ export function updateDeviceViewTwo(deviceViewEl, defA, defB, twoState) {
 
   function renderInto(target, def, index) {
     const label = def.labels[index] ?? '—';
+    if (def.device === 'custom') {
+      renderCustomDevice(target, def, index, { compact: true });
+      return;
+    }
     if (def.device === 'coin') {
       const coin = document.createElement('div');
       coin.className = 'pl-coin';
@@ -182,4 +233,3 @@ export function updateDeviceViewTwo(deviceViewEl, defA, defB, twoState) {
   pair.append(aWrap, bWrap);
   deviceViewEl.append(pair);
 }
-

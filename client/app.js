@@ -117,6 +117,7 @@ const store = createStore({
     coinProbabilities: [0.5, 0.5],
     dieProbabilities: [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6],
     spinnerSkew: 0,
+    customDeviceSettings: null,
     definition: null,
     trials: 0,
     counts: [],
@@ -131,12 +132,14 @@ const store = createStore({
     coinProbabilitiesA: [0.5, 0.5],
     dieProbabilitiesA: [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6],
     spinnerSkewA: 0,
+    customDeviceSettingsA: null,
 
     deviceB: 'coin',
     spinnerSectorsB: 8,
     coinProbabilitiesB: [0.5, 0.5],
     dieProbabilitiesB: [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6],
     spinnerSkewB: 0,
+    customDeviceSettingsB: null,
 
     relationship: 'independent',
     definitionA: null,
@@ -173,6 +176,7 @@ function resetSingleSimulation() {
     coinProbabilities: state.single.coinProbabilities,
     dieProbabilities: state.single.dieProbabilities,
     spinnerSkew: state.single.spinnerSkew,
+    deviceSettings: state.single.customDeviceSettings,
   });
 
   let filtered = new Set();
@@ -207,6 +211,7 @@ function resetTwoSimulation() {
     coinProbabilities: state.two.coinProbabilitiesA,
     dieProbabilities: state.two.dieProbabilitiesA,
     spinnerSkew: state.two.spinnerSkewA,
+    deviceSettings: state.two.customDeviceSettingsA,
   });
 
   const defB = buildDeviceDefinition({
@@ -215,6 +220,7 @@ function resetTwoSimulation() {
     coinProbabilities: state.two.coinProbabilitiesB,
     dieProbabilities: state.two.dieProbabilitiesB,
     spinnerSkew: state.two.spinnerSkewB,
+    deviceSettings: state.two.customDeviceSettingsB,
   });
 
   store.setState((draft) => {
@@ -391,6 +397,14 @@ function updateControls() {
   }
 }
 
+function computeMaxProbability(outcomeCount) {
+  // Each other outcome needs at least 1%
+  // maxValue = 1 - 0.01 * (outcomeCount - 1)
+  // Clamped to reasonable bounds
+  const minReserve = 0.01 * (outcomeCount - 1);
+  return Math.min(0.99, Math.max(0.5, 1 - minReserve));
+}
+
 function normalizeProbabilities(probabilities, changedIndex, newValue, maxValue = 0.8) {
   // Clone array to avoid mutation
   const result = [...probabilities];
@@ -426,6 +440,98 @@ function normalizeProbabilities(probabilities, changedIndex, newValue, maxValue 
   return result;
 }
 
+function renderOutcomeSliders(
+  container,
+  instanceMap,
+  deviceKey,
+  labels,
+  probabilities,
+  maxValue,
+  onChange
+) {
+  // Check if sliders already exist for this device
+  const existingKeys = [];
+  for (const key of instanceMap.keys()) {
+    if (key.startsWith(`${deviceKey}-`)) {
+      existingKeys.push(key);
+    }
+  }
+
+  // If sliders exist, update their values instead of recreating
+  if (existingKeys.length > 0) {
+    for (let i = 0; i < labels.length; i++) {
+      const sliderKey = `${deviceKey}-${i}`;
+      const slider = instanceMap.get(sliderKey);
+      if (slider) {
+        slider.setValue(Math.round(probabilities[i] * 100), null, false);
+      }
+    }
+    return;
+  }
+
+  // No existing sliders, create new ones
+  container.innerHTML = '';
+  container.classList.remove('pl-bias-options--custom');
+
+  const maxPercentage = Math.round(maxValue * 100);
+
+  for (let i = 0; i < labels.length; i++) {
+    const sliderKey = `${deviceKey}-${i}`;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'pl-bias-row';
+
+    const labelEl = document.createElement('span');
+    labelEl.textContent = `P(${labels[i]})`;
+    labelEl.classList.add('pl-bias-row-label', 'body-small');
+
+    const sliderContainer = document.createElement('div');
+    sliderContainer.className = 'pl-bias-row-control';
+    wrapper.appendChild(labelEl);
+    wrapper.appendChild(sliderContainer);
+    container.appendChild(wrapper);
+
+    const slider = new NumericSlider(sliderContainer, {
+      type: 'single',
+      min: 1,
+      max: maxPercentage,
+      step: 1,
+      value: Math.round(probabilities[i] * 100),
+      showInputs: true,
+      onChange: (percentageValue) => {
+        const probabilityValue = percentageValue / 100;
+
+        // Get current probabilities from all sliders
+        const currentProbabilities = [];
+        for (let j = 0; j < labels.length; j++) {
+          const otherKey = `${deviceKey}-${j}`;
+          const otherSlider = instanceMap.get(otherKey);
+          if (otherSlider) {
+            const otherValue = otherSlider.getValue();
+            currentProbabilities[j] = otherValue / 100;
+          } else {
+            currentProbabilities[j] = probabilities[j];
+          }
+        }
+
+        const normalized = normalizeProbabilities(currentProbabilities, i, probabilityValue, maxValue);
+
+        // Update all sliders with normalized values
+        for (let j = 0; j < labels.length; j++) {
+          const otherKey = `${deviceKey}-${j}`;
+          const otherSlider = instanceMap.get(otherKey);
+          if (otherSlider) {
+            otherSlider.setValue(Math.round(normalized[j] * 100), null, false);
+          }
+        }
+
+        onChange(normalized);
+      },
+    });
+
+    instanceMap.set(sliderKey, slider);
+  }
+}
+
 function renderBiasControls(container, device, values, onChange) {
   // Determine which instance map to use based on container
   let instanceMap;
@@ -441,167 +547,69 @@ function renderBiasControls(container, device, values, onChange) {
 
   const deviceKey = device;
 
-  // Check if sliders already exist for this device
-  const existingKeys = [];
-  for (const key of instanceMap.keys()) {
-    if (key.startsWith(`${deviceKey}-`)) {
-      existingKeys.push(key);
-    }
-  }
+  if (device === 'custom') {
+    const settings = values.customDeviceSettings ?? {};
+    const outcomes = Array.isArray(settings.outcomes) ? settings.outcomes : [];
+    let probabilities = Array.isArray(settings.probabilities) ? settings.probabilities : [];
 
-  // If sliders exist, update their values instead of recreating
-  if (existingKeys.length > 0) {
-    if (device === 'coin') {
-      const probabilities = values.coinProbabilities ?? [0.5, 0.5];
-      for (let i = 0; i < 2; i++) {
-        const sliderKey = `${deviceKey}-${i}`;
-        const slider = instanceMap.get(sliderKey);
-        if (slider) {
-          slider.setValue(Math.round(probabilities[i] * 100), null, false);
-        }
-      }
-    } else if (device === 'die') {
-      const probabilities = values.dieProbabilities ?? [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6];
-      for (let i = 0; i < 6; i++) {
-        const sliderKey = `${deviceKey}-${i}`;
-        const slider = instanceMap.get(sliderKey);
-        if (slider) {
-          slider.setValue(Math.round(probabilities[i] * 100), null, false);
-        }
-      }
-    } else {
-      // Spinner
-      const sliderKey = `${deviceKey}-skew`;
-      const slider = instanceMap.get(sliderKey);
-      if (slider) {
-        slider.setValue(Math.round(values.spinnerSkew * 100), null, false);
-      }
+    if (outcomes.length === 0) {
+      container.innerHTML = '';
+      container.classList.add('pl-bias-options--custom');
+      const empty = document.createElement('div');
+      empty.className = 'pl-custom-bias-note body-xsmall';
+      empty.textContent = 'No custom outcomes configured.';
+      container.append(empty);
+      return;
     }
+
+    // Ensure probabilities array matches outcomes length
+    if (probabilities.length !== outcomes.length) {
+      const uniformProb = 1 / outcomes.length;
+      probabilities = Array.from({ length: outcomes.length }, () => uniformProb);
+    }
+
+    const maxValue = computeMaxProbability(outcomes.length);
+    renderOutcomeSliders(
+      container,
+      instanceMap,
+      deviceKey,
+      outcomes,
+      probabilities,
+      maxValue,
+      (normalized) => onChange('customProbabilities', normalized)
+    );
     return;
   }
 
-  // No existing sliders, create new ones
-  container.innerHTML = '';
+  container.classList.remove('pl-bias-options--custom');
 
   if (device === 'coin') {
-    const probabilities = values.coinProbabilities ?? [0.5, 0.5];
     const labels = ['H', 'T'];
-    for (let i = 0; i < 2; i++) {
-      const sliderKey = `${deviceKey}-${i}`;
-      const wrapper = document.createElement('div');
-      wrapper.className = 'pl-bias-row';
-
-      const labelEl = document.createElement('span');
-      labelEl.textContent = `P(${labels[i]})`;
-      labelEl.classList.add('pl-bias-row-label', 'body-small');
-
-      const sliderContainer = document.createElement('div');
-      sliderContainer.className = 'pl-bias-row-control';
-      wrapper.appendChild(labelEl);
-      wrapper.appendChild(sliderContainer);
-      container.appendChild(wrapper);
-
-      const slider = new NumericSlider(sliderContainer, {
-        type: 'single',
-        min: 1,
-        max: 99,
-        step: 1,
-        value: Math.round(probabilities[i] * 100),
-        showInputs: true,
-        onChange: (percentageValue) => {
-          const probabilityValue = percentageValue / 100;
-
-          // Get current probabilities from all sliders
-          const currentProbabilities = [];
-          for (let j = 0; j < 2; j++) {
-            const otherKey = `${deviceKey}-${j}`;
-            const otherSlider = instanceMap.get(otherKey);
-            if (otherSlider) {
-              const otherValue = otherSlider.getValue();
-              currentProbabilities[j] = otherValue / 100;
-            } else {
-              currentProbabilities[j] = probabilities[j];
-            }
-          }
-
-          const normalized = normalizeProbabilities(currentProbabilities, i, probabilityValue, 0.99);
-
-          // Update all coin sliders with normalized values
-          for (let j = 0; j < 2; j++) {
-            const otherKey = `${deviceKey}-${j}`;
-            const otherSlider = instanceMap.get(otherKey);
-            if (otherSlider) {
-              otherSlider.setValue(Math.round(normalized[j] * 100), null, false);
-            }
-          }
-
-          onChange('coinProbabilities', normalized);
-        },
-      });
-
-      instanceMap.set(sliderKey, slider);
-    }
+    const probabilities = values.coinProbabilities ?? [0.5, 0.5];
+    renderOutcomeSliders(
+      container,
+      instanceMap,
+      deviceKey,
+      labels,
+      probabilities,
+      0.99,
+      (normalized) => onChange('coinProbabilities', normalized)
+    );
     return;
   }
 
   if (device === 'die') {
+    const labels = ['1', '2', '3', '4', '5', '6'];
     const probabilities = values.dieProbabilities ?? [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6];
-    for (let i = 0; i < 6; i++) {
-      const faceNumber = i + 1;
-      const sliderKey = `${deviceKey}-${i}`;
-      const wrapper = document.createElement('div');
-      wrapper.className = 'pl-bias-row';
-
-      const labelEl = document.createElement('span');
-      labelEl.textContent = `P(${faceNumber})`;
-      labelEl.classList.add('pl-bias-row-label', 'body-small');
-
-      const sliderContainer = document.createElement('div');
-      sliderContainer.className = 'pl-bias-row-control';
-      wrapper.appendChild(labelEl);
-      wrapper.appendChild(sliderContainer);
-      container.appendChild(wrapper);
-
-      const slider = new NumericSlider(sliderContainer, {
-        type: 'single',
-        min: 1,
-        max: 80,
-        step: 1,
-        value: Math.round(probabilities[i] * 100),
-        showInputs: true,
-        onChange: (percentageValue) => {
-          const probabilityValue = percentageValue / 100;
-
-          // Get current probabilities from all sliders
-          const currentProbabilities = [];
-          for (let j = 0; j < 6; j++) {
-            const otherKey = `${deviceKey}-${j}`;
-            const otherSlider = instanceMap.get(otherKey);
-            if (otherSlider) {
-              const otherValue = otherSlider.getValue();
-              currentProbabilities[j] = otherValue / 100;
-            } else {
-              currentProbabilities[j] = probabilities[j];
-            }
-          }
-
-          const normalized = normalizeProbabilities(currentProbabilities, i, probabilityValue, 0.8);
-
-          // Update all die sliders with normalized values
-          for (let j = 0; j < 6; j++) {
-            const otherKey = `${deviceKey}-${j}`;
-            const otherSlider = instanceMap.get(otherKey);
-            if (otherSlider) {
-              otherSlider.setValue(Math.round(normalized[j] * 100), null, false);
-            }
-          }
-
-          onChange('dieProbabilities', normalized);
-        },
-      });
-
-      instanceMap.set(sliderKey, slider);
-    }
+    renderOutcomeSliders(
+      container,
+      instanceMap,
+      deviceKey,
+      labels,
+      probabilities,
+      0.80,
+      (normalized) => onChange('dieProbabilities', normalized)
+    );
     return;
   }
 
@@ -759,9 +767,16 @@ function syncUiFromState() {
     coinProbabilities: state.single.coinProbabilities,
     dieProbabilities: state.single.dieProbabilities,
     spinnerSkew: state.single.spinnerSkew,
+    customDeviceSettings: state.single.customDeviceSettings,
   }, (key, value) => {
     store.setState((draft) => {
-      draft.single[key] = value;
+      if (key === 'customProbabilities') {
+        if (draft.single.customDeviceSettings) {
+          draft.single.customDeviceSettings.probabilities = value;
+        }
+      } else {
+        draft.single[key] = value;
+      }
     });
     resetSimulation({ reason: 'bias_change', logSettings: true });
   });
@@ -773,10 +788,17 @@ function syncUiFromState() {
       coinProbabilities: state.two.coinProbabilitiesA,
       dieProbabilities: state.two.dieProbabilitiesA,
       spinnerSkew: state.two.spinnerSkewA,
+      customDeviceSettings: state.two.customDeviceSettingsA,
     },
     (key, value) => {
       store.setState((draft) => {
-        draft.two[`${key}A`] = value;
+        if (key === 'customProbabilities') {
+          if (draft.two.customDeviceSettingsA) {
+            draft.two.customDeviceSettingsA.probabilities = value;
+          }
+        } else {
+          draft.two[`${key}A`] = value;
+        }
       });
       resetSimulation({ reason: 'bias_change', logSettings: true });
     },
@@ -795,10 +817,17 @@ function updateTwoControlsForRelationship() {
       coinProbabilities: state.two.coinProbabilitiesB,
       dieProbabilities: state.two.dieProbabilitiesB,
       spinnerSkew: state.two.spinnerSkewB,
+      customDeviceSettings: state.two.customDeviceSettingsB,
     },
     (key, value) => {
       store.setState((draft) => {
-        draft.two[`${key}B`] = value;
+        if (key === 'customProbabilities') {
+          if (draft.two.customDeviceSettingsB) {
+            draft.two.customDeviceSettingsB.probabilities = value;
+          }
+        } else {
+          draft.two[`${key}B`] = value;
+        }
       });
       resetSimulation({ reason: 'bias_change', logSettings: true });
     },
@@ -1001,9 +1030,12 @@ async function init() {
     draft.mode = config.mode;
     if (config.mode === 'single') {
       draft.single.device = config.device;
+      draft.single.customDeviceSettings = config.deviceSettings ?? null;
     } else {
       draft.two.deviceA = config.deviceA;
       draft.two.deviceB = config.deviceB;
+      draft.two.customDeviceSettingsA = config.deviceASettings ?? null;
+      draft.two.customDeviceSettingsB = config.deviceBSettings ?? null;
     }
     if (config.sections) {
       draft.sections = { ...draft.sections, ...config.sections };

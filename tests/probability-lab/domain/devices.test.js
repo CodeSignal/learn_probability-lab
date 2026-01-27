@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { buildDeviceDefinition } from '../../../client/src/probability-lab/domain/devices.js';
 
+const MAX_CUSTOM_OUTCOMES = 50;
+
 describe('buildDeviceDefinition', () => {
   describe('coin device', () => {
     it('returns correct structure', () => {
@@ -190,5 +192,87 @@ describe('buildDeviceDefinition', () => {
       expect(def.skew).toBe(0);
     });
   });
-});
 
+  describe('custom device', () => {
+    it('builds from explicit probabilities', () => {
+      const def = buildDeviceDefinition({
+        device: 'custom',
+        deviceSettings: {
+          name: 'Exam',
+          outcomes: ['pass', 'fail'],
+          probabilities: [0.7, 0.3],
+        },
+      });
+      expect(def.device).toBe('custom');
+      expect(def.name).toBe('Exam');
+      expect(def.labels).toEqual(['pass', 'fail']);
+      expect(def.probabilities[0]).toBeCloseTo(0.7, 10);
+      expect(def.probabilities[1]).toBeCloseTo(0.3, 10);
+    });
+
+    it('falls back to uniform when probabilities are missing', () => {
+      const def = buildDeviceDefinition({
+        device: 'custom',
+        deviceSettings: {
+          name: 'Survey',
+          outcomes: ['A', 'B', 'C'],
+        },
+      });
+      const expected = 1 / 3;
+      def.probabilities.forEach((p) => expect(p).toBeCloseTo(expected, 10));
+    });
+
+    it('normalizes valid probabilities and rejects invalid ones', () => {
+      const normalized = buildDeviceDefinition({
+        device: 'custom',
+        deviceSettings: {
+          name: 'Weighted',
+          outcomes: ['A', 'B'],
+          probabilities: [2, 1],
+        },
+      });
+      expect(normalized.probabilities[0]).toBeCloseTo(2 / 3, 10);
+      expect(normalized.probabilities[1]).toBeCloseTo(1 / 3, 10);
+
+      const invalid = buildDeviceDefinition({
+        device: 'custom',
+        deviceSettings: {
+          name: 'Invalid',
+          outcomes: ['A', 'B', 'C'],
+          probabilities: [0.2, -0.1, 0.1],
+        },
+      });
+      const expected = 1 / 3;
+      invalid.probabilities.forEach((p) => expect(p).toBeCloseTo(expected, 10));
+    });
+
+    it('keeps labels and cdf aligned', () => {
+      const def = buildDeviceDefinition({
+        device: 'custom',
+        deviceSettings: {
+          name: 'Options',
+          outcomes: ['Red', 'Green', 'Blue'],
+          probabilities: [0.2, 0.3, 0.5],
+        },
+      });
+      expect(def.labels.length).toBe(def.cdf.length);
+      expect(def.probabilities.length).toBe(def.cdf.length);
+    });
+
+    it('truncates outcomes beyond max', () => {
+      const outcomes = Array.from({ length: MAX_CUSTOM_OUTCOMES + 10 }, (_, i) => `O${i + 1}`);
+      const probabilities = Array.from({ length: outcomes.length }, () => 1);
+      const def = buildDeviceDefinition({
+        device: 'custom',
+        deviceSettings: {
+          name: 'Many',
+          outcomes,
+          probabilities,
+        },
+      });
+      expect(def.labels.length).toBe(MAX_CUSTOM_OUTCOMES);
+      expect(def.probabilities.length).toBe(MAX_CUSTOM_OUTCOMES);
+      expect(def.cdf.length).toBe(MAX_CUSTOM_OUTCOMES);
+    });
+  });
+});

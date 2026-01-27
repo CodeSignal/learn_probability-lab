@@ -14,7 +14,7 @@
 
 <section id="overview">
   <h2>Overview</h2>
-  <p><strong>CodeSignal Probability Lab</strong> is a simulation engine for repeated trials (coin, die, spinner) that helps you <strong>see probability stabilize</strong>: as you run more trials, the <strong>relative frequencies</strong> tend to settle near the theoretical probabilities.</p>
+  <p><strong>CodeSignal Probability Lab</strong> is a simulation engine for repeated trials (coin, die, spinner, or custom devices) that helps you <strong>see probability stabilize</strong>: as you run more trials, the <strong>relative frequencies</strong> tend to settle near the theoretical probabilities.</p>
   <p>You’ll use live charts and tables to connect:</p>
   <ul>
     <li><strong>Sample space</strong> (all possible outcomes)</li>
@@ -37,7 +37,7 @@
   <h2>Getting Started</h2>
   <ol>
     <li><strong>Choose a mode:</strong> <em>One event</em> (single sample space) or <em>Two events</em> (two-way table).</li>
-    <li><strong>Pick a device</strong> (coin / die / spinner) and optionally adjust its bias.</li>
+    <li><strong>Pick a device</strong> (coin / die / spinner / custom) and optionally adjust its bias.</li>
     <li><strong>Define Event E</strong> by selecting outcomes (e.g., “Heads”, or “Even” by selecting 2, 4, 6).</li>
     <li><strong>Run trials</strong> using <em>Run</em>, the +1/+10/+100/+1000 buttons, or <em>Start auto</em>.</li>
     <li><strong>Interpret the results</strong> using the charts and tables (look at how the estimates stabilize as trials increase).</li>
@@ -112,6 +112,11 @@
   <details>
     <summary>What’s the point of a “biased” coin/die/spinner?</summary>
     <p>To compare probabilities and see how changing the underlying distribution changes the long-run frequencies. Predict first, then test.</p>
+  </details>
+
+  <details>
+    <summary>How does “Dependent” work with custom devices?</summary>
+    <p>Dependent mode splits outcomes into a “low half” and “high half” by their order. If you want the dependence to feel meaningful, order outcomes from low → high.</p>
   </details>
 
   <details>

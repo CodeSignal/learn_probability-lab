@@ -15,6 +15,12 @@ function formatDeviceName(device) {
   return device ? device.charAt(0).toUpperCase() + device.slice(1) : '—';
 }
 
+function getDeviceDisplay(def, fallbackDevice) {
+  const icon = def?.icon || getDeviceIcon(fallbackDevice);
+  const name = def?.name || formatDeviceName(fallbackDevice);
+  return { icon, name };
+}
+
 function formatSampleSpace(labels) {
   if (!labels || labels.length === 0) return '—';
   return `{${labels.join(', ')}}`;
@@ -22,6 +28,12 @@ function formatSampleSpace(labels) {
 
 function nearlyEqual(a, b, tolerance = 1e-3) {
   return Math.abs(a - b) <= tolerance;
+}
+
+function isUniformProbabilities(probabilities, tolerance = 1e-3) {
+  if (!Array.isArray(probabilities) || probabilities.length === 0) return false;
+  const target = probabilities[0];
+  return probabilities.every((value) => nearlyEqual(value, target, tolerance));
 }
 
 function isFairDevice(device, values) {
@@ -60,17 +72,25 @@ export function renderExperimentSetup(els, state) {
     const deviceB = state.two.deviceB || '—';
     const labelsA = state.two.definitionA?.labels;
     const labelsB = state.two.definitionB?.labels;
+    const defA = state.two.definitionA;
+    const defB = state.two.definitionB;
+    const displayA = getDeviceDisplay(defA, deviceA);
+    const displayB = getDeviceDisplay(defB, deviceB);
 
-    const fairA = isFairDevice(deviceA, {
-      coinProbabilities: state.two.coinProbabilitiesA,
-      dieProbabilities: state.two.dieProbabilitiesA,
-      spinnerSkew: state.two.spinnerSkewA,
-    });
-    const fairB = isFairDevice(deviceB, {
-      coinProbabilities: state.two.coinProbabilitiesB,
-      dieProbabilities: state.two.dieProbabilitiesB,
-      spinnerSkew: state.two.spinnerSkewB,
-    });
+    const fairA = defA?.probabilities
+      ? isUniformProbabilities(defA.probabilities)
+      : isFairDevice(deviceA, {
+        coinProbabilities: state.two.coinProbabilitiesA,
+        dieProbabilities: state.two.dieProbabilitiesA,
+        spinnerSkew: state.two.spinnerSkewA,
+      });
+    const fairB = defB?.probabilities
+      ? isUniformProbabilities(defB.probabilities)
+      : isFairDevice(deviceB, {
+        coinProbabilities: state.two.coinProbabilitiesB,
+        dieProbabilities: state.two.dieProbabilitiesB,
+        spinnerSkew: state.two.spinnerSkewB,
+      });
 
     const biasText = `Bias (A / B): ${fairA ? 'Uniform' : 'Biased'} / ${fairB ? 'Uniform' : 'Biased'}`;
     setTag(els.biasSummary, { text: biasText, variant: fairA && fairB ? 'success' : 'warning' });
@@ -87,13 +107,13 @@ export function renderExperimentSetup(els, state) {
 
     els.setupDevice.innerHTML = `
       <div class="pl-setup-device-item">
-        <span class="pl-setup-icon body-large">${getDeviceIcon(deviceA)}</span>
-        <span class="pl-setup-device-name body-small">${formatDeviceName(deviceA)}</span>
+        <span class="pl-setup-icon body-large">${displayA.icon}</span>
+        <span class="pl-setup-device-name body-small">${displayA.name}</span>
         <span class="pl-setup-label body-xsmall">A</span>
       </div>
       <div class="pl-setup-device-item">
-        <span class="pl-setup-icon body-large">${getDeviceIcon(deviceB)}</span>
-        <span class="pl-setup-device-name body-small">${formatDeviceName(deviceB)}</span>
+        <span class="pl-setup-icon body-large">${displayB.icon}</span>
+        <span class="pl-setup-device-name body-small">${displayB.name}</span>
         <span class="pl-setup-label body-xsmall">B</span>
       </div>
     `;
@@ -111,13 +131,17 @@ export function renderExperimentSetup(els, state) {
   } else {
     // Single mode: show single device and sample space
     const device = state.single.device || '—';
-    const labels = state.single.definition?.labels;
+    const def = state.single.definition;
+    const labels = def?.labels;
+    const display = getDeviceDisplay(def, device);
 
-    const fair = isFairDevice(device, {
-      coinProbabilities: state.single.coinProbabilities,
-      dieProbabilities: state.single.dieProbabilities,
-      spinnerSkew: state.single.spinnerSkew,
-    });
+    const fair = def?.probabilities
+      ? isUniformProbabilities(def.probabilities)
+      : isFairDevice(device, {
+        coinProbabilities: state.single.coinProbabilities,
+        dieProbabilities: state.single.dieProbabilities,
+        spinnerSkew: state.single.spinnerSkew,
+      });
     setTag(els.biasSummary, { text: `Bias: ${fair ? 'Uniform' : 'Biased'}`, variant: fair ? 'success' : 'warning' });
     if (els.relationshipSummary) {
       els.relationshipSummary.hidden = true;
@@ -126,8 +150,8 @@ export function renderExperimentSetup(els, state) {
 
     els.setupDevice.innerHTML = `
       <div class="pl-setup-device-item">
-        <span class="pl-setup-icon body-large">${getDeviceIcon(device)}</span>
-        <span class="pl-setup-device-name body-small">${formatDeviceName(device)}</span>
+        <span class="pl-setup-icon body-large">${display.icon}</span>
+        <span class="pl-setup-device-name body-small">${display.name}</span>
       </div>
     `;
 

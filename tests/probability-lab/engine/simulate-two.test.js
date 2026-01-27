@@ -88,6 +88,53 @@ describe('simulateTwoTrials', () => {
       expect(stateSlice.lastA).not.toBeNull();
       expect(stateSlice.lastB).not.toBeNull();
     });
+
+    it('applies dependence for custom devices', () => {
+      const sequence = [0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95];
+      const makeRng = () => {
+        let index = 0;
+        return () => {
+          const value = sequence[index % sequence.length];
+          index += 1;
+          return value;
+        };
+      };
+
+      const makeState = (relationship) => ({
+        definitionA: {
+          cdf: buildCdf([0, 1]),
+          probabilities: [0, 1],
+          labels: ['Low', 'High'],
+        },
+        definitionB: {
+          cdf: buildCdf([0.25, 0.25, 0.25, 0.25]),
+          probabilities: [0.25, 0.25, 0.25, 0.25],
+          labels: ['A', 'B', 'C', 'D'],
+        },
+        relationship,
+        countsA: [0, 0],
+        countsB: [0, 0, 0, 0],
+        joint: [
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+        ],
+        trials: 0,
+        lastA: null,
+        lastB: null,
+      });
+
+      const dependentState = makeState('dependent');
+      simulateTwoTrials(dependentState, makeRng(), 20);
+
+      const independentState = makeState('independent');
+      simulateTwoTrials(independentState, makeRng(), 20);
+
+      const highDependent = dependentState.countsB[2] + dependentState.countsB[3];
+      const lowDependent = dependentState.countsB[0] + dependentState.countsB[1];
+
+      expect(highDependent).toBeGreaterThan(lowDependent);
+      expect(dependentState.countsB).not.toEqual(independentState.countsB);
+    });
   });
 
   it('handles zero count (no changes)', () => {
@@ -139,4 +186,3 @@ describe('simulateTwoTrials', () => {
     expect(stateSlice.joint[0].length).toBe(2); // matches definitionB size
   });
 });
-
