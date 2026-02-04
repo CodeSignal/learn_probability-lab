@@ -105,6 +105,11 @@ const store = createStore({
     twoWayTable: false,
   },
 
+  visualElements: {
+    editExperimentButton: true,
+    biasTag: true,
+  },
+
   running: {
     cancel: false,
     auto: false,
@@ -161,7 +166,7 @@ const runner = createRunner(store.getState().running, {
   onTick: () => {
     const state = store.getState();
     render(els, state);
-    applySectionVisibility(state);
+    applyVisibility(state);
     activityLogger.maybeLogStatus(state);
   },
   onDone: updateControls,
@@ -249,7 +254,7 @@ function resetSimulation({ reason = 'unknown', logSettings = false } = {}) {
   else resetSingleSimulation();
 
   render(els, store.getState());
-  applySectionVisibility(store.getState());
+  applyVisibility(store.getState());
   syncUiFromState();
 
   const currentState = store.getState();
@@ -311,6 +316,46 @@ function applySectionVisibility(state) {
       els.twoWayTableCard.hidden = !sections.twoWayTable;
     }
   }
+}
+
+function applyVisualElementVisibility(state) {
+  const visualElements = state.visualElements || {};
+
+  const showEditExperimentButton = visualElements.editExperimentButton !== false;
+  if (els.openSettings) {
+    els.openSettings.style.display = showEditExperimentButton ? '' : 'none';
+    els.openSettings.hidden = !showEditExperimentButton;
+  }
+
+  const showBiasTag = visualElements.biasTag !== false;
+  if (els.biasSummary) {
+    els.biasSummary.style.display = showBiasTag ? '' : 'none';
+    els.biasSummary.hidden = !showBiasTag;
+  }
+
+  const tagsContainer = els.biasSummary?.parentElement || els.relationshipSummary?.parentElement;
+  if (tagsContainer) {
+    const biasVisible = Boolean(
+      showBiasTag
+      && els.biasSummary
+      && !els.biasSummary.hidden
+      && els.biasSummary.style.display !== 'none',
+    );
+    const relationshipVisible = Boolean(
+      els.relationshipSummary
+      && !els.relationshipSummary.hidden
+      && els.relationshipSummary.style.display !== 'none',
+    );
+
+    const anyVisible = biasVisible || relationshipVisible;
+    tagsContainer.style.display = anyVisible ? '' : 'none';
+    tagsContainer.hidden = !anyVisible;
+  }
+}
+
+function applyVisibility(state) {
+  applySectionVisibility(state);
+  applyVisualElementVisibility(state);
 }
 
 function updateControls() {
@@ -669,7 +714,7 @@ function renderEventOptions() {
       });
       const state = store.getState();
       render(els, state);
-      applySectionVisibility(state);
+      applyVisibility(state);
       activityLogger.logSettingsChange(state);
     });
 
@@ -955,7 +1000,7 @@ function initEventListeners() {
     });
     const currentState = store.getState();
     render(els, currentState);
-    applySectionVisibility(currentState);
+    applyVisibility(currentState);
   });
 
   els.heatmap.addEventListener('click', (event) => {
@@ -984,13 +1029,13 @@ function initEventListeners() {
     });
     const updatedState = store.getState();
     render(els, updatedState);
-    applySectionVisibility(updatedState);
+    applyVisibility(updatedState);
   });
 
   window.addEventListener('resize', () => {
     const state = store.getState();
     render(els, state);
-    applySectionVisibility(state);
+    applyVisibility(state);
   });
 }
 
@@ -1024,6 +1069,9 @@ async function init() {
     }
     if (config.sections) {
       draft.sections = { ...draft.sections, ...config.sections };
+    }
+    if (config.visualElements) {
+      draft.visualElements = { ...draft.visualElements, ...config.visualElements };
     }
     draft.rng = createRngFromSeed(draft.seedText);
   });
@@ -1066,12 +1114,13 @@ async function init() {
 
   initEventListeners();
   updateControls();
-  applySectionVisibility(store.getState());
+  applyVisibility(store.getState());
   activityLogger.logAppStart(store.getState());
 
   // Defer initial render until after layout is complete
   requestAnimationFrame(() => {
     render(els, store.getState());
+    applyVisibility(store.getState());
   });
 }
 

@@ -7,6 +7,10 @@
     "outcomes": ["Pass", "Fail"],
     "probabilities": [0.7, 0.3]
   },
+  "visualElements": {
+    "editExperimentButton": true,
+    "biasTag": true
+  },
   "sections": {
     "barChart": true,
     "convergence": true,
@@ -15,4 +19,3 @@
     "twoWayTable": false
   }
 }
-

@@ -6,6 +6,7 @@ const VALID_DEVICES = ['coin', 'die', 'spinner', 'custom'];
 const MAX_CUSTOM_OUTCOMES = 50;
 const VALID_SECTIONS_SINGLE = ['barChart', 'convergence', 'frequencyTable'];
 const VALID_SECTIONS_TWO = ['jointDistribution', 'twoWayTable'];
+const VALID_VISUAL_ELEMENTS = ['editExperimentButton', 'biasTag'];
 
 /**
  * Validates configuration object structure
@@ -106,7 +107,7 @@ function validateCustomDeviceSettings(settings, label) {
   };
 }
 
-function validateConfig(config) {
+export function validateConfig(config) {
   const validated = {};
   const rawConfig = config && typeof config === 'object' ? config : {};
 
@@ -173,6 +174,16 @@ function validateConfig(config) {
   }
   // If sections is missing entirely, don't add it (will use store defaults)
 
+  // Validate visual elements toggles
+  if (rawConfig.visualElements && typeof rawConfig.visualElements === 'object' && !Array.isArray(rawConfig.visualElements)) {
+    const validatedVisualElements = {};
+    for (const key of VALID_VISUAL_ELEMENTS) {
+      const value = rawConfig.visualElements[key];
+      validatedVisualElements[key] = typeof value === 'boolean' ? value : true;
+    }
+    validated.visualElements = validatedVisualElements;
+  }
+
   return validated;
 }
 
@@ -194,6 +205,10 @@ export async function loadConfig() {
     return {
       mode: 'single',
       device: 'coin',
+      visualElements: {
+        editExperimentButton: true,
+        biasTag: true,
+      },
       sections: {
         barChart: false,
         convergence: false,
