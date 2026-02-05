@@ -1285,7 +1285,7 @@
 /* Improve visibility of NumericSlider input fields */
 .bespoke .numeric-slider-input {
   min-width: var(--UI-Spacing-spacing-xxxl) !important;
-  max-width: var(--UI-Spacing-spacing-xxxl) !important;
+  max-width: var(--UI-Spacing-spacing-4xl) !important;
   margin-right: var(--UI-Spacing-spacing-s) !important;
 }
 
