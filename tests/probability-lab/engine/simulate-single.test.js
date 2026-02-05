@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import simulateSingleTrials from '../../../client/src/probability-lab/engine/simulate-single.js';
 import { buildCdf } from '../../../client/src/probability-lab/domain/cdf.js';
+import { IndexHistory } from '../../../client/src/probability-lab/state/trial-history.js';
 
 describe('simulateSingleTrials', () => {
   let stateSlice;
@@ -46,6 +47,16 @@ describe('simulateSingleTrials', () => {
     expect(stateSlice.lastIndex).not.toBeNull();
     expect(stateSlice.lastIndex).toBeGreaterThanOrEqual(0);
     expect(stateSlice.lastIndex).toBeLessThan(3);
+  });
+
+  it('records trialHistory when provided', () => {
+    stateSlice.trialHistory = new IndexHistory();
+    simulateSingleTrials(stateSlice, mockRng, 5);
+
+    expect(stateSlice.trialHistory.length).toBe(5);
+    expect(stateSlice.trialHistory.get(0)).toBe(0);
+    expect(stateSlice.trialHistory.get(1)).toBe(1);
+    expect(stateSlice.trialHistory.get(2)).toBe(2);
   });
 
   it('adds history entries', () => {
@@ -124,4 +135,3 @@ describe('simulateSingleTrials', () => {
     expect(stateSlice.counts.reduce((a, b) => a + b, 0)).toBe(5);
   });
 });
-

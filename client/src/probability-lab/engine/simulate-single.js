@@ -17,12 +17,14 @@ import { sampleIndex } from '../domain/cdf.js';
 export default function simulateSingleTrials(stateSlice, rng, count) {
   const def = stateSlice.definition;
   if (!def) return;
+  const trialHistory = stateSlice.trialHistory;
 
   for (let i = 0; i < count; i += 1) {
     const idx = sampleIndex(rng, def.cdf);
     stateSlice.counts[idx] += 1;
     stateSlice.trials += 1;
     stateSlice.lastIndex = idx;
+    if (trialHistory) trialHistory.push(idx);
   }
 
   if (stateSlice.trials > 0) {
@@ -33,4 +35,3 @@ export default function simulateSingleTrials(stateSlice, rng, count) {
     }
   }
 }
-

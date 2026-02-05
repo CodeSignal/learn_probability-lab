@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import simulateTwoTrials from '../../../client/src/probability-lab/engine/simulate-two.js';
 import { buildCdf } from '../../../client/src/probability-lab/domain/cdf.js';
+import { PackedPairHistory } from '../../../client/src/probability-lab/state/trial-history.js';
 
 describe('simulateTwoTrials', () => {
   let stateSlice;
@@ -49,6 +50,18 @@ describe('simulateTwoTrials', () => {
       // Joint counts should reflect independent sampling
       const totalJoint = stateSlice.joint.flat().reduce((a, b) => a + b, 0);
       expect(totalJoint).toBe(10);
+    });
+
+    it('records trialHistory when provided', () => {
+      stateSlice.relationship = 'independent';
+      stateSlice.trialHistory = new PackedPairHistory();
+
+      simulateTwoTrials(stateSlice, mockRng, 3);
+
+      expect(stateSlice.trialHistory.length).toBe(3);
+      expect(stateSlice.trialHistory.getPair(0)).toEqual({ a: 0, b: 0 });
+      expect(stateSlice.trialHistory.getPair(1)).toEqual({ a: 1, b: 1 });
+      expect(stateSlice.trialHistory.getPair(2)).toEqual({ a: 1, b: 0 });
     });
 
     it('updates countsA, countsB, joint correctly', () => {

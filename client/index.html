@@ -161,7 +161,29 @@
               </div>
             </div>
           </div>
+          <div class="pl-monitor-actions">
+            <button id="pl-history" class="button button-secondary button-small" type="button" disabled aria-haspopup="dialog" aria-controls="pl-history-modal">
+              History
+            </button>
+          </div>
         </section>
+      </div>
+
+      <div id="pl-history-modal" class="pl-history-modal" hidden>
+        <div class="pl-history-toolbar">
+          <div id="pl-history-summary" class="body-xsmall pl-muted">Trials: 0</div>
+          <div class="pl-history-toolbar-actions">
+            <button id="pl-history-jump-top" class="button button-tertiary button-small" type="button">Top</button>
+            <button id="pl-history-jump-latest" class="button button-tertiary button-small" type="button">Latest</button>
+          </div>
+        </div>
+
+        <div id="pl-history-empty" class="body-small pl-muted">No trials yet. Run a trial to start building history.</div>
+
+        <div id="pl-history-scroller" class="pl-history-scroller" hidden>
+          <div id="pl-history-viewport" class="pl-history-viewport"></div>
+          <div id="pl-history-items" class="pl-history-items" role="list"></div>
+        </div>
       </div>
 
       <div id="pl-settings-modal" class="pl-settings-modal" hidden>

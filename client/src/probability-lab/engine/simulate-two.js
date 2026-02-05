@@ -56,6 +56,7 @@ export default function simulateTwoTrials(stateSlice, rng, count) {
   if (!defA || !defB) return;
 
   const relationship = stateSlice.relationship;
+  const trialHistory = stateSlice.trialHistory;
 
   for (let i = 0; i < count; i += 1) {
     const a = sampleIndex(rng, defA.cdf);
@@ -88,6 +89,6 @@ export default function simulateTwoTrials(stateSlice, rng, count) {
     stateSlice.trials += 1;
     stateSlice.lastA = a;
     stateSlice.lastB = b;
+    if (trialHistory) trialHistory.pushPair(a, b);
   }
 }
-

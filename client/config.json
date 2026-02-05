@@ -5,7 +5,7 @@
     "name": "Exam",
     "icon": "📚",
     "outcomes": ["Pass", "Fail"],
-    "probabilities": [0.7, 0.3]
+    "probabilities": [0.5, 0.5]
   },
   "visualElements": {
     "editExperimentButton": true,

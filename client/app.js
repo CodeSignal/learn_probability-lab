@@ -13,6 +13,8 @@ import simulateTwoTrials from './src/probability-lab/engine/simulate-two.js';
 import { createRunner } from './src/probability-lab/engine/runner.js';
 import render from './src/probability-lab/ui/render.js';
 import { createStore } from './src/probability-lab/state/store.js';
+import { IndexHistory, PackedPairHistory } from './src/probability-lab/state/trial-history.js';
+import { createHistoryView } from './src/probability-lab/ui/history-view.js';
 import NumericSlider from './design-system/components/numeric-slider/numeric-slider.js';
 
 function $(id) {
@@ -58,6 +60,15 @@ const els = {
   deviceView: $('pl-device-view'),
   trials: $('pl-trials'),
   last: $('pl-last'),
+  historyButton: $('pl-history'),
+  historyModal: $('pl-history-modal'),
+  historySummary: $('pl-history-summary'),
+  historyEmpty: $('pl-history-empty'),
+  historyScroller: $('pl-history-scroller'),
+  historyViewport: $('pl-history-viewport'),
+  historyItems: $('pl-history-items'),
+  historyJumpTop: $('pl-history-jump-top'),
+  historyJumpLatest: $('pl-history-jump-latest'),
 
   barChart: $('pl-bar-chart'),
   lineChart: $('pl-line-chart'),
@@ -87,6 +98,8 @@ const sliderInstances = {
 // Store speed slider instance
 let speedSlider = null;
 let settingsModal = null;
+let historyModal = null;
+let historyView = null;
 
 /**
  * Generates a random numeric seed string for the RNG
@@ -137,6 +150,7 @@ const store = createStore({
     counts: [],
     lastIndex: null,
     history: [],
+    trialHistory: new IndexHistory(),
     eventSelected: new Set(),
   },
 
@@ -165,6 +179,7 @@ const store = createStore({
     lastA: null,
     lastB: null,
     selectedCell: null,
+    trialHistory: new PackedPairHistory(),
   },
 });
 
@@ -176,6 +191,9 @@ const runner = createRunner(store.getState().running, {
     const state = store.getState();
     render(els, state);
     applyVisibility(state);
+    if (historyModal?.isOpen && historyView) {
+      historyView.sync(state, { preserveScroll: true });
+    }
     activityLogger.maybeLogStatus(state);
   },
   onDone: updateControls,
@@ -210,6 +228,7 @@ function resetSingleSimulation() {
     draft.single.counts = Array(def.labels.length).fill(0);
     draft.single.lastIndex = null;
     draft.single.history = [];
+    draft.single.trialHistory?.clear();
     draft.single.eventSelected = filtered;
   });
 
@@ -247,6 +266,7 @@ function resetTwoSimulation() {
     draft.two.lastA = null;
     draft.two.lastB = null;
     draft.two.selectedCell = null;
+    draft.two.trialHistory?.clear();
   });
 }
 
@@ -269,6 +289,9 @@ function resetSimulation({ reason = 'unknown', logSettings = false } = {}) {
   render(els, store.getState());
   applyVisibility(store.getState());
   syncUiFromState();
+  if (historyModal?.isOpen && historyView) {
+    historyView.sync(store.getState(), { scrollToLatest: true });
+  }
 
   const currentState = store.getState();
   if (logSettings) {
@@ -800,6 +823,42 @@ function initSettingsModal() {
   }
 }
 
+function initHistoryModal() {
+  if (historyModal) return;
+  if (!els.historyModal) return;
+
+  const modalContent = els.historyModal;
+  const wasHidden = modalContent.hidden;
+  modalContent.hidden = true;
+
+  historyModal = new Modal({
+    size: 'medium',
+    title: 'Trial History',
+    content: modalContent,
+    onOpen: () => {
+      if (historyView) historyView.sync(store.getState(), { scrollToLatest: true });
+    },
+  });
+
+  if (wasHidden) modalContent.hidden = false;
+
+  historyView = createHistoryView({
+    summaryEl: els.historySummary,
+    emptyEl: els.historyEmpty,
+    scrollerEl: els.historyScroller,
+    viewportEl: els.historyViewport,
+    itemsEl: els.historyItems,
+    jumpTopButton: els.historyJumpTop,
+    jumpLatestButton: els.historyJumpLatest,
+  });
+
+  if (els.historyButton) {
+    els.historyButton.addEventListener('click', () => {
+      historyModal.open();
+    });
+  }
+}
+
 function syncUiFromState() {
   const state = store.getState();
   els.stepSize.value = String(state.stepSize);
@@ -887,6 +946,7 @@ function updateTwoControlsForRelationship() {
 
 function initEventListeners() {
   initSettingsModal();
+  initHistoryModal();
 
   els.spinnerSectors.addEventListener('change', () => {
     const clamped = clamp(parseInt(els.spinnerSectors.value, 10), 2, 12);
@@ -1057,6 +1117,9 @@ function initEventListeners() {
     const state = store.getState();
     render(els, state);
     applyVisibility(state);
+    if (historyModal?.isOpen && historyView) {
+      historyView.sync(state, { preserveScroll: true });
+    }
   });
 }
 

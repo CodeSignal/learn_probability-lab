@@ -40,6 +40,11 @@ export default function renderSingle(els, state) {
 
   els.trials.textContent = formatCount(state.single.trials);
   els.last.textContent = state.single.lastIndex === null ? '—' : def.labels[state.single.lastIndex] ?? '—';
+  if (els.historyButton) {
+    const trials = state.single.trials;
+    els.historyButton.disabled = trials === 0;
+    els.historyButton.textContent = trials === 0 ? 'History' : `History (${formatCount(trials)})`;
+  }
 
   renderSpinnerSectorsVisibility(els, state.single);
 

@@ -47,6 +47,11 @@ export default function renderTwo(els, state) {
   if (!defA || !defB) return;
 
   els.trials.textContent = formatCount(state.two.trials);
+  if (els.historyButton) {
+    const trials = state.two.trials;
+    els.historyButton.disabled = trials === 0;
+    els.historyButton.textContent = trials === 0 ? 'History' : `History (${formatCount(trials)})`;
+  }
 
   if (state.two.lastA === null || state.two.lastB === null) {
     els.last.textContent = '—';
@@ -71,4 +76,3 @@ export default function renderTwo(els, state) {
   );
   updateCellSummary(els, defA, defB, state.two);
 }
-
