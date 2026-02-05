@@ -88,9 +88,18 @@ const sliderInstances = {
 let speedSlider = null;
 let settingsModal = null;
 
+/**
+ * Generates a random numeric seed string for the RNG
+ * @returns {string} A random seed value as a string
+ */
+function generateRandomSeed() {
+  return Math.floor(Math.random() * 100000000).toString();
+}
+
 const store = createStore({
   rng: Math.random,
   seedText: '',
+  userSpecifiedSeed: false,
 
   mode: 'single',
   speed: 60,
@@ -245,6 +254,10 @@ function resetSimulation({ reason = 'unknown', logSettings = false } = {}) {
   runner.stopRunning();
   store.setState((draft) => {
     draft.running.cancel = false;
+    // Generate new random seed on reset if user hasn't specified one
+    if (!draft.userSpecifiedSeed) {
+      draft.seedText = generateRandomSeed();
+    }
     // Rewind RNG to the start of the seeded sequence on every reset
     draft.rng = createRngFromSeed(draft.seedText);
   });
@@ -737,8 +750,16 @@ function renderEventOptions() {
 function applySeed(seedText) {
   const trimmed = (seedText ?? '').trim();
   store.setState((draft) => {
-    draft.seedText = trimmed;
-    draft.rng = createRngFromSeed(trimmed);
+    if (trimmed === '') {
+      // User cleared the seed - revert to auto-generation
+      draft.userSpecifiedSeed = false;
+      draft.seedText = generateRandomSeed();
+    } else {
+      // User specified a seed - mark as user-specified and persist it
+      draft.userSpecifiedSeed = true;
+      draft.seedText = trimmed;
+    }
+    draft.rng = createRngFromSeed(draft.seedText);
   });
   resetSimulation({ reason: 'seed_change', logSettings: true });
 }
@@ -1072,6 +1093,11 @@ async function init() {
     }
     if (config.visualElements) {
       draft.visualElements = { ...draft.visualElements, ...config.visualElements };
+    }
+    // Generate random seed at startup if seedText is empty
+    if (!draft.seedText || draft.seedText.trim() === '') {
+      draft.seedText = generateRandomSeed();
+      draft.userSpecifiedSeed = false;
     }
     draft.rng = createRngFromSeed(draft.seedText);
   });
