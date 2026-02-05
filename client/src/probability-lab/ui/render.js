@@ -63,6 +63,40 @@ function setTag(tagEl, { text, variant }) {
   tagEl.classList.add(variant);
 }
 
+function generateBiasTooltipText(def) {
+  if (!def || !def.probabilities || !def.labels || def.probabilities.length === 0) {
+    return '';
+  }
+
+  const probabilities = def.probabilities;
+  const labels = def.labels;
+
+  // Check if uniform
+  if (isUniformProbabilities(probabilities)) {
+    return 'All outcomes are equally likely.';
+  }
+
+  // Check if one outcome is certain (probability = 1.0)
+  const certainIndex = probabilities.findIndex((p) => nearlyEqual(p, 1.0));
+  if (certainIndex !== -1) {
+    return `Certain outcome: ${labels[certainIndex]}\nAll other outcomes are impossible.`;
+  }
+
+  // Find most and least likely outcomes
+  let maxIndex = 0;
+  let minIndex = 0;
+  for (let i = 1; i < probabilities.length; i++) {
+    if (probabilities[i] > probabilities[maxIndex]) {
+      maxIndex = i;
+    }
+    if (probabilities[i] < probabilities[minIndex]) {
+      minIndex = i;
+    }
+  }
+
+  return `Most likely outcome: ${labels[maxIndex]}\nLeast likely outcome: ${labels[minIndex]}`;
+}
+
 export function renderExperimentSetup(els, state) {
   if (!els.setupDevice || !els.setupSampleSpace) return;
 
@@ -94,6 +128,25 @@ export function renderExperimentSetup(els, state) {
 
     const biasText = `Bias (A / B): ${fairA ? 'Uniform' : 'Biased'} / ${fairB ? 'Uniform' : 'Biased'}`;
     setTag(els.biasSummary, { text: biasText, variant: fairA && fairB ? 'success' : 'warning' });
+
+    // Set tooltip text for two-event mode
+    if (els.biasSummary) {
+      const tooltipA = defA ? generateBiasTooltipText(defA) : '';
+      const tooltipB = defB ? generateBiasTooltipText(defB) : '';
+      let tooltipText = '';
+      if (tooltipA && tooltipB) {
+        tooltipText = `Device A: ${tooltipA}\nDevice B: ${tooltipB}`;
+      } else if (tooltipA) {
+        tooltipText = `Device A: ${tooltipA}`;
+      } else if (tooltipB) {
+        tooltipText = `Device B: ${tooltipB}`;
+      }
+      if (tooltipText) {
+        els.biasSummary.setAttribute('data-tooltip', tooltipText);
+      } else {
+        els.biasSummary.removeAttribute('data-tooltip');
+      }
+    }
 
     if (els.relationshipSummary) {
       const relationship = state.two.relationship || 'independent';
@@ -143,6 +196,16 @@ export function renderExperimentSetup(els, state) {
         spinnerSkew: state.single.spinnerSkew,
       });
     setTag(els.biasSummary, { text: `Bias: ${fair ? 'Uniform' : 'Biased'}`, variant: fair ? 'success' : 'warning' });
+
+    // Set tooltip text for single mode
+    if (els.biasSummary && def) {
+      const tooltipText = generateBiasTooltipText(def);
+      if (tooltipText) {
+        els.biasSummary.setAttribute('data-tooltip', tooltipText);
+      } else {
+        els.biasSummary.removeAttribute('data-tooltip');
+      }
+    }
     if (els.relationshipSummary) {
       els.relationshipSummary.hidden = true;
       els.relationshipSummary.style.display = 'none';

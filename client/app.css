@@ -1300,3 +1300,40 @@
   white-space: nowrap;
   max-width: none;
 }
+
+/* ===== BIAS SUMMARY TOOLTIP ===== */
+
+.bespoke [data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+.bespoke [data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: var(--UI-Spacing-spacing-xs);
+  padding: var(--UI-Spacing-spacing-xs) var(--UI-Spacing-spacing-s);
+  background-color: var(--Colors-Backgrounds-Main-Top);
+  color: var(--Colors-Text-Body-Default);
+  border: 1px solid var(--Colors-Stroke-Default);
+  border-radius: var(--UI-Radius-radius-s);
+  font-family: var(--body-family);
+  font-size: var(--UI-Typography-body-xsmall-size);
+  line-height: var(--UI-Typography-body-xsmall-line-height);
+  white-space: pre-line;
+  text-align: left;
+  min-width: 200px;
+  max-width: 300px;
+  width: max-content;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.bespoke [data-tooltip]:hover::after {
+  opacity: 1;
+}
