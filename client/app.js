@@ -6,7 +6,6 @@ import { loadConfig } from './src/shell/config.js';
 import { createActivityLogger } from './src/shell/activity-logger.js';
 import { clamp, safeNumber } from './src/shared/math.js';
 import { formatProbability } from './src/shared/format.js';
-import { createRngFromSeed } from './src/probability-lab/domain/rng.js';
 import { buildDeviceDefinition } from './src/probability-lab/domain/devices.js';
 import simulateSingleTrials from './src/probability-lab/engine/simulate-single.js';
 import simulateTwoTrials from './src/probability-lab/engine/simulate-two.js';
@@ -52,8 +51,6 @@ const els = {
   runModeAuto: $('pl-run-mode-auto'),
   runModeToggleManual: $('pl-run-mode-toggle-manual'),
   runModeToggleAuto: $('pl-run-mode-toggle-auto'),
-
-  seed: $('pl-seed'),
 
   eventOutcomes: $('pl-event-outcomes'),
 
@@ -101,18 +98,7 @@ let settingsModal = null;
 let historyModal = null;
 let historyView = null;
 
-/**
- * Generates a random numeric seed string for the RNG
- * @returns {string} A random seed value as a string
- */
-function generateRandomSeed() {
-  return Math.floor(Math.random() * 100000000).toString();
-}
-
 const store = createStore({
-  rng: Math.random,
-  seedText: '',
-  userSpecifiedSeed: false,
 
   mode: 'single',
   speed: 60,
@@ -274,12 +260,6 @@ function resetSimulation({ reason = 'unknown', logSettings = false } = {}) {
   runner.stopRunning();
   store.setState((draft) => {
     draft.running.cancel = false;
-    // Generate new random seed on reset if user hasn't specified one
-    if (!draft.userSpecifiedSeed) {
-      draft.seedText = generateRandomSeed();
-    }
-    // Rewind RNG to the start of the seeded sequence on every reset
-    draft.rng = createRngFromSeed(draft.seedText);
   });
 
   const state = store.getState();
@@ -427,7 +407,6 @@ function updateControls() {
   const toDisable = [
     els.spinnerSectors,
     els.stepSize,
-    els.seed,
     els.relationship,
     els.openSettings,
   ];
@@ -770,23 +749,6 @@ function renderEventOptions() {
   }
 }
 
-function applySeed(seedText) {
-  const trimmed = (seedText ?? '').trim();
-  store.setState((draft) => {
-    if (trimmed === '') {
-      // User cleared the seed - revert to auto-generation
-      draft.userSpecifiedSeed = false;
-      draft.seedText = generateRandomSeed();
-    } else {
-      // User specified a seed - mark as user-specified and persist it
-      draft.userSpecifiedSeed = true;
-      draft.seedText = trimmed;
-    }
-    draft.rng = createRngFromSeed(draft.seedText);
-  });
-  resetSimulation({ reason: 'seed_change', logSettings: true });
-}
-
 function openSettingsModal(scrollTarget) {
   if (!settingsModal) return;
 
@@ -862,7 +824,6 @@ function initHistoryModal() {
 function syncUiFromState() {
   const state = store.getState();
   els.stepSize.value = String(state.stepSize);
-  els.seed.value = state.seedText;
 
   els.spinnerSectors.value = String(state.single.spinnerSectors);
 
@@ -1038,7 +999,7 @@ function initEventListeners() {
   els.step.addEventListener('click', () => {
     const state = store.getState();
     const stateSlice = state.mode === 'two' ? state.two : state.single;
-    runner.runTrials(state.stepSize, state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng);
+    runner.runTrials(state.stepSize, state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, Math.random);
   });
 
   els.reset.addEventListener('click', () => {
@@ -1051,23 +1012,8 @@ function initEventListeners() {
       runner.stopRunning();
     } else {
       const stateSlice = state.mode === 'two' ? state.two : state.single;
-      runner.startAuto(state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, state.rng, state.speed);
+      runner.startAuto(state.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, Math.random, state.speed);
     }
-  });
-
-  // Apply seed automatically on change
-  let seedTimeout = null;
-  els.seed.addEventListener('input', () => {
-    // Debounce to avoid resetting simulation too frequently during typing
-    clearTimeout(seedTimeout);
-    seedTimeout = setTimeout(() => {
-      applySeed(els.seed.value);
-    }, 500);
-  });
-
-  els.seed.addEventListener('change', () => {
-    clearTimeout(seedTimeout);
-    applySeed(els.seed.value);
   });
 
   els.twoWayTable.addEventListener('click', (event) => {
@@ -1157,12 +1103,6 @@ async function init() {
     if (config.visualElements) {
       draft.visualElements = { ...draft.visualElements, ...config.visualElements };
     }
-    // Generate random seed at startup if seedText is empty
-    if (!draft.seedText || draft.seedText.trim() === '') {
-      draft.seedText = generateRandomSeed();
-      draft.userSpecifiedSeed = false;
-    }
-    draft.rng = createRngFromSeed(draft.seedText);
   });
   syncUiFromState();
 
@@ -1191,7 +1131,7 @@ async function init() {
           setTimeout(() => {
             const newState = store.getState();
             const stateSlice = newState.mode === 'two' ? newState.two : newState.single;
-            runner.startAuto(newState.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, newState.rng, newState.speed);
+            runner.startAuto(newState.mode, simulateSingleTrials, simulateTwoTrials, stateSlice, Math.random, newState.speed);
           }, 0);
         }
       },

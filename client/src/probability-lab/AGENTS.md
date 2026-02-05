@@ -23,7 +23,6 @@ Two-event mode (`state.two`):
 
 ## Domain
 
-- `domain/rng.js`: deterministic RNG utilities; empty seed returns `Math.random`.
 - `domain/cdf.js`: builds CDF and samples indexes.
 - `domain/devices.js`: builds device definitions and clamps probabilities.
   - Spinner sectors are clamped to 2-12.

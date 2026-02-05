@@ -20,7 +20,6 @@ The Probability Lab helps students understand:
 - Two events mode: joint heatmap + two-way table with joint/conditional reads
 - Bias controls: fair vs biased devices (coin, die, spinner; custom devices are configured via
   `config.json`)
-- Seeded randomness: reproduce runs with a seed
 - Event relationships: independent, dependent
 - Custom devices: define up to 50 outcomes + probabilities in `config.json`
 
@@ -185,10 +184,10 @@ Experiment summary:
 Settings modal:
 
 - pl-settings-modal
-- pl-settings-section-probabilities, pl-settings-section-event, pl-settings-section-randomness
+- pl-settings-section-probabilities, pl-settings-section-event
 - pl-single-config, pl-two-config
 - pl-bias-options, pl-bias-options-a, pl-bias-options-b
-- pl-relationship, pl-seed
+- pl-relationship
 
 Controls:
 

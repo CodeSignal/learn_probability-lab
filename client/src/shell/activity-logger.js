@@ -49,7 +49,6 @@ function buildSettingsSnapshot(state) {
       deviceA: state.two.deviceA ?? null,
       deviceB: state.two.deviceB ?? null,
       sections,
-      seed: state.seedText ?? '',
       relationship: state.two.relationship ?? null,
       spinnerSectorsA: state.two.spinnerSectorsA ?? null,
       spinnerSectorsB: state.two.spinnerSectorsB ?? null,
@@ -71,7 +70,6 @@ function buildSettingsSnapshot(state) {
     mode: 'single',
     device: state.single.device ?? null,
     sections,
-    seed: state.seedText ?? '',
     spinnerSectors: state.single.spinnerSectors ?? null,
     bias: {
       coinProbabilities: cloneArray(state.single.coinProbabilities),

@@ -7,7 +7,6 @@ A Bespoke Simulation for repeated-trial probability experiments (coin, die, spin
 - **One event mode**: event builder (select outcomes), live bar chart, convergence chart, frequency table
 - **Two events mode**: joint heatmap + two-way table; click a cell to see joint and conditional probabilities
 - **Bias controls**: explore fair vs biased devices
-- **Seeded randomness**: optionally reproduce runs with a seed
 
 ## Development
 
@@ -30,4 +29,3 @@ npm run start:prod
 - `client/app.js` – simulation engine + rendering
 - `client/app.css` – app-specific styling
 - `client/help-content.html` – Help modal content
-
