@@ -25,13 +25,16 @@ export default function simulateSingleTrials(stateSlice, rng, count) {
     stateSlice.trials += 1;
     stateSlice.lastIndex = idx;
     if (trialHistory) trialHistory.push(idx);
+
+    // Record convergence snapshot after every trial
+    if (stateSlice.trials > 0) {
+      const rel = stateSlice.counts.map((c) => c / stateSlice.trials);
+      stateSlice.history.push({ trials: stateSlice.trials, rel });
+    }
   }
 
-  if (stateSlice.trials > 0) {
-    const rel = stateSlice.counts.map((c) => c / stateSlice.trials);
-    stateSlice.history.push({ trials: stateSlice.trials, rel });
-    if (stateSlice.history.length > 2000) {
-      stateSlice.history = stateSlice.history.filter((_, i) => i % 2 === 0);
-    }
+  // Decimate history if it exceeds 2000 entries (applied once after the loop)
+  while (stateSlice.history.length > 2000) {
+    stateSlice.history = stateSlice.history.filter((_, i) => i % 2 === 0);
   }
 }

@@ -125,6 +125,11 @@ describe('simulateSingleTrials', () => {
     expect(stateSlice.history.length).toBeLessThanOrEqual(2000);
   });
 
+  it('history is pruned below 2000 even for large batch counts', () => {
+    simulateSingleTrials(stateSlice, mockRng, 50000);
+    expect(stateSlice.history.length).toBeLessThanOrEqual(2000);
+  });
+
   it('maintains correct state across multiple calls', () => {
     simulateSingleTrials(stateSlice, mockRng, 3);
     const trialsAfterFirst = stateSlice.trials;

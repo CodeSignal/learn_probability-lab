@@ -73,8 +73,20 @@ export default function drawLineChart(canvas, xValues, yValues, theoryValue) {
     ctx.setLineDash([]);
     ctx.lineWidth = 1;
 
-    if (xValues.length < 2 || yValues.length < 2) return;
+    // Handle single data point case: draw a dot
+    if (xValues.length === 1 && yValues.length === 1) {
+      const x = maxX === 0 ? 0 : (xValues[0] / maxX) * plotW;
+      const y = (1 - clamp(yValues[0], 0, 1)) * plotH;
+      const px = padding.left + x;
+      const py = padding.top + y;
+      ctx.fillStyle = primary;
+      ctx.beginPath();
+      ctx.arc(px, py, 3, 0, Math.PI * 2);
+      ctx.fill();
+      return;
+    }
 
+    // Multiple data points: draw line with decimation
     const step = Math.max(1, Math.ceil(xValues.length / 500));
     ctx.strokeStyle = primary;
     ctx.lineWidth = 2;
