@@ -16,6 +16,7 @@
     "convergence": true,
     "frequencyTable": true,
     "jointDistribution": false,
-    "twoWayTable": false
+    "twoWayTable": false,
+    "history": false
   }
 }

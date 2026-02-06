@@ -84,7 +84,8 @@ Single mode:
   "sections": {
     "barChart": true,
     "convergence": false,
-    "frequencyTable": false
+    "frequencyTable": false,
+    "history": false
   }
 }
 ```
@@ -103,7 +104,8 @@ Single mode (custom device):
   "sections": {
     "barChart": true,
     "convergence": true,
-    "frequencyTable": true
+    "frequencyTable": true,
+    "history": false
   }
 }
 ```
@@ -116,7 +118,8 @@ Two-event mode:
   "deviceB": "die",
   "sections": {
     "jointDistribution": true,
-    "twoWayTable": true
+    "twoWayTable": true,
+    "history": false
   }
 }
 ```
@@ -137,7 +140,8 @@ Two-event mode (custom devices):
   },
   "sections": {
     "jointDistribution": true,
-    "twoWayTable": true
+    "twoWayTable": true,
+    "history": false
   }
 }
 ```
@@ -147,6 +151,10 @@ Notes:
 - Valid modes: `single`, `two`.
 - Valid devices: `coin`, `die`, `spinner`, `custom`.
 - `sections` is optional; keys are validated and default to `false` if missing/invalid.
+- Valid section keys:
+  - Single mode: `barChart`, `convergence`, `frequencyTable`, `history`
+  - Two-event mode: `jointDistribution`, `twoWayTable`, `history`
+- When `history` is `true`, the trial history appears as a standalone widget card instead of a modal.
 - Custom device settings:
   - Single mode uses `deviceSettings`; two-event mode uses `deviceASettings` / `deviceBSettings`.
   - `outcomes` must contain 2-50 unique, non-empty strings (extras are truncated; duplicates
@@ -202,6 +210,21 @@ Event builder:
 Visualization:
 
 - pl-device-view, pl-trials, pl-last
+- pl-history (button, hidden when history section is enabled)
+
+History (modal):
+
+- pl-history-modal
+- pl-history-summary, pl-history-empty
+- pl-history-scroller, pl-history-viewport, pl-history-items
+- pl-history-jump-top, pl-history-jump-latest
+
+History (standalone widget):
+
+- pl-history-card
+- pl-history-card-summary, pl-history-card-empty
+- pl-history-card-scroller, pl-history-card-viewport, pl-history-card-items
+- pl-history-card-jump-top, pl-history-card-jump-latest
 
 Single-event view:
 

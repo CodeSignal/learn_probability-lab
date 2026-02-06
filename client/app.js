@@ -81,6 +81,14 @@ const els = {
   frequencyCard: $('pl-frequency-card'),
   jointDistributionCard: $('pl-joint-distribution-card'),
   twoWayTableCard: $('pl-two-way-table-card'),
+  historyCard: $('pl-history-card'),
+  historyCardSummary: $('pl-history-card-summary'),
+  historyCardEmpty: $('pl-history-card-empty'),
+  historyCardScroller: $('pl-history-card-scroller'),
+  historyCardViewport: $('pl-history-card-viewport'),
+  historyCardItems: $('pl-history-card-items'),
+  historyCardJumpTop: $('pl-history-card-jump-top'),
+  historyCardJumpLatest: $('pl-history-card-jump-latest'),
 };
 
 // Store NumericSlider instances for each device configuration
@@ -111,6 +119,7 @@ const store = createStore({
     frequencyTable: false,
     jointDistribution: false,
     twoWayTable: false,
+    history: false,
   },
 
   visualElements: {
@@ -177,7 +186,9 @@ const runner = createRunner(store.getState().running, {
     const state = store.getState();
     render(els, state);
     applyVisibility(state);
-    if (historyModal?.isOpen && historyView) {
+    const sections = state.sections || {};
+    const useStandalone = sections.history === true;
+    if (historyView && (useStandalone || historyModal?.isOpen)) {
       historyView.sync(state, { preserveScroll: true });
     }
     activityLogger.maybeLogStatus(state);
@@ -269,11 +280,12 @@ function resetSimulation({ reason = 'unknown', logSettings = false } = {}) {
   render(els, store.getState());
   applyVisibility(store.getState());
   syncUiFromState();
-  if (historyModal?.isOpen && historyView) {
-    historyView.sync(store.getState(), { scrollToLatest: true });
-  }
-
   const currentState = store.getState();
+  const sections = currentState.sections || {};
+  const useStandalone = sections.history === true;
+  if (historyView && (useStandalone || historyModal?.isOpen)) {
+    historyView.sync(currentState, { scrollToLatest: true });
+  }
   if (logSettings) {
     activityLogger.logSettingsChange(currentState);
   }
@@ -332,6 +344,12 @@ function applySectionVisibility(state) {
       els.twoWayTableCard.hidden = !sections.twoWayTable;
     }
   }
+
+  // History card works in both modes
+  if (els.historyCard) {
+    els.historyCard.style.display = sections.history ? '' : 'none';
+    els.historyCard.hidden = !sections.history;
+  }
 }
 
 function applyVisualElementVisibility(state) {
@@ -372,6 +390,21 @@ function applyVisualElementVisibility(state) {
 function applyVisibility(state) {
   applySectionVisibility(state);
   applyVisualElementVisibility(state);
+
+  // Hide history button and modal when history is shown as standalone widget
+  const sections = state.sections || {};
+  const useStandalone = sections.history === true;
+  
+  if (els.historyButton) {
+    els.historyButton.style.display = useStandalone ? 'none' : '';
+    els.historyButton.hidden = useStandalone;
+  }
+  
+  // Hide modal content when standalone widget is active
+  if (els.historyModal) {
+    els.historyModal.style.display = useStandalone ? 'none' : '';
+    els.historyModal.hidden = useStandalone;
+  }
 }
 
 function updateControls() {
@@ -786,38 +819,66 @@ function initSettingsModal() {
 }
 
 function initHistoryModal() {
-  if (historyModal) return;
-  if (!els.historyModal) return;
+  if (historyView) return; // Already initialized
 
-  const modalContent = els.historyModal;
-  const wasHidden = modalContent.hidden;
-  modalContent.hidden = true;
+  const state = store.getState();
+  const sections = state.sections || {};
+  const useStandalone = sections.history === true;
 
-  historyModal = new Modal({
-    size: 'medium',
-    title: 'Trial History',
-    content: modalContent,
-    onOpen: () => {
-      if (historyView) historyView.sync(store.getState(), { scrollToLatest: true });
-    },
-  });
+  if (useStandalone) {
+    // Initialize standalone history widget
+    if (!els.historyCard) return;
 
-  if (wasHidden) modalContent.hidden = false;
+    // Ensure modal content is hidden when using standalone
+    if (els.historyModal) {
+      els.historyModal.style.display = 'none';
+      els.historyModal.hidden = true;
+    }
 
-  historyView = createHistoryView({
-    summaryEl: els.historySummary,
-    emptyEl: els.historyEmpty,
-    scrollerEl: els.historyScroller,
-    viewportEl: els.historyViewport,
-    itemsEl: els.historyItems,
-    jumpTopButton: els.historyJumpTop,
-    jumpLatestButton: els.historyJumpLatest,
-  });
-
-  if (els.historyButton) {
-    els.historyButton.addEventListener('click', () => {
-      historyModal.open();
+    historyView = createHistoryView({
+      summaryEl: els.historyCardSummary,
+      emptyEl: els.historyCardEmpty,
+      scrollerEl: els.historyCardScroller,
+      viewportEl: els.historyCardViewport,
+      itemsEl: els.historyCardItems,
+      jumpTopButton: els.historyCardJumpTop,
+      jumpLatestButton: els.historyCardJumpLatest,
     });
+  } else {
+    // Initialize modal history (existing behavior)
+    if (historyModal) return;
+    if (!els.historyModal) return;
+
+    const modalContent = els.historyModal;
+    const wasHidden = modalContent.hidden;
+    modalContent.hidden = true;
+
+    historyModal = new Modal({
+      size: 'medium',
+      title: 'Trial History',
+      content: modalContent,
+      onOpen: () => {
+        if (historyView) historyView.sync(store.getState(), { scrollToLatest: true });
+      },
+    });
+
+    if (wasHidden) modalContent.hidden = false;
+
+    historyView = createHistoryView({
+      summaryEl: els.historySummary,
+      emptyEl: els.historyEmpty,
+      scrollerEl: els.historyScroller,
+      viewportEl: els.historyViewport,
+      itemsEl: els.historyItems,
+      jumpTopButton: els.historyJumpTop,
+      jumpLatestButton: els.historyJumpLatest,
+    });
+
+    if (els.historyButton) {
+      els.historyButton.addEventListener('click', () => {
+        historyModal.open();
+      });
+    }
   }
 }
 
@@ -1063,7 +1124,9 @@ function initEventListeners() {
     const state = store.getState();
     render(els, state);
     applyVisibility(state);
-    if (historyModal?.isOpen && historyView) {
+    const sections = state.sections || {};
+    const useStandalone = sections.history === true;
+    if (historyView && (useStandalone || historyModal?.isOpen)) {
       historyView.sync(state, { preserveScroll: true });
     }
   });
@@ -1143,13 +1206,20 @@ async function init() {
 
   initEventListeners();
   updateControls();
+  // Apply visibility after initEventListeners so history modal/widget is initialized first
   applyVisibility(store.getState());
   activityLogger.logAppStart(store.getState());
 
   // Defer initial render until after layout is complete
   requestAnimationFrame(() => {
-    render(els, store.getState());
-    applyVisibility(store.getState());
+    const state = store.getState();
+    render(els, state);
+    applyVisibility(state);
+    // Sync standalone history if enabled
+    const sections = state.sections || {};
+    if (sections.history === true && historyView) {
+      historyView.sync(state, { scrollToLatest: false });
+    }
   });
 }
 

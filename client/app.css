@@ -1280,6 +1280,18 @@
   min-width: 0;
 }
 
+/* Standalone history widget */
+.bespoke .pl-history-standalone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-m);
+}
+
+.bespoke .pl-history-standalone .pl-history-scroller {
+  max-height: 400px;
+  min-height: 200px;
+}
+
 /* Chart context */
 .bespoke .pl-chart-header {
   display: flex;

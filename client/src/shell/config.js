@@ -4,8 +4,8 @@
 const VALID_MODES = ['single', 'two'];
 const VALID_DEVICES = ['coin', 'die', 'spinner', 'custom'];
 const MAX_CUSTOM_OUTCOMES = 50;
-const VALID_SECTIONS_SINGLE = ['barChart', 'convergence', 'frequencyTable'];
-const VALID_SECTIONS_TWO = ['jointDistribution', 'twoWayTable'];
+const VALID_SECTIONS_SINGLE = ['barChart', 'convergence', 'frequencyTable', 'history'];
+const VALID_SECTIONS_TWO = ['jointDistribution', 'twoWayTable', 'history'];
 const VALID_VISUAL_ELEMENTS = ['editExperimentButton', 'biasTag'];
 
 /**
@@ -215,6 +215,7 @@ export async function loadConfig() {
         frequencyTable: false,
         jointDistribution: false,
         twoWayTable: false,
+        history: false,
       },
     };
   }

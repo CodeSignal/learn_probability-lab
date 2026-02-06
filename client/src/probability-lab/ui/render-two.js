@@ -56,7 +56,7 @@ export default function renderTwo(els, state) {
   if (state.two.lastA === null || state.two.lastB === null) {
     els.last.textContent = '—';
   } else {
-    els.last.textContent = `A: ${defA.labels[state.two.lastA]} · B: ${defB.labels[state.two.lastB]}`;
+    els.last.textContent = `(${defA.labels[state.two.lastA]}, ${defB.labels[state.two.lastB]})`;
   }
 
   updateDeviceViewTwo(els.deviceView, defA, defB, state.two);
