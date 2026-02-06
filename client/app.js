@@ -187,7 +187,7 @@ const runner = createRunner(store.getState().running, {
     render(els, state);
     applyVisibility(state);
     const sections = state.sections || {};
-    const useStandalone = sections.history === true;
+    const useStandalone = state.mode === 'single' && sections.history === true;
     if (historyView && (useStandalone || historyModal?.isOpen)) {
       historyView.sync(state, { preserveScroll: true });
     }
@@ -319,6 +319,12 @@ function applySectionVisibility(state) {
       els.frequencyCard.style.display = sections.frequencyTable ? '' : 'none';
       els.frequencyCard.hidden = !sections.frequencyTable;
     }
+
+    // History card (standalone widget) - single mode only
+    if (els.historyCard) {
+      els.historyCard.style.display = sections.history ? '' : 'none';
+      els.historyCard.hidden = !sections.history;
+    }
   } else {
     // Hide single-mode sections
     if (els.barChartSection) {
@@ -343,12 +349,12 @@ function applySectionVisibility(state) {
       els.twoWayTableCard.style.display = sections.twoWayTable ? '' : 'none';
       els.twoWayTableCard.hidden = !sections.twoWayTable;
     }
-  }
 
-  // History card works in both modes
-  if (els.historyCard) {
-    els.historyCard.style.display = sections.history ? '' : 'none';
-    els.historyCard.hidden = !sections.history;
+    // Hide history card in two-event mode (not used)
+    if (els.historyCard) {
+      els.historyCard.style.display = 'none';
+      els.historyCard.hidden = true;
+    }
   }
 }
 
@@ -391,16 +397,16 @@ function applyVisibility(state) {
   applySectionVisibility(state);
   applyVisualElementVisibility(state);
 
-  // Hide history button and modal when history is shown as standalone widget
+  // Hide history button and modal when history is shown as standalone widget (single mode only)
   const sections = state.sections || {};
-  const useStandalone = sections.history === true;
-  
+  const useStandalone = state.mode === 'single' && sections.history === true;
+
   if (els.historyButton) {
     els.historyButton.style.display = useStandalone ? 'none' : '';
     els.historyButton.hidden = useStandalone;
   }
-  
-  // Hide modal content when standalone widget is active
+
+  // Hide modal content when standalone widget is active (single mode only)
   if (els.historyModal) {
     els.historyModal.style.display = useStandalone ? 'none' : '';
     els.historyModal.hidden = useStandalone;
@@ -823,10 +829,10 @@ function initHistoryModal() {
 
   const state = store.getState();
   const sections = state.sections || {};
-  const useStandalone = sections.history === true;
+  const useStandalone = state.mode === 'single' && sections.history === true;
 
   if (useStandalone) {
-    // Initialize standalone history widget
+    // Initialize standalone history widget (single mode only)
     if (!els.historyCard) return;
 
     // Ensure modal content is hidden when using standalone
@@ -845,7 +851,7 @@ function initHistoryModal() {
       jumpLatestButton: els.historyCardJumpLatest,
     });
   } else {
-    // Initialize modal history (existing behavior)
+    // Initialize modal history (default for both modes, but required for two-event mode)
     if (historyModal) return;
     if (!els.historyModal) return;
 

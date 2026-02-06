@@ -118,8 +118,7 @@ Two-event mode:
   "deviceB": "die",
   "sections": {
     "jointDistribution": true,
-    "twoWayTable": true,
-    "history": false
+    "twoWayTable": true
   }
 }
 ```
@@ -140,8 +139,7 @@ Two-event mode (custom devices):
   },
   "sections": {
     "jointDistribution": true,
-    "twoWayTable": true,
-    "history": false
+    "twoWayTable": true
   }
 }
 ```
@@ -153,8 +151,8 @@ Notes:
 - `sections` is optional; keys are validated and default to `false` if missing/invalid.
 - Valid section keys:
   - Single mode: `barChart`, `convergence`, `frequencyTable`, `history`
-  - Two-event mode: `jointDistribution`, `twoWayTable`, `history`
-- When `history` is `true`, the trial history appears as a standalone widget card instead of a modal.
+  - Two-event mode: `jointDistribution`, `twoWayTable`
+- When `history` is `true` (single mode only), the trial history appears as a standalone widget card instead of a modal. Two-event mode always uses the history button + modal.
 - Custom device settings:
   - Single mode uses `deviceSettings`; two-event mode uses `deviceASettings` / `deviceBSettings`.
   - `outcomes` must contain 2-50 unique, non-empty strings (extras are truncated; duplicates
