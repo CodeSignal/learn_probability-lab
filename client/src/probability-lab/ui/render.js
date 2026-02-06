@@ -73,13 +73,13 @@ function generateBiasTooltipText(def) {
 
   // Check if uniform
   if (isUniformProbabilities(probabilities)) {
-    return 'All outcomes are equally likely.';
+    return '  All outcomes are equally likely.';
   }
 
   // Check if one outcome is certain (probability = 1.0)
   const certainIndex = probabilities.findIndex((p) => nearlyEqual(p, 1.0));
   if (certainIndex !== -1) {
-    return `Certain outcome: ${labels[certainIndex]}\nAll other outcomes are impossible.`;
+    return `  Certain outcome: ${labels[certainIndex]}\n  All other outcomes are impossible.`;
   }
 
   // Find most and least likely outcomes
@@ -94,7 +94,7 @@ function generateBiasTooltipText(def) {
     }
   }
 
-  return `Most likely outcome: ${labels[maxIndex]}\nLeast likely outcome: ${labels[minIndex]}`;
+  return `  Most likely outcome: ${labels[maxIndex]}\n  Least likely outcome: ${labels[minIndex]}`;
 }
 
 export function renderExperimentSetup(els, state) {
@@ -135,11 +135,11 @@ export function renderExperimentSetup(els, state) {
       const tooltipB = defB ? generateBiasTooltipText(defB) : '';
       let tooltipText = '';
       if (tooltipA && tooltipB) {
-        tooltipText = `Device A: ${tooltipA}\nDevice B: ${tooltipB}`;
+        tooltipText = `Device A:\n${tooltipA}\nDevice B:\n${tooltipB}`;
       } else if (tooltipA) {
-        tooltipText = `Device A: ${tooltipA}`;
+        tooltipText = `Device A:\n${tooltipA}`;
       } else if (tooltipB) {
-        tooltipText = `Device B: ${tooltipB}`;
+        tooltipText = `Device B:\n${tooltipB}`;
       }
       if (tooltipText) {
         els.biasSummary.setAttribute('data-tooltip', tooltipText);

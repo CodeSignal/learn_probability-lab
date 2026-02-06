@@ -1427,7 +1427,7 @@
   font-family: var(--body-family);
   font-size: var(--UI-Typography-body-xsmall-size);
   line-height: var(--UI-Typography-body-xsmall-line-height);
-  white-space: pre-line;
+  white-space: pre-wrap;
   text-align: left;
   min-width: 200px;
   max-width: 300px;
