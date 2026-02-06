@@ -61,6 +61,36 @@ export default function renderTwo(els, state) {
 
   updateDeviceViewTwo(els.deviceView, defA, defB, state.two);
 
+  // Trigger coin flip animations for two-devices mode
+  // TODO: make it work for auto mode too
+  if (state.two.lastA !== null && state.two.lastB !== null && !state.running.auto) {
+    const deviceWraps = els.deviceView.querySelectorAll('.pl-device-mini');
+    const coinA = deviceWraps[0]?.querySelector('.pl-coin');
+    const coinB = deviceWraps[1]?.querySelector('.pl-coin');
+
+    // Handle device A coin animation
+    if (defA.device === 'coin' && coinA) {
+      const isHeadsA = state.two.lastA === 0; // 0 = Heads, 1 = Tails
+      coinA.style.animation = 'none';
+      requestAnimationFrame(() => {
+        coinA.style.animation = isHeadsA
+          ? 'pl-flip-heads 2s forwards'
+          : 'pl-flip-tails 2s forwards';
+      });
+    }
+
+    // Handle device B coin animation
+    if (defB.device === 'coin' && coinB) {
+      const isHeadsB = state.two.lastB === 0; // 0 = Heads, 1 = Tails
+      coinB.style.animation = 'none';
+      requestAnimationFrame(() => {
+        coinB.style.animation = isHeadsB
+          ? 'pl-flip-heads 2s forwards'
+          : 'pl-flip-tails 2s forwards';
+      });
+    }
+  }
+
   const trials = state.two.trials;
   const matrix = state.two.joint.map((row) => row.map((count) => (trials > 0 ? count / trials : 0)));
 

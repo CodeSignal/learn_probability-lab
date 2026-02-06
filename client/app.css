@@ -423,7 +423,7 @@
   place-items: center;
   font-family: var(--heading-family);
   /* Coin face font size for visual clarity */
-  font-size: 56px;
+  font-size: 40px;
   line-height: 1;
   letter-spacing: -0.02em;
   user-select: none;
