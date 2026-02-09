@@ -39,7 +39,9 @@ export default function renderSingle(els, state) {
   if (!def) return;
 
   els.trials.textContent = formatCount(state.single.trials);
-  els.last.textContent = state.single.lastIndex === null ? '—' : def.labels[state.single.lastIndex] ?? '—';
+  const lastLabel = state.single.lastIndex === null ? '—' : def.labels[state.single.lastIndex] ?? '—';
+  els.last.innerHTML = `<span class="pl-last-text">${lastLabel}</span>`;
+  els.last.removeAttribute('data-tooltip');
   if (els.historyButton) {
     const trials = state.single.trials;
     els.historyButton.disabled = trials === 0;

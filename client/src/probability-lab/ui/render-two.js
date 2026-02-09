@@ -54,9 +54,12 @@ export default function renderTwo(els, state) {
   }
 
   if (state.two.lastA === null || state.two.lastB === null) {
-    els.last.textContent = '—';
+    els.last.innerHTML = '<span class="pl-last-text">—</span>';
+    els.last.removeAttribute('data-tooltip');
   } else {
-    els.last.textContent = `(${defA.labels[state.two.lastA]}, ${defB.labels[state.two.lastB]})`;
+    const outcomeText = `(${defA.labels[state.two.lastA]}, ${defB.labels[state.two.lastB]})`;
+    els.last.innerHTML = `<span class="pl-last-text">${outcomeText}</span>`;
+    els.last.setAttribute('data-tooltip', outcomeText);
   }
 
   updateDeviceViewTwo(els.deviceView, defA, defB, state.two);
