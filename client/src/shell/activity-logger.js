@@ -223,24 +223,6 @@ function buildTwoStatus(state) {
     relationship: state.two.relationship ?? null,
   };
 
-  if (state.two.selectedCell) {
-    const r = state.two.selectedCell.r;
-    const c = state.two.selectedCell.c;
-    const selectedCell = { r, c };
-    if (trials > 0) {
-      const jointCount = joint[r]?.[c] ?? 0;
-      const pJoint = jointCount / trials;
-      const pA = (countsA[r] ?? 0) / trials;
-      const pB = (countsB[c] ?? 0) / trials;
-      selectedCell.pJoint = pJoint;
-      selectedCell.pA = pA;
-      selectedCell.pB = pB;
-      selectedCell.pAGivenB = pB > 0 ? pJoint / pB : null;
-      selectedCell.pBGivenA = pA > 0 ? pJoint / pA : null;
-    }
-    data.selectedCell = selectedCell;
-  }
-
   const sections = normalizeSections(state.sections);
   if (sections.jointDistribution) {
     data.jointDistribution = {
@@ -325,10 +307,35 @@ export function createActivityLogger() {
     lastTrials = trials;
   }
 
+  function logCellClick(state, source) {
+    if (state.mode !== 'two') return;
+    if (!state.two.selectedCell) return;
+
+    const defA = state.two.definitionA;
+    const defB = state.two.definitionB;
+    if (!defA || !defB) return;
+
+    const r = state.two.selectedCell.r;
+    const c = state.two.selectedCell.c;
+
+    postEvent({
+      type: 'click',
+      data: {
+        source,
+        cell: { r, c },
+        labels: {
+          a: defA.labels[r] ?? null,
+          b: defB.labels[c] ?? null,
+        },
+      },
+    });
+  }
+
   return {
     logAppStart,
     logSettingsChange,
     logRunReset,
     maybeLogStatus,
+    logCellClick,
   };
 }

@@ -1095,6 +1095,7 @@ function initEventListeners() {
     const currentState = store.getState();
     render(els, currentState);
     applyVisibility(currentState);
+    activityLogger.logCellClick(currentState, 'twoWayTable');
   });
 
   els.heatmap.addEventListener('click', (event) => {
@@ -1124,6 +1125,7 @@ function initEventListeners() {
     const updatedState = store.getState();
     render(els, updatedState);
     applyVisibility(updatedState);
+    activityLogger.logCellClick(updatedState, 'jointDistributionHeatmap');
   });
 
   window.addEventListener('resize', () => {
