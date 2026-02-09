@@ -4,7 +4,7 @@ import Modal from './design-system/components/modal/modal.js';
 import { initializeHelpModal } from './src/shell/help.js';
 import { loadConfig } from './src/shell/config.js';
 import { createActivityLogger } from './src/shell/activity-logger.js';
-import { clamp, safeNumber } from './src/shared/math.js';
+import { clamp, safeNumber, roundToPercentages } from './src/shared/math.js';
 import { formatProbability } from './src/shared/format.js';
 import { buildDeviceDefinition } from './src/probability-lab/domain/devices.js';
 import simulateSingleTrials from './src/probability-lab/engine/simulate-single.js';
@@ -94,6 +94,15 @@ const els = {
 // Store NumericSlider instances for each device configuration
 const sliderInstances = {
   single: new Map(), // key: 'coin-0', 'coin-1', 'die-0', etc.
+  two: {
+    a: new Map(),
+    b: new Map(),
+  },
+};
+
+// Store authoritative float probabilities as source of truth (keyed by deviceKey)
+const floatProbabilities = {
+  single: new Map(), // key: 'coin', 'die', etc. -> Array<number>
   two: {
     a: new Map(),
     b: new Map(),
@@ -537,8 +546,15 @@ function renderOutcomeSliders(
   deviceKey,
   labels,
   probabilities,
-  onChange
+  onChange,
+  floatProbMap
 ) {
+  // Get or initialize authoritative float probabilities from persistent storage
+  if (!floatProbMap.has(deviceKey)) {
+    floatProbMap.set(deviceKey, [...probabilities]);
+  }
+  let currentFloatProbs = floatProbMap.get(deviceKey);
+
   // Check if sliders already exist for this device
   const existingKeys = [];
   for (const key of instanceMap.keys()) {
@@ -549,11 +565,15 @@ function renderOutcomeSliders(
 
   // If sliders exist, update their values instead of recreating
   if (existingKeys.length > 0) {
+    // Update source of truth from incoming probabilities
+    currentFloatProbs = [...probabilities];
+    floatProbMap.set(deviceKey, currentFloatProbs);
+    const percentages = roundToPercentages(currentFloatProbs);
     for (let i = 0; i < labels.length; i++) {
       const sliderKey = `${deviceKey}-${i}`;
       const slider = instanceMap.get(sliderKey);
-      if (slider) {
-        slider.setValue(Math.round(probabilities[i] * 100), null, false);
+      if (slider && i < percentages.length) {
+        slider.setValue(percentages[i], null, false);
       }
     }
     return;
@@ -562,6 +582,9 @@ function renderOutcomeSliders(
   // No existing sliders, create new ones
   container.innerHTML = '';
   container.classList.remove('pl-bias-options--custom');
+
+  // Calculate initial percentages using largest-remainder rounding
+  const initialPercentages = roundToPercentages(currentFloatProbs);
 
   for (let i = 0; i < labels.length; i++) {
     const sliderKey = `${deviceKey}-${i}`;
@@ -583,36 +606,35 @@ function renderOutcomeSliders(
       min: 0,
       max: 100,
       step: 1,
-      value: Math.round(probabilities[i] * 100),
+      value: initialPercentages[i],
       showInputs: true,
       onChange: (percentageValue) => {
         const probabilityValue = percentageValue / 100;
 
-        // Get current probabilities from all sliders
-        const currentProbabilities = [];
-        for (let j = 0; j < labels.length; j++) {
-          const otherKey = `${deviceKey}-${j}`;
-          const otherSlider = instanceMap.get(otherKey);
-          if (otherSlider) {
-            const otherValue = otherSlider.getValue();
-            currentProbabilities[j] = otherValue / 100;
-          } else {
-            currentProbabilities[j] = probabilities[j];
-          }
-        }
-
+        // Read other probabilities from authoritative float source (not from sliders)
+        const currentProbabilities = floatProbMap.get(deviceKey);
         const normalized = normalizeProbabilities(currentProbabilities, i, probabilityValue);
 
-        // Update all sliders with normalized values
+        // Convert to integer percentages using largest-remainder rounding
+        const percentages = roundToPercentages(normalized);
+
+        // Derive quantized float probabilities from the integer percentages
+        // This ensures 0% displayed = 0.0 stored = impossible in simulation
+        const quantized = percentages.map(p => p / 100);
+
+        // Update source of truth in persistent storage with quantized values
+        floatProbMap.set(deviceKey, quantized);
+
+        // Update all sliders with the integer percentages
         for (let j = 0; j < labels.length; j++) {
           const otherKey = `${deviceKey}-${j}`;
           const otherSlider = instanceMap.get(otherKey);
-          if (otherSlider) {
-            otherSlider.setValue(Math.round(normalized[j] * 100), null, false);
+          if (otherSlider && j < percentages.length) {
+            otherSlider.setValue(percentages[j], null, false);
           }
         }
 
-        onChange(normalized);
+        onChange(quantized);
       },
     });
 
@@ -621,16 +643,21 @@ function renderOutcomeSliders(
 }
 
 function renderBiasControls(container, device, values, onChange) {
-  // Determine which instance map to use based on container
+  // Determine which instance map and float prob map to use based on container
   let instanceMap;
+  let floatProbMap;
   if (container === els.biasOptions) {
     instanceMap = sliderInstances.single;
+    floatProbMap = floatProbabilities.single;
   } else if (container === els.biasOptionsA) {
     instanceMap = sliderInstances.two.a;
+    floatProbMap = floatProbabilities.two.a;
   } else if (container === els.biasOptionsB) {
     instanceMap = sliderInstances.two.b;
+    floatProbMap = floatProbabilities.two.b;
   } else {
     instanceMap = sliderInstances.single; // fallback
+    floatProbMap = floatProbabilities.single;
   }
 
   const deviceKey = device;
@@ -662,7 +689,8 @@ function renderBiasControls(container, device, values, onChange) {
       deviceKey,
       outcomes,
       probabilities,
-      (normalized) => onChange('customProbabilities', normalized)
+      (normalized) => onChange('customProbabilities', normalized),
+      floatProbMap
     );
     return;
   }
@@ -678,7 +706,8 @@ function renderBiasControls(container, device, values, onChange) {
       deviceKey,
       labels,
       probabilities,
-      (normalized) => onChange('coinProbabilities', normalized)
+      (normalized) => onChange('coinProbabilities', normalized),
+      floatProbMap
     );
     return;
   }
@@ -692,7 +721,8 @@ function renderBiasControls(container, device, values, onChange) {
       deviceKey,
       labels,
       probabilities,
-      (normalized) => onChange('dieProbabilities', normalized)
+      (normalized) => onChange('dieProbabilities', normalized),
+      floatProbMap
     );
     return;
   }

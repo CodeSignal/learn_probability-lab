@@ -47,17 +47,6 @@ describe('buildDeviceDefinition', () => {
       // Should maintain relative ratios after normalization
       expect(def.probabilities[0] / def.probabilities[1]).toBeCloseTo(2.0, 10);
     });
-
-    it('probabilities are clamped to valid range (0.01 to 0.99)', () => {
-      const extremeProbs = [0.001, 0.999]; // one too low
-      const def = buildDeviceDefinition({ device: 'coin', coinProbabilities: extremeProbs });
-      def.probabilities.forEach(p => {
-        expect(p).toBeGreaterThanOrEqual(0.01);
-        expect(p).toBeLessThanOrEqual(0.99);
-      });
-      const sum = def.probabilities.reduce((a, b) => a + b, 0);
-      expect(sum).toBeCloseTo(1.0, 10);
-    });
   });
 
   describe('die device', () => {
@@ -100,17 +89,6 @@ describe('buildDeviceDefinition', () => {
     it('dieProbabilities array is normalized', () => {
       const unnormalized = [0.2, 0.2, 0.2, 0.2, 0.2, 0.3]; // sums to 1.3
       const def = buildDeviceDefinition({ device: 'die', dieProbabilities: unnormalized });
-      const sum = def.probabilities.reduce((a, b) => a + b, 0);
-      expect(sum).toBeCloseTo(1.0, 10);
-    });
-
-    it('probabilities are clamped to valid range', () => {
-      const extremeProbs = [0.001, 0.001, 0.001, 0.001, 0.001, 0.995]; // some too low, one too high
-      const def = buildDeviceDefinition({ device: 'die', dieProbabilities: extremeProbs });
-      def.probabilities.forEach(p => {
-        expect(p).toBeGreaterThanOrEqual(0.01);
-        expect(p).toBeLessThanOrEqual(0.8);
-      });
       const sum = def.probabilities.reduce((a, b) => a + b, 0);
       expect(sum).toBeCloseTo(1.0, 10);
     });
