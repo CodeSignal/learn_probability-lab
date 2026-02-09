@@ -11,15 +11,15 @@ function abbreviateOutcome(outcome) {
   if (!outcome || typeof outcome !== 'string') return '';
   const trimmed = outcome.trim();
   if (!trimmed) return '';
-  
+
   const words = trimmed.split(/\s+/).filter(word => word.length > 0);
   if (words.length === 0) return '';
-  
+
   if (words.length === 1) {
     // Single word: return first letter capitalized
     return words[0][0].toUpperCase();
   }
-  
+
   // Multiple words: return first letter of each word capitalized
   return words.map(word => word[0].toUpperCase()).join('');
 }
@@ -55,7 +55,7 @@ function renderCustomDevice(target, def, index, { compact = false } = {}) {
     item.className = 'pl-custom-outcome body-xsmall';
     if (i === index) item.classList.add('pl-custom-outcome--selected');
     // Use abbreviated labels in compact mode (two-device mode)
-    item.textContent = compact ? abbreviateOutcome(def.labels[i]) : def.labels[i];
+    item.textContent = abbreviateOutcome(def.labels[i]);
     grid.append(item);
   }
 
