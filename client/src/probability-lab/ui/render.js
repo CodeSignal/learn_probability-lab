@@ -2,6 +2,26 @@
 import renderSingle from './render-single.js';
 import renderTwo from './render-two.js';
 
+const renderedDevices = new WeakMap();
+
+function deviceSnapshot(state) {
+  if (state.mode === 'two') {
+    return {
+      mode: 'two',
+      definitions: [state.two.definitionA, state.two.definitionB],
+      trials: state.two.trials,
+      outcomes: [state.two.lastA, state.two.lastB],
+    };
+  }
+
+  return {
+    mode: 'single',
+    definitions: [state.single.definition],
+    trials: state.single.trials,
+    outcomes: [state.single.lastIndex],
+  };
+}
+
 function getDeviceIcon(device) {
   const icons = {
     coin: '🪙',
@@ -239,10 +259,21 @@ export function renderModeVisibility(els, state) {
   if (els.singleView) els.singleView.hidden = isTwo;
 }
 
-export default function render(els, state, { preserveDeviceView = false } = {}) {
+export default function render(els, state) {
   renderModeVisibility(els, state);
   renderExperimentSetup(els, state);
 
-  if (state.mode === 'two') renderTwo(els, state, { preserveDeviceView });
-  else renderSingle(els, state, { preserveDeviceView });
+  const current = deviceSnapshot(state);
+  const previous = renderedDevices.get(els.deviceView);
+  const sameExperiment = previous?.mode === current.mode
+    && current.definitions.every((definition, index) => definition === previous.definitions[index]);
+  const sameOutcomes = sameExperiment
+    && current.outcomes.every((outcome, index) => outcome === previous.outcomes[index]);
+  const updateDevice = !sameOutcomes || current.trials !== previous.trials;
+  const animateCoin = sameExperiment && current.trials > previous.trials && !state.running.auto;
+
+  if (state.mode === 'two') renderTwo(els, state, { updateDevice, animateCoin });
+  else renderSingle(els, state, { updateDevice, animateCoin });
+
+  renderedDevices.set(els.deviceView, current);
 }

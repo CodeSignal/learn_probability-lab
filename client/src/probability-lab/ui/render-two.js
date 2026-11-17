@@ -1,7 +1,7 @@
 // Two-mode rendering
 import drawHeatmap from './charts/heatmap.js';
 import { buildTwoWayTableHtml } from './tables.js';
-import { updateDeviceViewTwo } from './device-view.js';
+import { showCoinOutcome, updateDeviceViewTwo } from './device-view.js';
 import { formatCount, formatProbability } from '../../shared/format.js';
 import { getCssVar } from './charts/colors.js';
 
@@ -41,7 +41,7 @@ function updateCellSummary(els, defA, defB, twoState) {
   `;
 }
 
-export default function renderTwo(els, state, { preserveDeviceView = false } = {}) {
+export default function renderTwo(els, state, { updateDevice = true, animateCoin = false } = {}) {
   const defA = state.two.definitionA;
   const defB = state.two.definitionB;
   if (!defA || !defB) return;
@@ -62,37 +62,16 @@ export default function renderTwo(els, state, { preserveDeviceView = false } = {
     els.last.setAttribute('data-tooltip', outcomeText);
   }
 
-  if (!preserveDeviceView) {
+  if (updateDevice) {
     updateDeviceViewTwo(els.deviceView, defA, defB, state.two);
 
-    // Trigger coin flip animations for two-devices mode
-    // TODO: make it work for auto mode too
-    if (state.two.lastA !== null && state.two.lastB !== null && !state.running.auto) {
+    if (state.two.lastA !== null && state.two.lastB !== null) {
       const deviceWraps = els.deviceView.querySelectorAll('.pl-device-mini');
       const coinA = deviceWraps[0]?.querySelector('.pl-coin');
       const coinB = deviceWraps[1]?.querySelector('.pl-coin');
 
-      // Handle device A coin animation
-      if (defA.device === 'coin' && coinA) {
-        const isHeadsA = state.two.lastA === 0; // 0 = Heads, 1 = Tails
-        coinA.style.animation = 'none';
-        requestAnimationFrame(() => {
-          coinA.style.animation = isHeadsA
-            ? 'pl-flip-heads 2s forwards'
-            : 'pl-flip-tails 2s forwards';
-        });
-      }
-
-      // Handle device B coin animation
-      if (defB.device === 'coin' && coinB) {
-        const isHeadsB = state.two.lastB === 0; // 0 = Heads, 1 = Tails
-        coinB.style.animation = 'none';
-        requestAnimationFrame(() => {
-          coinB.style.animation = isHeadsB
-            ? 'pl-flip-heads 2s forwards'
-            : 'pl-flip-tails 2s forwards';
-        });
-      }
+      if (defA.device === 'coin') showCoinOutcome(coinA, state.two.lastA === 0, animateCoin);
+      if (defB.device === 'coin') showCoinOutcome(coinB, state.two.lastB === 0, animateCoin);
     }
   }
 

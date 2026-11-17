@@ -1160,8 +1160,7 @@ function initEventListeners() {
 
   window.addEventListener('resize', () => {
     const state = store.getState();
-    // Redraw charts without replacing the device mid-animation.
-    render(els, state, { preserveDeviceView: true });
+    render(els, state);
     applyVisibility(state);
     const sections = state.sections || {};
     const useStandalone = sections.history === true;

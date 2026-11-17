@@ -1173,11 +1173,26 @@
 }
 
 /* Live trial monitor (device + metrics) */
+.bespoke .pl-monitor-card {
+  container-type: inline-size;
+}
+
 .bespoke .pl-monitor-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  grid-template-columns: auto minmax(0, 1fr);
   gap: var(--UI-Spacing-spacing-s);
   align-items: center;
+}
+
+@container (max-width: 250px) {
+  .bespoke .pl-monitor-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .bespoke .pl-monitor-metrics {
+    width: 100%;
+  }
 }
 
 .bespoke .pl-monitor-card #pl-device-view.pl-device {
