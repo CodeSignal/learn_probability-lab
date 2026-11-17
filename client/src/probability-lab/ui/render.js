@@ -239,10 +239,10 @@ export function renderModeVisibility(els, state) {
   if (els.singleView) els.singleView.hidden = isTwo;
 }
 
-export default function render(els, state) {
+export default function render(els, state, { preserveDeviceView = false } = {}) {
   renderModeVisibility(els, state);
   renderExperimentSetup(els, state);
 
-  if (state.mode === 'two') renderTwo(els, state);
-  else renderSingle(els, state);
+  if (state.mode === 'two') renderTwo(els, state, { preserveDeviceView });
+  else renderSingle(els, state, { preserveDeviceView });
 }

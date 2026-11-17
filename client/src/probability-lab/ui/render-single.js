@@ -34,7 +34,7 @@ function currentEventStats(def, singleState) {
   return { estimated: count / singleState.trials, theoretical };
 }
 
-export default function renderSingle(els, state) {
+export default function renderSingle(els, state, { preserveDeviceView = false } = {}) {
   const def = state.single.definition;
   if (!def) return;
 
@@ -53,25 +53,27 @@ export default function renderSingle(els, state) {
   const selectedIndices = getEventIndicesFromLabels(def, state.single);
   const stats = currentEventStats(def, state.single);
 
-  updateDeviceViewSingle(els.deviceView, def, state.single);
+  if (!preserveDeviceView) {
+    updateDeviceViewSingle(els.deviceView, def, state.single);
 
-  // Trigger coin flip animation for single trials
-  // TODO: make it work for auto mode too
-  if (def.device === 'coin' && state.single.lastIndex !== null && !state.running.auto) {
-    const coin = els.deviceView.querySelector('#pl-coin-element');
-    if (coin) {
-      const label = def.labels[state.single.lastIndex] ?? '—';
-      const isHeads = label.startsWith('H');
+    // Trigger coin flip animation for single trials
+    // TODO: make it work for auto mode too
+    if (def.device === 'coin' && state.single.lastIndex !== null && !state.running.auto) {
+      const coin = els.deviceView.querySelector('#pl-coin-element');
+      if (coin) {
+        const label = def.labels[state.single.lastIndex] ?? '—';
+        const isHeads = label.startsWith('H');
 
-      // Reset animation
-      coin.style.animation = 'none';
+        // Reset animation
+        coin.style.animation = 'none';
 
-      // Trigger animation on next frame
-      requestAnimationFrame(() => {
-        coin.style.animation = isHeads
-          ? 'pl-flip-heads 2s forwards'
-          : 'pl-flip-tails 2s forwards';
-      });
+        // Trigger animation on next frame
+        requestAnimationFrame(() => {
+          coin.style.animation = isHeads
+            ? 'pl-flip-heads 2s forwards'
+            : 'pl-flip-tails 2s forwards';
+        });
+      }
     }
   }
 
