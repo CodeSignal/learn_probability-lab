@@ -74,6 +74,22 @@ export function buildSpinnerGradient(sectors) {
   return `conic-gradient(from -90deg, ${segments})`;
 }
 
+export function showCoinOutcome(coin, isHeads, animate) {
+  if (!coin) return;
+
+  if (!animate) {
+    coin.style.transform = `rotateX(${isHeads ? 0 : 180}deg)`;
+    return;
+  }
+
+  coin.style.animation = 'none';
+  requestAnimationFrame(() => {
+    if (coin.isConnected) {
+      coin.style.animation = isHeads ? 'pl-flip-heads 2s forwards' : 'pl-flip-tails 2s forwards';
+    }
+  });
+}
+
 export function updateDeviceViewSingle(deviceViewEl, def, singleState) {
   deviceViewEl.classList.remove('pl-device--two');
   deviceViewEl.classList.toggle('pl-device--custom', def.device === 'custom');

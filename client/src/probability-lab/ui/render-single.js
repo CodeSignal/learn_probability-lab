@@ -2,7 +2,7 @@
 import drawBarChart, { setupBarChartHover } from './charts/bar-chart.js';
 import drawLineChart from './charts/line-chart.js';
 import { buildFrequencyTableHtml } from './tables.js';
-import { updateDeviceViewSingle } from './device-view.js';
+import { showCoinOutcome, updateDeviceViewSingle } from './device-view.js';
 import { formatCount, formatProbability } from '../../shared/format.js';
 
 function renderSpinnerSectorsVisibility(els, singleState) {
@@ -34,7 +34,7 @@ function currentEventStats(def, singleState) {
   return { estimated: count / singleState.trials, theoretical };
 }
 
-export default function renderSingle(els, state) {
+export default function renderSingle(els, state, { updateDevice = true, animateCoin = false } = {}) {
   const def = state.single.definition;
   if (!def) return;
 
@@ -53,25 +53,13 @@ export default function renderSingle(els, state) {
   const selectedIndices = getEventIndicesFromLabels(def, state.single);
   const stats = currentEventStats(def, state.single);
 
-  updateDeviceViewSingle(els.deviceView, def, state.single);
+  if (updateDevice) {
+    updateDeviceViewSingle(els.deviceView, def, state.single);
 
-  // Trigger coin flip animation for single trials
-  // TODO: make it work for auto mode too
-  if (def.device === 'coin' && state.single.lastIndex !== null && !state.running.auto) {
-    const coin = els.deviceView.querySelector('#pl-coin-element');
-    if (coin) {
+    if (def.device === 'coin' && state.single.lastIndex !== null) {
+      const coin = els.deviceView.querySelector('#pl-coin-element');
       const label = def.labels[state.single.lastIndex] ?? '—';
-      const isHeads = label.startsWith('H');
-
-      // Reset animation
-      coin.style.animation = 'none';
-
-      // Trigger animation on next frame
-      requestAnimationFrame(() => {
-        coin.style.animation = isHeads
-          ? 'pl-flip-heads 2s forwards'
-          : 'pl-flip-tails 2s forwards';
-      });
+      showCoinOutcome(coin, label.startsWith('H'), animateCoin);
     }
   }
 

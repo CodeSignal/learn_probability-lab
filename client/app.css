@@ -1079,6 +1079,13 @@
 
 .bespoke .pl-top-card-header {
   margin-bottom: var(--UI-Spacing-spacing-xs);
+  flex-wrap: wrap;
+}
+
+.bespoke .pl-top-card-header .button {
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
 }
 
 .bespoke .pl-setup-summary-grid {
@@ -1166,6 +1173,10 @@
 }
 
 /* Live trial monitor (device + metrics) */
+.bespoke .pl-monitor-card {
+  container-type: inline-size;
+}
+
 .bespoke .pl-monitor-grid {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -1173,9 +1184,22 @@
   align-items: center;
 }
 
+@container (max-width: 250px) {
+  .bespoke .pl-monitor-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .bespoke .pl-monitor-metrics {
+    width: 100%;
+  }
+}
+
 .bespoke .pl-monitor-card #pl-device-view.pl-device {
   width: 132px;
   height: 132px;
+  max-width: 100%;
+  justify-self: center;
 }
 
 .bespoke .pl-monitor-metrics {
